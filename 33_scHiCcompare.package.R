@@ -8,6 +8,7 @@ usethis::create_package("/Users/mynguyen/Documents/GitHub/scHiCcompare/scHiCcomp
 # Add importance package
 usethis::use_package("dplyr") # Adding dplyr to Imports
 usethis::use_package("dplyr", type = "Suggests") # Adding dplyr to Suggests
+usethis::use_package("tidyr")
 usethis::use_package("HiCcompare")
 
 # Add function

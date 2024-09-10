@@ -1,141 +1,144 @@
-scHiC_table <- function(cell_type, n_sc, select_chromosome) {
-  # Input: single-cell Hi-C data with columns: chr1, start1, chr2, start2, IF
-  # Arguments:
-  # - cell_type: Prefix for single-cell data (assumed to be named as "cell_type_i" for i=1 to n_sc)
-  # - n_sc: Number of single cells
-  # - select_chromosome: Chromosome of interest
-  # Output: A table with columns for interaction frequencies (IF) across single cells
-  
-  # Check for valid inputs
-  if (!is.character(cell_type) || length(cell_type) != 1) {
-    stop("Error: 'cell_type' must be a single string.")
+.read_files <- function(file_path, cell, position_dataset, type='txt'){
+  # Check if the file path exists
+  if(!dir.exists(file_path)){
+    stop("Error: The specified file path does not exist.")
   }
   
-  if (!is.numeric(n_sc) || n_sc <= 0) {
-    stop("Error: 'n_sc' must be a positive number.")
+  data_names <- list.files(path = file_path, full.names = TRUE, recursive = TRUE)[position_dataset] 
+  
+  # Check if the selected files are valid
+  if (length(data_names) == 0) {
+    stop("Error: No files found for the specified position_dataset.")
   }
   
-  if (!is.character(select_chromosome) || length(select_chromosome) != 1) {
-    stop("Error: 'select_chromosome' must be a single string.")
+  datasets <- list()  # Initialize a list to store the datasets
+  
+  if (type == 'txt') {
+    for(i in 1:length(position_dataset)){
+      dataset <- tryCatch(
+        read.delim(data_names[i]),
+        error = function(e) stop(paste("Error reading file:", data_names[i]))
+      )
+      datasets[[i]] <- dataset  # Store each dataset in the list
+    }
+  } else if (type == 'cool') {
+    if (!requireNamespace("HiCcompare", quietly = TRUE)) {
+      stop("Error: HiCcompare package not installed. Please install the HiCcompare package.")
+    }
+    
+    library(HiCcompare)
+    for(i in 1:length(position_dataset)){
+      dataset <- tryCatch(
+        cooler2bedpe(data_names[i]),
+        error = function(e) stop(paste("Error reading .cool file:", data_names[i]))
+      )
+      datasets[[i]] <- dataset  # Store each dataset in the list
+    }
+  } else {
+    stop("Error: Unsupported file type. Use 'txt' or 'cool'.")
   }
   
-  # Initialize regions and prevent scientific notation in output
+  return(datasets)
+}
+
+
+
+## Create scHiC.table -----
+scHiC.table <- function(file_path, cell_type, position_dataset, type='txt', select_chromosome){
+  # Input validation
+  if(missing(file_path) || missing(cell_type) || missing(position_dataset) || missing(select_chromosome)){
+    stop("Error: Missing one or more required arguments.")
+  }
+  
+  # Read data with error handling
+  datasets <- tryCatch(
+    .read_files(file_path = file_path, cell = cell_type, position_dataset = position_dataset, type = type),
+    error = function(e) stop("Error in reading files: ", e$message)
+  )
+  
+  n_sc <- length(datasets)
+  
+  if (n_sc == 0) {
+    stop("Error: No datasets available for processing.")
+  }
+  
   regions <- NULL
   options(scipen = 999)
   
-  # Loop through each single-cell dataset to extract regions
-  for (i in 1:n_sc) {
-    dataset_name <- paste0(cell_type, "_", i) # Construct dataset name
+  for(i in 1:n_sc){
+    data <- datasets[[i]]  # Get the dataset from the list
+
+    # Select chromosome
+    data <- data[data[,1] == select_chromosome & data[,3] == select_chromosome,]
     
-    # Check if dataset exists
-    if (!exists(dataset_name)) {
-      warning(paste("Warning: Dataset", dataset_name, "not found. Skipping this dataset."))
-      next
-    }
-    
-    data <- get(dataset_name) # Retrieve dataset using name
-    
-    # Check if dataset has the correct columns
-    if (ncol(data) < 5 || !all(c('chr1', 'start1', 'chr2', 'start2', 'IF') %in% colnames(data))) {
-      warning(paste("Warning: Dataset", dataset_name, "does not have the expected columns. Skipping this dataset."))
-      next
-    }
-    
-    # Filter by selected chromosome
-    data <- data[data[,1] == select_chromosome, c(2, 4, 5)]
-    
-    # Check if there's data for the selected chromosome
-    if (nrow(data) == 0) {
-      warning(paste("Warning: No data for chromosome", select_chromosome, "in dataset", dataset_name, ". Skipping this dataset."))
-      next
-    }
-    
+    # Transform dataset into sparse
+    data <- data[, c(2, 4, 5)]
     names(data) <- c('region1', 'region2', 'IF')
     
-    # Remove rows with 0 values in region columns
-    data <- data[data$region1 != 0 & data$region2 != 0,]
+    # Remove rows with 0 values in any column
+    data <- data[data[,1] != 0 & data[,2] != 0,]
     
-    # If there's no valid data after filtering, show a warning
-    if (nrow(data) == 0) {
-      warning(paste("Warning: No valid data (non-zero regions) in dataset", dataset_name, ". Skipping this dataset."))
-      next
-    }
-    
-    # Collect unique regions from both region1 and region2
+    # Extract single cell regions
     region1sc <- unique(c(data$region1, data$region2))
     regions <- unique(c(regions, region1sc))
   }
   
-  # Check if there are any regions to process
   if (is.null(regions) || length(regions) == 0) {
-    stop("Error: No valid regions found across all single cells. Check your input data.")
+    stop("Error: No valid regions found in the datasets.")
   }
   
-  # Determine start, end regions, and bin size
   start.region <- min(regions, na.rm = TRUE)
   end.region <- max(regions, na.rm = TRUE)
-  bin <- min(abs(diff(sort(regions))), na.rm = TRUE)
+  bin <- min(abs(diff(as.numeric(regions))), na.rm = TRUE)
   
-  # Create a sequence of regions with the determined bin size
+  if (bin == 0 || is.na(bin)) {
+    stop("Error: Unable to calculate bin size for regions.")
+  }
+  
   regions.seq <- seq(start.region, end.region, by = bin)
   
-  # Create all possible region pairs (combinations of regions)
-  grid1 <- data.frame(X1 = 1:length(regions.seq), X2 = 1:length(regions.seq)) # diagonal pairs
-  grid2 <- data.frame(t(combn(1:length(regions.seq), 2))) # off-diagonal pairs
+  # Coordination of pair of bins
+  grid1 <- data.frame(X1 = 1:length(regions.seq), X2 = 1:length(regions.seq))  # diagonal line
+  grid2 <- data.frame(t(combn(1:length(regions.seq), 2)))  # off diagonal line value
   grid <- rbind(grid1, grid2)
-  region1 <- regions.seq[grid[, 1]]
-  region2 <- regions.seq[grid[, 2]]
-  coordinates <- data.frame(region1, region2)
+  region1 <- regions.seq[grid[,1]]
+  region2 <- regions.seq[grid[,2]]
+  cordination <- cbind(region1, region2)
   
-  # Initialize the table with region pairs
+  # Preallocate memory for the table
   table <- data.frame(
-    region1 = coordinates$region1,
-    region2 = coordinates$region2
+    region1 = cordination[,'region1'],
+    region2 = cordination[,'region2']
   )
   
-  # Loop through each single-cell dataset to add IF columns
   for (i in 1:n_sc) {
-    dataset_name <- paste0(cell_type, "_", i)
+    data <- datasets[[i]]  # Get the dataset from the list
     
-    # Check if dataset exists before proceeding
-    if (!exists(dataset_name)) {
-      next
-    }
-    
-    data <- get(dataset_name)
-    
-    # Filter by selected chromosome and rename columns
-    data <- data[data[,1] == select_chromosome, c(2, 4, 5)]
-    
-    # Check for data existence after filtering
+    # Filter rows based on chromosome
+    data <- data[data[,1] == select_chromosome & data[,3] == select_chromosome, ]
     if (nrow(data) == 0) {
+      warning(paste("Warning: No data found for chromosome", select_chromosome, "in dataset", i))
       next
     }
     
-    names(data) <- c('region1', 'region2', paste0('IF_', i))
+    data <- data[, c(2, 4, 5)]
+    names(data)[c(1, 2)] <- c('region1', 'region2')
+    names(data)[3] <- paste0('IF_', i)
+    data <- data[rowSums(data[,c(1,2)] == 0) == 0, ]
     
-    # Remove rows with 0 values in region columns
-    data <- data[data$region1 != 0 & data$region2 != 0, ]
-    
-    # Merge the current dataset's IF with the main table
-    table <- dplyr::full_join(table, data, by = c('region1', 'region2'))
+    table <- tryCatch(
+      dplyr::full_join(table, data, by = c('region1', 'region2')),
+      error = function(e) stop("Error in joining tables: ", e$message)
+    )
   }
   
-  # If no valid data is merged, stop with an error
-  if (ncol(table) == 2) {
-    stop("Error: No valid interaction frequency data found for any single cells.")
-  }
-  
-  # Replace NA values with 0 in the final table
   table[is.na(table)] <- 0
   
-  # Add cell and chromosome columns
   up.table <- data.frame(
     cell = rep(cell_type, nrow(table)),
     chr = rep(select_chromosome, nrow(table)),
     table
   )
   
-  message("scHiC.table completed successfully.")
   return(up.table)
 }

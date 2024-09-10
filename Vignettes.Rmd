@@ -21,7 +21,7 @@ library(HiCcompare)
 ```
 
 
-```{r cars, message=FALSE, results='hide'}
+```{r cars, message=FALSE, results='hide', echo=FALSE}
 ### Input single cell hi-c in sparse format (.txt) from a path
 sc_txt(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/ODC", position_dataset = 1:50, cell = 'ODC', type='txt')
 sc_txt(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/MG", position_dataset = 1:50, cell = 'MG', type='txt')
@@ -34,8 +34,10 @@ DT::datatable(ODC_1)
 ### Generate schic table input for the method
 
 ```{r}
-ODC.table = scHiC.table(cell_type = 'ODC', n_sc = 50, select_chromosome = 'chr22')
-MG.table = scHiC.table(cell_type = 'MG', n_sc = 50, select_chromosome = 'chr22')
+ODC.table = scHiC.table(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/ODC", position_dataset = 1:50, cell_type = 'ODC', type='txt', select_chromosome = 'chr22')
+
+MG.table = scHiC.table(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/MG", position_dataset = 1:50, cell_type = 'MG', type='txt', select_chromosome = 'chr22')
+
 ```
 
 ```{r, echo=FALSE}
