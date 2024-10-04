@@ -9,9 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 # ScHiCcompare
 
-### Input hi-c data
+### Data format
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 source("/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Source_code/01_ScHicCompare_Functions.R")
@@ -20,36 +21,34 @@ source("/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Source_code/imputa
 library(HiCcompare)
 ```
 
+```{r}
+sc_txt(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/ODC", cell = 'ODC', position_dataset = 1, type='txt')
+head(ODC_1)
+```
+
+### Input hi-c data and generate schic table input for the method
+
 
 ```{r cars, message=FALSE, results='hide', echo=FALSE}
 ### Input single cell hi-c in sparse format (.txt) from a path
-sc_txt(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/ODC", position_dataset = 1:50, cell = 'ODC', type='txt')
-sc_txt(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/MG", position_dataset = 1:50, cell = 'MG', type='txt')
+scHiC.table_ODC = scHiC_table(file.path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/ODC", cell.type = 'ODC', position.dataset =  1:50, type='txt', select.chromosome = 'chr22')
+
+scHiC.table_MG = scHiC_table(file.path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/MG", cell.type = 'MG', position.dataset =  1:50, type='txt', select.chromosome = 'chr22')
 ```
 
 ```{r, echo=FALSE}
-DT::datatable(ODC_1)
+DT::datatable(scHiC.table_ODC)
 ```
 
-### Generate schic table input for the method
 
-```{r}
-ODC.table = scHiC.table(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/ODC", position_dataset = 1:50, cell_type = 'ODC', type='txt', select_chromosome = 'chr22')
-
-MG.table = scHiC.table(file_path = "/Users/mynguyen/Documents/GitHub/scHiCcompare/Example/Data/MG", position_dataset = 1:50, cell_type = 'MG', type='txt', select_chromosome = 'chr22')
-
-```
-
-```{r, echo=FALSE}
-DT::datatable(ODC.table)
-```
 
 ### Impute data
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 ############################  Imputation ############################ 
-imp.cc.table.1 <- progressivePooling_impute.outrm(scHiC.table = ODC.table, n_imputation = 20, outlier.rm = TRUE)
-imp.cc.table.2 <- progressivePooling_impute.outrm(scHiC.table = MG.table, n_imputation = 20, outlier.rm = TRUE)
+imp.cc.table.1 <- Pooling_RF_impute(scHiC.table = scHiC.table_ODC, n.imputation = 10, outlier.rm = TRUE, main.Distances = 1:10000000, pool.style = 'progressive')
+
+imp.cc.table.2 <- Pooling_RF_impute(scHiC.table = scHiC.table_MG, n.imputation = 10, outlier.rm = TRUE, main.Distances = 1:10000000, pool.style = 'progressive')
 ```
 
 
@@ -57,22 +56,27 @@ imp.cc.table.2 <- progressivePooling_impute.outrm(scHiC.table = MG.table, n_impu
 
 ```{r, message=FALSE, warning=FALSE}
 ## Bulk matrix in sparse format
-bulk.cc.imp.sparse.1 = na.omit(pseudo_bulkHic.sparse(scHiC.table = imp.cc.table.1))
-bulk.cc.imp.sparse.2 = na.omit(pseudo_bulkHic.sparse(scHiC.table = imp.cc.table.2))
+bulk.imp.sparse.1 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.1, 
+                                                     out = 'sparse'))
+bulk.imp.sparse.2 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.2,
+                                                      out = 'sparse'))
 
 
-##create the `hic.table` object
-chr22.table_cc <- create.hic.table(bulk.cc.imp.sparse.1, bulk.cc.imp.sparse.2, chr = 'chr22', scale = F)
-# Jointly normalize data for a single chromosome
-hic.table_cc <- hic_loess(chr22.table_cc, Plot = T, Plot.smooth = F)
+## Jointly normalize data for a single chromosome by Loess HiCcompare
+library(HiCcompare)
+#create the `hic.table` object
+bulk.hic.table <- create.hic.table(bulk.imp.sparse.1, bulk.imp.sparse.2, chr = 'chr22', scale = F)
+#jointly normalize data for a single chromosome
+hic.table_normalize <- hic_loess(bulk.hic.table, Plot = T, Plot.smooth = F)
 ```
 
 ### Differential detection
 
 ```{r, message=FALSE, warning=FALSE}
-### Filter low average expression bins
-a <- best_A(hic.table_cc, numChanges = 35)
 
 ### Find differences
-hic.table2 <- hic_compare(hic.table_cc, p.method = 'fdr', Plot = T, A.min=a)
+hic.table.result <- BulkHiC_compare(norm.hic.table = hic.table_normalize, D.interval = 'full',
+                                    fprControl.logfc = 0.8, Plot = T)
 ```
+
+

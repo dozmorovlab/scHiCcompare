@@ -13,4 +13,8 @@ RoxygenNote: 7.3.2
 Imports: 
     dplyr,
     HiCcompare,
+    lattice,
+    mice,
+    miceadds,
+    rstatix,
     tidyr
