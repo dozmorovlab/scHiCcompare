@@ -1,5 +1,5 @@
 ################## Checking collinear ################## 
-.find.collinear <- function(x, threshold = 0.999, ...) {
+find.collinear <- function(x, threshold = 0.999, ...) {
   nvar <- ncol(x)
   x <- data.matrix(x)
   r <- !is.na(x)
@@ -41,6 +41,7 @@
     pooled_distance <<- c(poolings_elements, pooled_distance)
     return(poolings_elements)
   })
+  
   # if any pool D contain NA, replace these NA with backward D
   checkNA.pool <- sapply(poolings_list, function(x) any(is.na(x)))
   if ( T %in% checkNA.pool ){
@@ -111,9 +112,100 @@
 
 
 ################# progressive RF imputation process ################# 
-pools_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
-                          pool_style = 'progressive'){
-  # input: scHiC.table, n_imputation, and, option for outlier remover, option for impute at main closer distance
+
+############ Function to design data matrix 
+predictorMatrixNP_sc_D <- function(scHiC.table, distance){
+  ## input: schic.table and assigned distance
+  ## output: table of single cell name, region1, region2, bin, and if
+  
+  ## Add D - distance column into scHiC table
+  res  = min( abs( diff(unique(scHiC.table$region1)) ) )
+  D = abs(scHiC.table$region1 - scHiC.table$region2)/res
+  scHiC.table.up <- cbind(D,scHiC.table)
+  
+  ## Extract IF vector at corresponding distance 
+  entire.if = scHiC.table[,-c(1:4)]
+  row.index.D = which(D == distance)
+  IF =  as.vector( unlist(c(entire.if[row.index.D,])) )
+  IF[IF == 0] <- NA
+  
+  ## Extract name of level 1: single cells for each bin
+  matrix_position = ncol(scHiC.table.up) - 5
+  single_cell <- rep(c(1:matrix_position), each= length(row.index.D))
+  
+  ## Extract name of level 2: bins
+  region1 = region2 = bin = NULL
+  for(i in 1:length(row.index.D)){
+    rg1 <- scHiC.table$region1[row.index.D[i]]
+    rg2 <- scHiC.table$region2[row.index.D[i]]
+    b <- paste0('(', rg1, ',', rg2, ')')
+    # get vector name of bin
+    region1 = c(region1, rg1)
+    region2 = c(region2, rg2)
+    bin = c(bin,b)
+  }
+  
+  ## Combining to data.frame
+  report <- data.frame( Single_cell = single_cell, region1, region2, bin, IF = IF)
+  
+  return(report)
+}
+
+
+
+######## Function to set up RF imputation 
+mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm = TRUE, seed = 123){
+  require(rstatix)
+  require(mice)
+  require(lattice)
+  library(miceadds)
+  # Temporally remove outlier
+  if(outlier.rm == TRUE){
+    outlier.threshold <- quantile(data_input$IF, 0.85, na.rm = T) + 3 * IQR(data_input$IF, na.rm = T) ## extreme value
+    outlier.threshold <- max(2,outlier.threshold)
+    outlier <-  unique(na.omit(data_input$IF)[na.omit(data_input$IF) > outlier.threshold] )
+    outlier.pos <- which(data_input$IF %in% na.omit(outlier))
+    outlier.value <- data_input$IF[outlier.pos]
+    data_input$IF[outlier.pos] <- NA #replace outlier with NA for now
+  }
+  
+  ## Classify variable class
+  data_input$Single_cell <- as.numeric(data_input$Single_cell)
+  #data_input$Cell_type= as.numeric(as.factor(data_input$Cell_type))
+  
+  ## Classify method and predictor matrix
+  # get initial default imputation setting
+  set.seed(123)
+  ini <- suppressWarnings(mice(data_input, maxit = 0))
+  #set up method
+  meth= ini$meth
+  meth['IF'] <- "rf"
+  #set up predictor matrix
+  pred = ini$pred
+  #pred[,'Single_cell'] <- 1 #random intercept
+  
+  ## Imputation
+  #simulate for n time of multiple imputations, with 5 iteration
+  imp <- suppressWarnings(mice(data_input, method = meth, predictorMatrix = pred, print = FALSE,maxit = maxit, seed = seed, m=n.imputation) )
+  #returns the long format of all multiple imputation
+  imp_data = complete(imp, action = 'long', include = F)
+  #if the vector has all if>1, aggregate mean of all imputed complete data
+  agg_new_if2 = round(aggregate(imp_data[,4] , by = list(imp_data$.id),FUN= mean))
+  agg_new_if2 = agg_new_if2$x
+  
+  # Add back outlier, if they were removed in previous steps
+  if(outlier.rm == TRUE){
+    agg_new_if2[outlier.pos] <- outlier.value
+  }
+  return(agg_new_if2)
+}
+
+
+
+#### Impute process for each pool band
+pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
+                          pool.style = 'progressive'){
+  # input: scHiC.table, n.imputation, and, option for outlier remover, option for impute at main closer distance
   # output: schic table (all single cell in columns) with imputed if
   
   ## distance of scHiC table
@@ -122,9 +214,9 @@ pools_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
   n_all.distance = length(D)
   
   ## List of all Distance Pool
-  if(pool_style == 'progressive'){
-    Dpool.list <- all_progressive_pooling(vector_distance = D)
-  } else if ( pool_style == 'fibonancci'){
+  if(pool.style == 'progressive'){
+    Dpool.list <- .all_progressive_pooling(vector_distance = D)
+  } else if ( pool.style == 'fibonancci'){
     Dpool.list <- all_fib_pooling(vector_distance = D)
   }
  
@@ -136,8 +228,9 @@ pools_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
   
   ## Impute all pools by RF
   process_pool <- function(i) {
-    print(i)
+    print(paste0('Imputing pool band ', i) )
     
+    require(tidyr)
     ## Pooling data
     data.pool <- do.call(rbind, lapply(Dpool.list[[i]], function(x) { 
       data <- predictorMatrixNP_sc_D(scHiC.table, distance = x)
@@ -160,7 +253,7 @@ pools_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
       agg_new_if2 <- data_input$IF
       agg_new_if2[is.na(agg_new_if2)] <- rep(0, nrow(data_input))
     } else { 
-      agg_new_if2 <- mice.rf_impute(data_input = data_input, n_imputation = n_imputation, outlier.rm = outlier.rm) 
+      agg_new_if2 <- mice.rf_impute(data_input = data_input, n.imputation = n.imputation, outlier.rm = outlier.rm) 
     }
     
     # Create new scHicTable
@@ -211,20 +304,62 @@ pools_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
 
 
 
-
-
-
-
+#' Pooling-Based Random Forest Imputation for scHi-C Data
+#'
+#' This function performs imputation of single-cell Hi-C (scHi-C) interaction frequencies (IF) using distance-based pooling strategies and Random Forest methods.
+#' It identifies pools of distances based on a chosen pooling method (progressive or Fibonacci) and applies multiple imputations 
+#' to fill in missing values across scHi-C matrices. 
+#'
+#' @param scHiC.table A data frame containing interaction frequencies across single cells, created by the `scHiC_table` function. 
+#'                    The first four columns should represent 'cell', 'chr', 'region1', and 'region2', 
+#'                    followed by columns representing interaction frequencies ('IF') for individual cells.
+#' @param n.imputation An integer specifying the number of multiple imputations to be performed. Default is 5.
+#' @param maxit An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. Default is 1.
+#' @param outlier.rm A logical value indicating whether to remove outliers during the imputation process. Default is TRUE.
+#' @param main.Distances A vector of integers representing the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). 
+#' Default is from 1 to 10,000,000.
+#' @param pool.style A string specifying the pooling technique to use. Options are 'progressive' or 'fibonacci'. 
+#' Default is 'progressive'.
+#' @param missPerc.theshold An integer specifying the missing value percentage threshold in each pool band. 
+#' 
+#' @return A table in the format of an scHiC table (same structure as the output of the `scHiC_table` function) with imputed interaction frequencies (IF) across all single cells. The output table is formatted with regions and single cells 
+#' in wide format, with one column per single cell containing imputed IF values.
+#'
+#' @details 
+#' The function first identifies important pools based on the given scHi-C table, resolving distances and 
+#' pooling them according to the chosen method. For progressive pooling, pools of distances are consecutively combined 
+#' to form larger sets, while Fibonacci pooling uses a Fibonacci sequence to combine distances.
+#' During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range, if any pool contains more than `missPerc.theshold` missing values, it triggers an alternative imputation 
+#' method, filling in missing values based on the mean for distances.
+#' 
+#' @references
+#' 
+#' Doove, L.L., van Buuren, S., Dusseldorp, E. (2014), Recursive partitioning for missing data imputation in the presence of interaction Effects. Computational Statistics & Data Analysis, 72, 92-104.
+#' 
+#' Shah, A.D., Bartlett, J.W., Carpenter, J., Nicholas, O., Hemingway, H. (2014), Comparison of random forest and parametric imputation models for imputing missing data using MICE: A CALIBER study. American Journal of Epidemiology, doi:10.1093/aje/kwt312.
+#' 
+#' Van Buuren, S. (2018). Flexible Imputation of Missing Data. Second Edition. Chapman & Hall/CRC. Boca Raton, FL.
+#' 
+#' @examples
+#' # Load MG data folder example
+#' load_example_MGfolder()
+#' #Create scHicCompare table to be used in scHicCompare
+#' IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:50, type='txt', select.chromosome = 'chr22')
+#' # Example usage of Pooling_RF_impute
+#' imputed_table <- Pooling_RF_impute(IF_table = , n.imputation = 5, outlier.rm = TRUE, 
+#'                                   main.Distances = 1:10000000, pool.style = 'progressive')
+#'
+#' @export
 
 
 
 
 ##################### Entire Pooling RF imputation process ##################### 
 
-Pooling_RF_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, 
-                               main_Distances = 1:10000000, pool_style = 'progressive'
+Pooling_RF_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outlier.rm = TRUE, 
+                               main.Distances = 1:10000000, pool.style = 'progressive', missPerc.theshold = 95
                                ){
-  # input: scHiC.table, n_imputation, and, option for outlier remover, option for impute at main closer distance
+  # input: scHiC.table, n.imputation, and, option for outlier remover, option for impute at main closer distance
   # output: schic table (all single cell in columns) with imputed if
   
   
@@ -237,15 +372,15 @@ Pooling_RF_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
   n_all.distance = length(D)
   
   ## Identify main Distances
-  maxD = max(main_Distances)
+  maxD = max(main.Distances)
   maxD_res = maxD/res
   main_D_range = 1:maxD_res
   
   
   ## List of all Distance Pool
-  if(pool_style == 'progressive'){
-    Dpool.list <- all_progressive_pooling(vector_distance = D)
-  } else if ( pool_style == 'fibonancci'){
+  if(pool.style == 'progressive'){
+    Dpool.list <- .all_progressive_pooling(vector_distance = D)
+  } else if ( pool.style == 'fibonancci'){
     Dpool.list <- all_fib_pooling(vector_distance = D)
   }
   length.Dpool.list <- length(Dpool.list)
@@ -271,15 +406,15 @@ Pooling_RF_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
   }
   
   
-  ### If all Distance have NA < 95%
-  if(length(which(na_perc_all>95)) == 0){
-    new_table =  pools_impute(scHiC.table = scHiC.table, n_imputation = n_imputation,
-                                                      outlier.rm = outlier.rm, pool_style = pool_style)
+  ### If all Distance have NA < `missPerc.theshold`
+  if(length(which(na_perc_all> missPerc.threshold)) == 0){
+    new_table =  pools_impute(scHiC.table = scHiC.table, n.imputation = n.imputation,
+                                                      outlier.rm = outlier.rm, pool.style = pool.style)
     
     
-  } else { ### if any pool have NA > 95%
-    ## Check which pool have above 95% -> impute mean only
-    which_pool_aboveNA = which(na_perc_all>95)
+  } else { ### if any pool have NA > `missPerc.theshold`
+    ## Check which pool have above `missPerc.theshold` -> impute mean only
+    which_pool_aboveNA = which(na_perc_all>missPerc.threshold)
     pool_aboveNA_Dlist = lapply(which_pool_aboveNA, function(x) return(Dpool.list[[x]])) # list of detail D in which_pool_aboveNA
     pool_aboveNA_D = unlist(pool_aboveNA_Dlist)
     
@@ -296,8 +431,8 @@ Pooling_RF_impute <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
     temp.table = temp.table[ ((temp.table$region2 - temp.table$region1)/res) %in% D_mainP_imp, ] 
     ## Impute
     library(tidyr)
-    temp.table_imp = pools_impute(scHiC.table = temp.table, n_imputation = n_imputation,
-                                                           outlier.rm = outlier.rm, pool_style = pool_style)
+    temp.table_imp = pools_impute(scHiC.table = temp.table, n.imputation = n.imputation,
+                                                           outlier.rm = outlier.rm, pool.style = pool.style)
     
     
     ## Now, impute D_set1 to its mean of that distance

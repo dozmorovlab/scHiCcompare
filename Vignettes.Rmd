@@ -2,7 +2,12 @@
 title: "ScHiCcompare Vignette"
 author: "My Nguyen"
 date: "2024-07-12"
-output: html_document
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette ScHiCcompare}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r setup, include=FALSE}
@@ -37,7 +42,7 @@ scHiC.table_MG = scHiC_table(file.path = "/Users/mynguyen/Documents/GitHub/scHiC
 ```
 
 ```{r, echo=FALSE}
-DT::datatable(scHiC.table_ODC)
+DT::datatable(scHiC.table_ODC, options = list(scrollX = TRUE))
 ```
 
 
