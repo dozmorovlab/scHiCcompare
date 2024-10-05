@@ -357,7 +357,7 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 ##################### Entire Pooling RF imputation process ##################### 
 
 Pooling_RF_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outlier.rm = TRUE, 
-                               main.Distances = 1:10000000, pool.style = 'progressive', missPerc.theshold = 95
+                               main.Distances = 1:10000000, pool.style = 'progressive', missPerc.threshold = 95
                                ){
   # input: scHiC.table, n.imputation, and, option for outlier remover, option for impute at main closer distance
   # output: schic table (all single cell in columns) with imputed if
