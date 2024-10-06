@@ -1,0 +1,225 @@
+---
+title: "ScHiCcompare Vignette"
+author:
+- name: My Nguyen
+  affiliation:
+  - &1 Department of Biostatistics, Virginia Commonwealth University, Richmond, VA
+- name: Mikhail Dozmorov
+  affiliation:
+  - *1
+date: '`r format(Sys.Date(), "%B %e, %Y")`'
+package: ScHiCcompare
+output:
+  BiocStyle::html_document:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Vignette ScHiCcompare}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+```{r setup, include=FALSE}
+options(width = 1000)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Introduction
+
+
+`ScHiCcompare` is package of functions designed for the imputation, joint normalization, and detection of differential chromatin interactions between two groups of single-cell Hi-C datasets (scHi-C). It works with processed Hi-C data, specifically chromosome-specific chromatin interaction matrices, and accepts five-column tab-separated text files in a sparse matrix format.
+
+What sets `ScHiCcompare` apart from other tools is its focus on processed chromatin interaction matrices rather than raw sequencing data. The package provides two key functionalities:
+
+- Imputation of single-cell Hi-C data
+- Differential analysis to identify differences in chromatin interactions between groups.
+
+# Implement
+
+## Getting Start
+
+### Installation
+
+```{r, message=FALSE, warning=FALSE, eval = F}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+   install.packages("BiocManager")
+
+BiocManager::install("ScHiCcompare")
+
+# For the latest version install from GitHub
+devtools::install_github("dozmorovlab/ScHiCcompare")
+```
+
+```{r,  message=FALSE, warning=FALSE, echo = F}
+#devtools::install_github("dozmorovlab/ScHiCcompare", force = T)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(scHiCcompare)
+library(tidyr)
+library(ggplot2)
+```
+
+
+
+### Input schi-c data 
+
+You will need processed Hi-C data in the form of sparse upper triangular matrices to use ScHiCcompare with 5 columns (chr1, start1, chr2, start2, IF). ScHi-C data has different formats that are available from several sources, and two examples for downloading and extracting data are listed below.
+
+If you have full Hi-C contact matrices, you convert them to sparse upper triangular format using the `full2sparse` function of `HiCcomapre` packge, then reformat the column to achieve the requirement input format. 
+
+
+#### Extracting data from .hic files
+
+If you obtain data in the .hic format you will need to first extract the matrices that you wish to compare.
+
+1. Download the straw software from https://github.com/theaidenlab/straw/wiki and install it.
+2. Use straw to extract a Hi-C sparse upper triangular matrix. An example is below:
+
+
+#### Extracting data from .cool files
+
+To use data in the .cool format, there are multiple ways to read these files (eg., by `cooler` on terminal, by `read_file()` function of `ScHiCcompare` package, etc). We are showing 2 examples of reading .cool files below:
+
+- Tools in R:
+
+  The files can be read directly into R by `read_file()` function of `ScHiCcompare`, or `cooler2bedpe()` function of `HiCcompare`.
+
+  The `read_file` and `cooler2bedpe` functions will return a list object in the format of BEDPE, containing two elements: **"cis"** - Contains the intra-chromosomal contact matrices, one per chromosome; **"trans"** - Contains the inter-chromosomal contact matrix.
+
+  `library(ScHiCcompare)`
+  `cool.file <- read_files("path/to/scHiC.cool", cell_type = "NSN", position.dataset = 1, type = "cool")`
+
+
+- Tools in Terminal of Mac/Linus or Command Prompt of Window
+
+  The `cooler` software is one of software on Terminal of Mac/Linus or Command Prompt of Window that reads .cool file [http://cooler.readthedocs.io/en/latest/index.html](http://cooler.readthedocs.io/en/latest/index.html). The cooler index [ftp://cooler.csail.mit.edu/coolers](ftp://cooler.csail.mit.edu/coolers) contains Hi-C data for `hg19` and `mm9` from many different sources. To read these file and transfer to R, you can follow these steps:
+
+  1. Download and install `cooler` from [http://cooler.readthedocs.io/en/latest/index.html](http://cooler.readthedocs.io/en/latest/index.html)
+  2. Download a `.cool` file from the cooler index [ftp://cooler.csail.mit.edu/coolers](ftp://cooler.csail.mit.edu/coolers).
+  3.To extract the contact matrix we use the following commands in the terminal (scHiC.cool is an example .cool file):  
+  `cooler dump -- scHiC.cool > scHiC.txt`
+  4. Read in the text file as you would any tab-delimited file in R  
+  dataset <- read.table("scHiC.txt", header = FALSE)`
+  5. Repeat step 1 - 4 for single cell data. 
+  6. Transfer these contact matrices of each single cell files into R by using `cooler2sparse()` of `HiCcomapre`:
+  
+  `sparse <- cooler2sparse(hesc1000kb) `
+
+
+
+## ScHiC table
+
+### Overview
+
+ScHiC table is an object gathering all scHi-C data of a group (a cell type or a condition), where its columns includes genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This object is usuable for following analysis steps, `Pooling_RF_impute` and `pseudo_bulkHic` functions. 
+
+To input for the `scHiC_table`, each single cell Hi-C data need to be processed as a sparse matrix format, which store pair-wise interaction frequencies of loci pairs. Since the full matrix of chromatin interactions is symmetric, only the upper triangular portion, including the diagonal and excluding any 0, is stored as sparse matrix format. The required sparse matrix format of each single cell Hi-C is:
+
+- "chr" - a chromosome of first region
+- “start1” - a start coordinate (in bp) of the first region
+- “start2” - a start coordinate (in bp) of the second region
+- "IF" - the interaction frequency between 2 two regions (IFs)
+
+```{r}
+data(MG_1)
+MG_sparse <- MG_1[ ,c(1,2,4,5)]
+names(MG_sparse) <- c('chr' , 'start1', 'start2', 'IF')
+```
+
+```{r, echo = F}
+DT::datatable(head(MG_sparse), options = list(pageLength = 6, dom = 'tip'),
+              rownames = FALSE, width = 700)
+```
+
+### How to create scHiC table 
+
+#### Input material 
+
+`scHiC_table()` function can receive list of single cell Hi-C datasets in sparse matrix format described as above structure. You can input the scHi-C data of singles cells as above describe ( see more [Input schi-c data](#addfunc) ), then modify them to sparse format, and gather them in `list()` object. If your datasets have format of 'txt' (sparse format) or 'cool', you can read and transform scHi-C datasets of a conditions to sparse format by using `read_files()` function to output the `list() object.
+
+  ` read_files(file.path, cell, position.dataset, type='txt', txt.sparse.heads.position = NULL, out = 'sparse')`
+  
+  - `file.path` -  The directory path where the scHiC files are stored.
+  - `cell` -  Cell type name (e.g., 'MG', etc).
+  - `position.dataset` - File positions that you want to read from the directory.
+  - `type` -  The file type, either 'txt' or 'cool'.
+  - `txt.sparse.heads.position` - Specified head postions (chr, start1, start2, IF) in 'txt' file.
+  - `out`- Output format with options 'sparse' and 'original'. To prepare for `scHiC_table()`, you should select 'sparse'.
+
+```{r, warning= F, message=FALSE, results='hide'}
+### Load data folder example saved in current working directory
+load_example_MGfolder()
+data.list <- read_files(file.path = "MGs_example", cell = "MG", position.dataset = c(1, 2, 3), type = "txt", txt.sparse.heads.position = c(1,2,4,5))
+```
+
+
+#### scHiC_table function
+
+After obtaining the list of single cell Hi-C dataset in sparse matrix format, you can use the list to transform into scHic table by `scHiC_table` function with the chosen chromosome. You can repeat these steps to generate scHiC tables of 2 conditions that are desired to be compared.
+  
+  `scHiC_table(file.list, cell.type, position.dataset, select.chromosome = 'chr22')`
+  
+  - `file.list` -  The list object where elements are processed scHi-C data file.
+  - `cell.type` - The cell type used in the analysis (e.g., 'NSN', 'SN').
+  - `position.dataset` - A vector of indices specifying the file positions to read from the directory.
+  - `select.chromosome` - The chromosome name to be studied (e.g., 'chr1' or 'chrX').
+
+
+```{r, message=FALSE, results='hide'}
+### Input single cell hi-c in sparse format (.txt) from a path
+scHiC.table_MG = scHiC_table(file.list  = data.list,
+                             cell.type = 'MG', 
+                             position.dataset =  1:50,
+                             select.chromosome = 'chr22')
+```
+
+```{r, echo=FALSE}
+DT::datatable(head(scHiC.table_ODC,50), options = list(scrollX = TRUE), width = 700)
+```
+
+
+
+## Imputation
+
+```{r, message=FALSE, warning=FALSE, results='hide'}
+## Imputation 
+imp.cc.table.1 <- Pooling_RF_impute(scHiC.table = scHiC.table_ODC, n.imputation = 10, outlier.rm = TRUE, main.Distances = 1:10000000, pool.style = 'progressive')
+
+imp.cc.table.2 <- Pooling_RF_impute(scHiC.table = scHiC.table_MG, n.imputation = 10, outlier.rm = TRUE, main.Distances = 1:10000000, pool.style = 'progressive')
+```
+
+
+## scHiC - Pseudo bulk data
+
+```{r, message=FALSE, warning=FALSE, fig.width=6, fig.height=3}
+## Bulk matrix in sparse format
+bulk.imp.sparse.1 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.1, 
+                                                     out = 'sparse'))
+bulk.imp.sparse.2 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.2,
+                                                      out = 'sparse'))
+
+
+## Jointly normalize data for a single chromosome by Loess HiCcompare
+library(HiCcompare)
+#create the `hic.table` object
+bulk.hic.table <- create.hic.table(bulk.imp.sparse.1, bulk.imp.sparse.2, chr = 'chr22', scale = F)
+#jointly normalize data for a single chromosome
+hic.table_normalize <- hic_loess(bulk.hic.table, Plot = T, Plot.smooth = F)
+```
+
+## Differential detection
+
+```{r, message=FALSE, warning=FALSE, fig.width=5, fig.height=3}
+
+### Find differences
+hic.table.result <- scHiC_bulk_compare(norm.hic.table = hic.table_normalize, D.interval = 'full',
+                                    fprControl.logfc = 0.8, Plot = T)
+```
+
+
+# Example of scHiCompare workflow
+
+
+Here, we used example scHiC datasets of human brain (Lee et al., 2019).

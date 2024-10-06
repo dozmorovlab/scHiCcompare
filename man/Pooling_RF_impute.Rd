@@ -11,7 +11,7 @@ Pooling_RF_impute(
   outlier.rm = TRUE,
   main.Distances = 1:10000000,
   pool.style = "progressive",
-  missPerc.theshold = 95
+  missPerc.threshold = 95
 )
 }
 \arguments{

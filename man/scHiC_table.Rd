@@ -4,39 +4,32 @@
 \alias{scHiC_table}
 \title{Create scHiC Interaction Frequency Table}
 \usage{
-scHiC_table(
-  file.path,
-  cell.type,
-  position.dataset,
-  type = "txt",
-  select.chromosome
-)
+scHiC_table(file.list = NULL, cell.type, position.dataset, select.chromosome)
 }
 \arguments{
-\item{file.path}{The directory path where the data files are stored.}
+\item{file.list}{The list object where elements are processed scHi-C data file.}
 
 \item{cell.type}{The cell type used in the analysis (e.g., 'NSN', 'SN').}
 
 \item{position.dataset}{A vector of indices specifying the file positions to read from the directory.}
 
-\item{type}{The file type, either 'txt' or 'cool'. Default is 'txt'. If 'txt', the files should be in the format of a sparse upper triangular Hi-C matrix with five columns: chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF). If 'cool', the .cool files will be read using \code{cooler2bedpe()} from the \code{HiCcompare} package.}
-
 \item{select.chromosome}{The chromosome name to be studied (e.g., 'chr1' or 'chrX').}
 }
 \value{
-A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF). This table can be used with \code{Pooling_RF_impute} and \code{pseudo_bulkHic} functions.
+A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with \code{Pooling_RF_impute} and \code{pseudo_bulkHic} functions.
 }
 \description{
 This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells at a selected chromosome. The resulting table is usable for \code{Pooling_RF_impute} and \code{pseudo_bulkHic} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell.
 }
 \details{
-This function processes single-cell Hi-C data in '.txt' or 'cool' format, transforming them into a single 'scHiC table' data frame that is . Each input '.txt' file in the folder should be in the form of a sparse upper triangular Hi-C matrix with five tab-separated columns (chr1, start1, chr2, start2, IF) and no row or column names or quotes around character strings. If the 'cool' type is selected, the function uses \code{cooler2bedpe()} from the \code{HiCcompare} package to read the data.
+This function processes single-cell Hi-C data in a list object. Then the function transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with foyr tab-separated columns (chr, start1,  start2, IF) and no row or column names or quotes around character strings.
 }
 \examples{
 \dontrun{
 # Load MG data folder example
 load_example_MGfolder()
+MGs_example = read_files(file.path = "MGs_example", cell = "MG", position.dataset = c(1, 2, 3), type = "txt", txt.sparse.heads.position = c(1,2,4,5))
 # Create scHiC table to be used in scHiCcompare
-IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset = 1:50, type = 'txt', select.chromosome = 'chr22')
+IF_table <- scHiC_table(file.list = MGs_example, cell.type = 'MG', position.dataset = 1:3, select.chromosome = 'chr22')
 }
 }

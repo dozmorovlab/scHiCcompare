@@ -4,22 +4,32 @@
 \alias{read_files}
 \title{Read Files for scHi-C Dataset}
 \usage{
-read_files(file.path, cell, position.dataset, type = "txt")
+read_files(
+  file.path,
+  cell,
+  position.dataset,
+  type = "txt",
+  txt.sparse.heads.position = NULL,
+  out = "sparse"
+)
 }
 \arguments{
 \item{file.path}{The directory path where the data files are stored.}
 
-\item{cell}{A character string specifying a cell type (eg., 'MG', etc).}
+\item{cell}{A character string specifying a cell type (e.g., 'MG', etc).}
 
 \item{position.dataset}{A vector of indices specifying the file positions to read from the directory.}
 
-\item{type}{The file type, either 'txt' or 'cool'. Default is 'txt'. Each 'txt; file should be in the format of a sparse upper triangular Hi-C matrix with five columns:
-chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).
+\item{type}{The file type, either 'txt' or 'cool'. Default is 'txt'. Each 'txt' file should be in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction frequency value (IFs) of two interacting regions.
 If the 'cool' type is selected, the .cool files are HDF5 containers that store Hi-C data, which will be read using \code{cooler2bedpe()} from the \code{HiCcompare} package.}
+
+\item{txt.sparse.heads.position}{A vector of four integers specifying the column positions of chromosome, start1, start2, and IF in the 'txt' file.}
+
+\item{out}{Output format with options 'sparse' and 'original'. If 'sparse', the sparse upper triangular matrix format is returned. If 'original', the dataset will retain its original structure. Default is 'sparse'.}
 }
 \value{
-A list of datasets, where each element corresponds to a dataset from the selected files. If 'txt' type is selected, each element contains a data frame of a sparse upper triangular Hi-C matrix.
-If 'cool' is selected, each element contains a list with two items:
+A list of datasets, where each element corresponds to a dataset from the selected files. If \code{out} is 'sparse', each dataset element is transformed into sparse matrix format (chr, start1, start2, IF).
+If \code{out} is 'original', the original structure of each single-cell Hi-C dataset is preserved. If the 'cool' type is selected and \code{out} is 'original', each dataset will retain the structure from \code{cooler2bedpe()}, containing a list with two items:
 \itemize{
 \item "cis": Contains the intra-chromosomal contact matrices, one per chromosome.
 \item "trans": Contains the inter-chromosomal contact matrix.
@@ -32,12 +42,14 @@ chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start posit
 For 'cool', it uses the \code{HiCcompare} package to transform cooler files to BEDPE format.
 }
 \details{
-This function input single cell Hi-C data in '.txt' or 'cool' format. Each 'txt; file should be in the form of a sparse upper triangular Hi-C matrix with five columns:
-chromosome 1 (chr1), start genomic position 1 (start1), chromosome 2 (chr2), start genomic position 2 (start2), and interaction frequency (IF), with format of tab-separated columns without row names, column names, or quotes around character strings.
-If the 'cool' type is selected, the .cool files are HDF5 containers that store Hi-C data, which will be read using \code{cooler2bedpe()} from the \code{HiCcompare} package.
+This function reads single-cell Hi-C data in '.txt' or 'cool' format, with output options of 'sparse' and 'original'. Each input 'txt' file should be in the form of a sparse upper triangular Hi-C matrix,
+storing pair-wise interaction frequencies of loci pairs. The 'txt' dataset should have one column indicating the interaction frequency (IF) of each pair of interacting regions, with tab-separated columns and no row names, column names, or quotes around character strings.
+If the 'cool' type is selected, the input .cool files are HDF5 containers that store Hi-C data, which will be read using \code{cooler2bedpe()} from the \code{HiCcompare} package. The function can provide output in the dataset's 'original' structure or in 'sparse' matrix format.
 }
 \examples{
 \dontrun{
-datasets <- read_files("scHiCcompare/Example/Data/MG", "NSN", c(1, 2, 3), type = "txt")
+# Load MG data folder example
+load_example_MGfolder()
+datasets <- read_files(file.path = "MGs_example", cell = "MG", position.dataset = c(1, 2, 3), type = "txt", txt.sparse.heads.position = c(1,2,4,5))
 }
 }
