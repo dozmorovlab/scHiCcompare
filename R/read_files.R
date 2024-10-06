@@ -64,7 +64,7 @@ read_files <- function(file.path, cell, position.dataset, type='txt', txt.sparse
         start2.position = txt.sparse.heads.position[3]
         if.position = txt.sparse.heads.position[4]
         dataset <- dataset[ ,c(chr.position, start1.position, start2.position, if.position)]
-        names(dataset) = c('chr', 'start1','start2')
+        names(dataset) = c('chr', 'start1','start2','IF')
       }
       datasets[[i]] <- dataset  # Store each dataset in the list
     }
