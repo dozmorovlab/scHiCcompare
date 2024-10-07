@@ -205,7 +205,7 @@ differential_result_plot <- function(hic.table.result){
 #'         'Difference.cluster' column indicating the clusters of differences identified in the analysis.
 #'
 #' @details 
-#' The `BulkHiC_compare` function performs differential chromatin interaction comparisons between single-cell Hi-C data from two groups. The workflow includes clustering normalized log fold changes between interaction frequencies into "difference" and "non-difference" groups. The non-difference group is assumed to follow a normal distribution centered around 0 and is clustered by a Gaussian Mixture Model. The difference cluster consists of points belonging to other distributions. In cases where the size of the differences is not large enough to form distinct distributions, these differences are likely outliers of the normal distribution, which are identified by the `hic_compare` function.
+#' The `BulkHiC_compare` function performs differential chromatin interaction comparisons between single-cell Hi-C data from two cell types groups or conditions. The workflow includes clustering normalized log fold changes between interaction frequencies of 2 cells type at each genomic distance into "difference" and "non-difference" groups. The non-difference group is assumed to follow a normal distribution centered around 0 and is clustered by a Gaussian Mixture Model. The difference cluster consists of points belonging to other distributions. In cases where the size of the differences is not large enough to form distinct distributions, these differences are likely outliers of the normal distribution, which are identified by the `hic_compare` function.
 #' 
 #' @references
 #' 

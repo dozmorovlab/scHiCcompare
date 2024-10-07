@@ -326,8 +326,8 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 #' in wide format, with one column per single cell containing imputed IF values.
 #'
 #' @details 
-#' The function first identifies important pools based on the given scHi-C table, resolving distances and 
-#' pooling them according to the chosen method. For progressive pooling, pools of distances are consecutively combined 
+#' The function first identifies important pools based on the given scHi-C genomic distance effect by 
+#' pooling distance data according to the chosen method. For progressive pooling, pools of distances are consecutively combined 
 #' to form larger sets, while Fibonacci pooling uses a Fibonacci sequence to combine distances.
 #' During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range, if any pool contains more than `missPerc.theshold` missing values, it triggers an alternative imputation 
 #' method, filling in missing values based on the mean for distances.
