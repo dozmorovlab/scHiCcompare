@@ -57,6 +57,7 @@ library(scHiCcompare)
 library(tidyr)
 library(ggplot2)
 library(gridExtra)
+library(lattice)
 ```
 
 ### Input schi-c data
