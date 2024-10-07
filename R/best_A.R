@@ -52,8 +52,9 @@ best_A = function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05,
   if (is(hic.table, "list")) {
     stop("Enter a single hic.table object, not a list of hic.tables")
   }
-  new.table <- .randomize_IFs(hic.table, SD)
   library(data.table)
+  library(HiCcompare)
+  new.table <- .randomize_IFs(hic.table, SD)
   new.table <-  as.data.table(new.table)
   new.table <- new.table[abs(M) < 2, ]
   sample_space <- 1:nrow(new.table)
