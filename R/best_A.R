@@ -45,86 +45,64 @@ randomize_IFs <- function(hic.table, SD) {
 #' print(best_result)
 #'
 #' @export
-best_A <- function(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05,
-                            Plot = FALSE) {
-  
+
+function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, 
+          Plot = FALSE) 
+{
   if (is(hic.table, "list")) {
-    stop("Enter a single hic.table object, not a list of hic.tables.")
+    stop("Enter a single hic.table object, not a list of hic.tables")
   }
-  
   new.table <- randomize_IFs(hic.table, SD)
-  new.table <- new.table[abs(new.table$M) < 2, ]
-  
-  # Initialize vectors for performance metrics
-  results <- data.frame(quantile = numeric(), best_A = integer(), MCC = numeric(), TPR = numeric(), FPR = numeric())
-  
-  # Loop over each quantile
-  for (q in quantile_seq) {
-    
-    tmp_A <- (new.table$IF1 + new.table$IF2) / 2
-    low_A <- which(tmp_A < quantile(tmp_A, q))
-    sample_space <- 1:nrow(new.table)
-    changes <- sample(sample_space[-low_A], numChanges)
-    
-    meanIF <- ((new.table[changes, ]$IF1 + new.table[changes, ]$IF2) / 2) %>%
-      round() %>%
-      as.integer()
-    
-    suppressWarnings(new.table[changes, `:=`(IF1, meanIF)])
-    suppressWarnings(new.table[changes, `:=`(IF2, meanIF)])
-    
-    midpoint <- floor(numChanges / 2)
-    newIF1 <- new.table[changes[1:midpoint], ]$IF1 * FC %>% as.integer()
-    newIF2 <- new.table[changes[(midpoint + 1):numChanges], ]$IF2 * FC %>% as.integer()
-    
-    new.table[changes[1:midpoint], `:=`(IF1, newIF1)]
-    new.table[changes[(midpoint + 1):numChanges], `:=`(IF2, newIF2)]
-    new.table[, `:=`(M, log2(IF2 / IF1))]
-    
-    truth <- rep(0, nrow(new.table))
-    truth[changes] <- 1
-    new.table[, `:=`(truth, truth)]
-    
-    new.table <- hic_loess(new.table, Plot = Plot)
-    new.table <- suppressMessages(hic_compare(new.table, Plot = Plot))
-    
-    TP <- vector(length = 50)
-    FP <- vector(length = 50)
-    FN <- vector(length = 50)
-    TN <- vector(length = 50)
-    A_seq <- seq(1, 50, by = 1)
-    
-    for (i in seq_along(A_seq)) {
-      tmp.table <- suppressMessages(hic_compare(new.table, 
-                                                A.min = A_seq[i], adjust.dist = TRUE, p.method = "fdr", 
-                                                Plot = FALSE))
-      TP[i] <- sum(tmp.table$p.adj < alpha & tmp.table$truth == 1)
-      FP[i] <- sum(tmp.table$p.adj < alpha & tmp.table$truth == 0)
-      FN[i] <- sum(tmp.table$p.adj >= alpha & tmp.table$truth == 1)
-      TN[i] <- sum(tmp.table$p.adj >= alpha & tmp.table$truth == 0)
-    }
-    
-    # Calculate performance metrics
-    MCC <- ((TP * TN) - (FP * FN)) / (sqrt((TP + FP)) * sqrt((TP + FN)) * sqrt((TN + FP)) * sqrt((TN + FN)))
-    FPR <- FP / (FP + TP)
-    TPR <- TP / (TP + FP)
-    
-    # Best A in terms of MCC, TPR, FPR
-    MCC.A = which(MCC == max(MCC, na.rm = TRUE))
-    TPR.A = which(TPR == max(TPR, na.rm = TRUE))
-    FPR.A = which(FPR == min(FPR, na.rm = TRUE))
-    
-    intersect.MCC_TPR.A <- intersect(MCC.A, TPR.A)
-    best_A <- intersect(intersect.MCC_TPR.A, FPR.A)[1]
-    
-    # Store results for current quantile
-    results <- rbind(results, data.frame(quantile = q, best_A = best_A, MCC = max(MCC, na.rm = TRUE),
-                                         TPR = max(TPR, na.rm = TRUE), FPR = min(FPR, na.rm = TRUE)))
+  new.table <- new.table[abs(M) < 2, ]
+  sample_space <- 1:nrow(new.table)
+  tmp_A <- (new.table$IF1 + new.table$IF2)/2
+  low_A <- which(tmp_A < quantile(tmp_A, 0.1))
+  changes <- sample(sample_space[-low_A], numChanges)
+  meanIF <- ((new.table[changes, ]$IF1 + new.table[changes, 
+  ]$IF2)/2) %>% round() %>% as.integer()
+  suppressWarnings(new.table[changes, `:=`(IF1, meanIF)])
+  suppressWarnings(new.table[changes, `:=`(IF2, meanIF)])
+  midpoint <- floor(numChanges/2)
+  newIF1 <- new.table[changes[1:midpoint], ]$IF1 * FC %>% as.integer()
+  newIF2 <- new.table[changes[(midpoint + 1):numChanges], ]$IF2 * 
+    FC %>% as.integer()
+  new.table[changes[1:midpoint], `:=`(IF1, newIF1)]
+  new.table[changes[(midpoint + 1):numChanges], `:=`(IF2, newIF2)]
+  new.table = new.table[, `:=`(M, log2(IF2/IF1))]
+  truth <- rep(0, nrow(new.table))
+  truth[changes] <- 1
+  new.table[, `:=`(truth, truth)]
+  new.table <- hic_loess(new.table, Plot = Plot)
+  new.table <- suppressMessages(hic_compare(new.table, Plot = Plot))
+  TP <- vector(length = 50)
+  FP <- vector(length = 50)
+  FN <- vector(length = 50)
+  TN <- vector(length = 50)
+  A_seq <- seq(1, 50, by = 1)
+  for (i in seq_along(A_seq)) {
+    tmp.table <- suppressMessages(hic_compare(new.table, 
+                                              A.min = A_seq[i], adjust.dist = TRUE, p.method = "fdr", 
+                                              Plot = FALSE))
+    TP[i] <- sum(tmp.table$p.adj < alpha & tmp.table$truth == 
+                   1)
+    FP[i] <- sum(tmp.table$p.adj < alpha & tmp.table$truth == 
+                   0)
+    FN[i] <- sum(tmp.table$p.adj >= alpha & tmp.table$truth == 
+                   1)
+    TN[i] <- sum(tmp.table$p.adj >= alpha & tmp.table$truth == 
+                   0)
   }
+  MCC <- ((TP * TN) - (FP * FN))/(sqrt((TP + FP)) * sqrt((TP + 
+                                                            FN)) * sqrt((TN + FP)) * sqrt((TN + FN)))
+  FPR <- FP/(FP + TP)
+  FNR <- FN/(FN + TN)
+  TPR <- TP/(TP + FP)
   
-  # Find the overall best quantile based on MCC or other metrics
-  best_result <- results[which.max(results$MCC), ]
-  message("Best quantile for A: ", best_result$quantile, " with best A: ", best_result$best_A)
-  
-  return(best_result)
+  #Best A in term of MCC, TPR, FPR
+  MCC.A = which(MCC == max(MCC))
+  TPR.A = which(TPR == max(TPR))
+  FPR.A = which(FPR == min(FPR))
+  intersect.MCC_TPR.A <- intersect(MCC.A,TPR.A)
+  best_A <- intersect(intersect.MCC_TPR.A, FPR.A)[1]
+  return(best_A)
 }
