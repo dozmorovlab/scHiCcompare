@@ -356,6 +356,24 @@ hic.table.result <- scHiC_bulk_compare(norm.hic.table = hic.table_normalize, D.i
                                     fprControl.logfc = 0.8, Plot = T)
 ```
 
+## Other functions
+
+There are several other functions included in `ScHiCcompare`. 
+
+plot_imputation_heatmap() produces a heatmap visualization for HiC and scHiC matrices. It requires input of sparse matrix format. You can read more detail about it by its help document or see example below [Pseudo Bulk](#addfunc).
+
+```{r}
+plot.df = ODCs.list[[1]][,-1]
+plot_imputation_heatmap(plot.df, main = 'scHiC matrix of a ODC cell')
+```
+
+
+plot_imputed_distance_diagnostic() produces a visualization for imputation diagnostic at each genomic distsnce. It compare the distribution of a given distance data before and after imputation. It requires input of scHiC table of the original and imputed scHiC datasets. You can read more detail about it by its help document or see example below [Imputation](#addfunc).
+
+```{r}
+plot_imputed_distance_diagnostic(org_sc_data = imp.cc.table.1, imp_sc_data = scHiC.table_ODC, D = 1)
+```
+
 # Example of scHiCompare workflow
 
 Here, we used example 50 scHiC datasets of human brain (Lee et al., 2019) with ODC and MG cell type at chromosome 20 at 1MB resolution.
@@ -383,7 +401,7 @@ scHiC.table_MG = scHiC_table(file.list = MGs.list,
 
 In this example, we focus on imputing at genomic distance from 1 to 10,000,000 (bp) with 10 times multiple imputation. We select to progressive pooling style to create pool bands for random forest imputation.
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 ## Imputation with 'progressive' pooling
 imp.cc.table.1 <- Pooling_RF_impute(scHiC.table = scHiC.table_ODC, n.imputation = 10,
                               main.Distances = 1:10000000, pool.style = 'progressive')
@@ -391,7 +409,7 @@ imp.cc.table.2 <- Pooling_RF_impute(scHiC.table = scHiC.table_MG, n.imputation =
                               main.Distances = 1:10000000, pool.style = 'progressive')
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # plot imputed Distance Diagnostic
 plot1 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_ODC, imp_sc_data = imp.cc.table.1, D = 1)
 plot2 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_ODC, imp_sc_data = imp.cc.table.1, D = 2)
@@ -412,14 +430,14 @@ bulk.imp.sparse.2 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.2,
                                            out = 'sparse'))
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 ## Pseudo Bulk at main Distain 1:1,000,000
 
 bulk.org.sparse.1 = pseudo_bulkHic(scHiC.table =scHiC.table_ODC, out = 'sparse')
 
 ## plot heatmap of speudobulk
 
-plot1 = plot_imputation_heatmap(scHiC.sparse = bulk.org.sparse.1, main = 'Before imputation')
+plot1 = plot_imputation_heatmap(scHiC.sparse = bulk.org.sparse.1, main = 'Before imputation',  zlim = c(0, 15))
 plot2 = plot_imputation_heatmap(scHiC.sparse = bulk.imp.sparse.1, main = 'After imputation',  zlim = c(0, 15))
 grid.arrange(plot1, plot2, ncol = 2, name = 'arrange')
 
