@@ -39,7 +39,7 @@ best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
   
   # Remove rows where abs(M) >= SD
   new.table <- randomize_IFs(hic.table, SD)
-  new.table <- new.table[abs(M) < SD, ]
+  new.table <- new.table[abs(new.table$M) < SD, ]
   
   # Define the sample space and exclude low A values
   sample_space <- 1:nrow(new.table)
@@ -267,7 +267,7 @@ differential_result_plot <- function(hic.table.result){
 
 
 scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.8,  alpha = 0.05,
-                               SD = 2, numChanges = 300, FC = 3, A.min = NA,
+                               SD = 2, numChanges = 30, FC = 3, A.min = NA,
                                Plot = T,  parallel = FALSE, BP_param = bpparam()){
   
   if(is.na(A.min)){
@@ -287,7 +287,6 @@ scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.
   
   return(hic.table.GMM_result)
 }
-
 
 
 
