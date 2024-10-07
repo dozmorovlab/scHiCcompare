@@ -29,7 +29,6 @@ randomize_IFs <- function(hic.table, SD) {
 #' @param numChanges Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 300 changes, 100KB resolution - 1000 changes, etc.
 #' @param FC Numeric. The fold change of the changes added to the Hi-C matrix.
 #' @param alpha Numeric. Significance level for adjusting p-values (default is 0.05).
-#' @param quantile_seq Numeric vector. A sequence of quantiles to evaluate (default is seq(0.1, 0.9, by = 0.1)).
 #' @param Plot Logical. If TRUE, plots will be generated during the processing.
 #'
 #' @return A data frame containing the best quantile for A, the corresponding best A value,
