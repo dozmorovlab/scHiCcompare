@@ -37,10 +37,6 @@
 #' frequencies, and performs a series of evaluations to determine the best quantile.
 #' The results include the best A value that can be applied in `hic_compare()`, differential analysis of `HiCcompare`, for filtering low average expression IFs.
 #'
-#' @examples
-#' # Assuming 'hic.table' is a valid Hi-C interaction frequency table
-#' best_result <- best_quantile_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
-#' print(best_result)
 #'
 #' @export
 

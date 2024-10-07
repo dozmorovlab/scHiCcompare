@@ -13,10 +13,6 @@
 #' @return A ggplot2 object representing the density plot comparing original 
 #'   and imputed interaction frequencies.
 #' 
-#' @examples
-#' # Assuming scHiC.table_ODC and imp.cc.table.1 are your data frames:
-#' plot_imputed_distance_diagnostic(scHiC.table_ODC, imp.cc.table.1, D = 3)
-#' 
 #' @import ggplot2
 #' 
 #' @export

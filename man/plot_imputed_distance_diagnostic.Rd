@@ -24,8 +24,3 @@ and imputed interaction frequencies.
 This function plots the density curves of interaction frequencies
 from original and imputed single-cell Hi-C data for a specified distance.
 }
-\examples{
-# Assuming scHiC.table_ODC and imp.cc.table.1 are your data frames:
-plot_imputed_distance_diagnostic(scHiC.table_ODC, imp.cc.table.1, D = 3)
-
-}

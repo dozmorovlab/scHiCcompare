@@ -33,7 +33,3 @@ A heatmap plot visualizing the Hi-C interaction matrix.
 This function generates a heatmap of Hi-C interaction frequencies from a given sparse matrix,
 allowing users to visualize either original or imputed Hi-C data.
 }
-\examples{
-# Plotting a Hi-C matrix heatmap
-plot_imputation_heatmap(scHiC.sparse = my_sparse_matrix, main = "Hi-C Heatmap", figure_name = "Figure 1")
-}

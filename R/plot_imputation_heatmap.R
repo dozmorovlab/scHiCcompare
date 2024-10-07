@@ -11,9 +11,9 @@
 #' @param figure_name A character string for additional figure labeling. Default is NULL.
 #' 
 #' @return A heatmap plot visualizing the Hi-C interaction matrix.
-#' @examples
-#' # Plotting a Hi-C matrix heatmap
-#' plot_imputation_heatmap(scHiC.sparse = my_sparse_matrix, main = "Hi-C Heatmap", figure_name = "Figure 1")
+#' 
+#' @export
+
 plot_imputation_heatmap <- function(scHiC.sparse, zlim = c(0, 7), color_low = "white", color_high = "red", main= NULL, figure_name = NULL) {
   library(lattice)
   
