@@ -46,7 +46,7 @@ randomize_IFs <- function(hic.table, SD) {
 #'
 #' @export
 
-function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, 
+best_A = function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, 
           Plot = FALSE) 
 {
   if (is(hic.table, "list")) {
@@ -103,6 +103,6 @@ function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05,
   TPR.A = which(TPR == max(TPR))
   FPR.A = which(FPR == min(FPR))
   intersect.MCC_TPR.A <- intersect(MCC.A,TPR.A)
-  best_A <- intersect(intersect.MCC_TPR.A, FPR.A)[1]
-  return(best_A)
+  best.A <- intersect(intersect.MCC_TPR.A, FPR.A)[1]
+  return(best.A)
 }
