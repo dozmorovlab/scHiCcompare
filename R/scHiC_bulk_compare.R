@@ -159,6 +159,7 @@ differential_result_plot <- function(hic.table.result){
 scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.8, alpha = 0.05,
                                SD = 2, numChanges = 30, FC = 3, A.min = NA,
                                Plot = T, BP_param = bpparam()){
+  
   library(data.table)
   library(HiCcompare)
   # if(is.na(A.min)){
