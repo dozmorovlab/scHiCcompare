@@ -1,6 +1,6 @@
 ##### Identify best A threshold in HiCcompare
 # Randomize_IFs - function to add noise to IFs of one matrix to create a similar 2 matrix
-randomize_IFs <- function(hic.table, SD) {
+.randomize_IFs <- function(hic.table, SD) {
   # copy first IF vector
   newIF2 <- hic.table$IF1
   # add constant offset
@@ -52,7 +52,7 @@ best_A = function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05,
   if (is(hic.table, "list")) {
     stop("Enter a single hic.table object, not a list of hic.tables")
   }
-  new.table <- randomize_IFs(hic.table, SD)
+  new.table <- .randomize_IFs(hic.table, SD)
   new.table <- new.table[abs(M) < 2, ]
   sample_space <- 1:nrow(new.table)
   tmp_A <- (new.table$IF1 + new.table$IF2)/2
