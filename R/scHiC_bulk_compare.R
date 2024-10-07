@@ -158,14 +158,14 @@ differential_result_plot <- function(hic.table.result){
 
 scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.8, alpha = 0.05,
                                SD = 2, numChanges = 30, FC = 3, A.min = NA,
-                               Plot = T,  parallel = FALSE, BP_param = bpparam()){
+                               Plot = T, BP_param = bpparam()){
   
   if(is.na(A.min)){
     A.min <- best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
   }
   
   hic.table_result <- hic_compare(norm.hic.table, A.min = A.min,Plot = F, Plot.smooth = F,
-                                  parallel = parallel, BP_param =BP_param)
+                             BP_param =BP_param)
   hic.table.GMM_result <- GMM_layer(hic_table = hic.table_result, D.interval = D.interval, threshold = fprControl.logfc)
   hic.table.GMM_result <- hic.table.GMM_result[,-c(17,18)]
   names(hic.table.GMM_result)[ncol(hic.table.GMM_result)] <- 'Difference.cluster'
