@@ -14,7 +14,6 @@ scHiC_bulk_compare(
   FC = 3,
   A.min = NA,
   Plot = T,
-  parallel = FALSE,
   BP_param = bpparam()
 )
 }
@@ -40,10 +39,10 @@ If not provided, an optimized minimum A threshold that maximizes MCC and TPR whi
 
 \item{Plot}{A logical value indicating whether to plot the differential results in an MD plot. Default is TRUE.}
 
+\item{BP_param}{Parameters for \code{BiocParallel}, to be passed to the \code{bpparam()} function.}
+
 \item{parallel}{A logical value indicating whether to use parallel processing for computations.
 Default is FALSE. This option only works on Unix-based operating systems and is useful when analyzing a list of Hi-C tables.}
-
-\item{BP_param}{Parameters for \code{BiocParallel}, to be passed to the \code{bpparam()} function.}
 }
 \value{
 A data frame containing the results of the differential Hi-C analysis, including a normalized report and a

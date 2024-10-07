@@ -347,7 +347,7 @@ After obtaining the `hic.table` object showing the normalization result from spe
 -   For other detail, you can look up `?scHiC_bulk_compare()`
 
 ```{r, message=FALSE, warning=FALSE, fig.width=5, fig.height=3}
-A = best_A(hic.table = hic.table_normalize, numChanges = 35)
+A = best_A(hic.table = hic.table_normalize, numChanges = 20)
 ## Find differences
 hic.table.result <- scHiC_bulk_compare(norm.hic.table = hic.table_normalize, D.interval = 'full', A.min = A,
                                     fprControl.logfc = 0.8, Plot = T)
