@@ -18,8 +18,6 @@ best_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, Plot = FALSE)
 \item{alpha}{Numeric. Significance level for adjusting p-values (default is 0.05).}
 
 \item{Plot}{Logical. If TRUE, plots will be generated during the processing.}
-
-\item{quantile_seq}{Numeric vector. A sequence of quantiles to evaluate (default is seq(0.1, 0.9, by = 0.1)).}
 }
 \value{
 A data frame containing the best quantile for A, the corresponding best A value,
