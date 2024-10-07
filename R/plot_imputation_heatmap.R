@@ -12,6 +12,25 @@
 #' 
 #' @return A heatmap plot visualizing the Hi-C interaction matrix.
 #' 
+#' @examples
+#' # Create a 36x36 matrix with random integer values between 0 and 9
+#' matrix_36x36 <- matrix(sample(0:9, 36*36, replace = TRUE), nrow = 36, ncol = 36)
+#' diag(matrix_36x36) <- diag(matrix_36x36) * 6
+#' 
+#' # Transform full matrix into sparse
+#' library(HiCcompare)
+#' sparse = full2sparse(matrix_36x36)
+#' 
+#' # Call the function with this sparse matrix to generate the heatmap
+#'plot_imputation_heatmap(
+#'  scHiC.sparse = sparse, 
+#'  zlim = c(0, 7),              # Log scale color limits
+#'  color_low = "white",          # Color for low values
+#'  color_high = "red",           # Color for high values
+#'  main = "Single-Cell Hi-C Heatmap",  # Title of the plot
+#'  figure_name = "Example Heatmap"     # Subtitle for the plot
+#')
+#' 
 #' @export
 
 plot_imputation_heatmap <- function(scHiC.sparse, zlim = c(0, 7), color_low = "white", color_high = "red", main= NULL, figure_name = NULL) {

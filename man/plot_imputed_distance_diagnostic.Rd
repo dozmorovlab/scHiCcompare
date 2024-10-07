@@ -24,3 +24,23 @@ and imputed interaction frequencies.
 This function plots the density curves of interaction frequencies
 from original and imputed single-cell Hi-C data for a specified distance.
 }
+\examples{
+
+# Create a 36x36 matrix with random integer values between 0 and 9
+set.seed(123)
+imp_36x36 <- matrix(sample(0:5, 36*36, replace = TRUE), nrow = 36, ncol = 36)
+diag(imp_36x36) <- diag(imp_36x36) * 6
+
+org_36x36 <- matrix(sample(0:5, 36*36, replace = TRUE), nrow = 36, ncol = 36)
+diag(org_36x36) <- diag(org_36x36) * 6
+org_36x36[sample(seq_len(length(org_36x36)), 500)] <- 0
+
+# Transform full matrix into sparse
+library(HiCcompare)
+sparse.org = full2sparse(org_36x36)
+sparse.imp = full2sparse(imp_36x36)
+
+# Call the function with this sparse matrix to generate the heatmap
+plot_imputed_distance_diagnostic( org_sc_data = sparse.org, imp_sc_data = sparse.imp, D = 1)
+
+}
