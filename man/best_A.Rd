@@ -2,7 +2,7 @@
 % Please edit documentation in R/best_A.R
 \name{best_A}
 \alias{best_A}
-\title{Find the Best Quantile for A quantile cutoff in \code{hic_compare} {HiCcompare}}
+\title{Find the Best Quantile for A quantile cutoff level in \code{hic_compare} {HiCcompare}}
 \usage{
 best_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, Plot = FALSE)
 }
