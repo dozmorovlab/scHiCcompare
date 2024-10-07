@@ -10,7 +10,7 @@ scHiC_bulk_compare(
   fprControl.logfc = 0.8,
   alpha = 0.05,
   SD = 2,
-  numChanges = 300,
+  numChanges = 30,
   FC = 3,
   A.min = NA,
   Plot = T,
