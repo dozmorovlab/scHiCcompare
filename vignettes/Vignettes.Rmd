@@ -176,6 +176,7 @@ After obtaining the list of single cell Hi-C dataset in sparse matrix format, yo
 The `scHiC_table()` function will output a table where its columns includes genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell.
 
 ```{r, message=FALSE, echo=FALSE}
+## full MG list
 data(MGs.list)
 ```
 
@@ -327,7 +328,6 @@ DT::datatable(head(bulk.hic.table, 50), options = list(scrollX = TRUE), width = 
 -   For other detail, you can look up `?hic_loess()`
 
 ```{r, message=FALSE, warning=FALSE, fig.width=5, fig.height=3}
-
 #jointly normalize data for a single chromosome
 hic.table_normalize <- hic_loess(bulk.hic.table, Plot = T, Plot.smooth = F)
 ```
