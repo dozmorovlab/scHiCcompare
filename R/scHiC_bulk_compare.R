@@ -1,5 +1,5 @@
 ##### Identify best A threshold in HiCcompare
-# Randomize_IFs - function to add noise to IFs of one matrix to create a similar 2 matrix----
+# Randomize_IFs - function to add noise to IFs of one matrix to create a similar 2 matrix
 randomize_IFs <- function(hic.table, SD) {
   # copy first IF vector
   newIF2 <- hic.table$IF1
@@ -271,7 +271,7 @@ scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.
                                Plot = T,  parallel = FALSE, BP_param = bpparam()){
   
   if(is.na(A.min)){
-    A.min <- best_A(norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
+    A.min <- best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
   }
   
   hic.table_result <- hic_compare(norm.hic.table, A.min = A.min,Plot = F, Plot.smooth = F,

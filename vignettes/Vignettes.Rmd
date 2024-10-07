@@ -45,7 +45,7 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("ScHiCcompare")
 
 # For the latest version install from GitHub
-devtools::install_github("dozmorovlab/ScHiCcompare")
+# devtools::install_github("dozmorovlab/ScHiCcompare")
 ```
 
 ```{r,  message=FALSE, warning=FALSE, echo = F}
