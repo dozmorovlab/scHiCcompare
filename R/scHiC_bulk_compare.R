@@ -1,4 +1,21 @@
 ##### Identify best A threshold in HiCcompare
+# Randomize_IFs - function to add noise to IFs of one matrix to create a similar 2 matrix----
+randomize_IFs <- function(hic.table, SD) {
+  # copy first IF vector
+  newIF2 <- hic.table$IF1
+  # add constant offset
+  newIF2 <- newIF2 + 5
+  # add random noise
+  newIF2 <- newIF2 + rnorm(length(newIF2), 0, SD)
+  # check for 0's and negatives
+  newIF2[newIF2 <= 0] <- 1
+  # create new hic.table with new IF vectors
+  sparse1 <- cbind(hic.table$start1, hic.table$start2, hic.table$IF1)
+  sparse2 <- cbind(hic.table$start1, hic.table$start2, newIF2)
+  temp.table <- create.hic.table(sparse1, sparse2, chr = hic.table$chr1[1])
+  return(temp.table)
+}
+
 best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05) 
 {
   # Check if hic.table is not a list
@@ -21,6 +38,7 @@ best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
   
   
   # Remove rows where abs(M) >= SD
+  new.table <- randomize_IFs(hic.table, SD)
   new.table <- new.table[abs(M) < SD, ]
   
   # Define the sample space and exclude low A values
@@ -50,8 +68,8 @@ best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
   new.table[, `:=`(truth, truth)]
   
   # Normalize the table with hic_loess
-  new.table <- hic_loess(new.table, Plot = Plot)
-  new.table <- suppressMessages(hic_compare(new.table, Plot = Plot))
+  new.table <- hic_loess(new.table, Plot = F)
+  new.table <- suppressMessages(hic_compare(new.table, Plot = F))
   
   # Initialize vectors for performance metrics
   TP <- vector(length = 50)
@@ -93,7 +111,7 @@ best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
 #### GMM cluster layer
 GMM_layer <- function(hic_table, D.interval = 1:10, threshold = 0.8) {
   hic_result <- NULL
-  if(D.interval == 'full'){
+  if(is.character(D.interval)){
     D.interval = unique(hic_table$D)
     D.interval = D.interval[!D.interval == 0]
   }
@@ -252,7 +270,7 @@ scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.
                                SD = 2, numChanges = 300, FC = 3, A.min = NA,
                                Plot = T,  parallel = FALSE, BP_param = bpparam()){
   
-  if(!is.na(A.min)){
+  if(is.na(A.min)){
     A.min <- best_A(norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
   }
   
