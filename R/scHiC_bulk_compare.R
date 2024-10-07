@@ -16,8 +16,7 @@ randomize_IFs <- function(hic.table, SD) {
   return(temp.table)
 }
 
-best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05) 
-{
+best_A <- function(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05) {
   # Check if hic.table is not a list
   if (is(hic.table, "list")) {
     stop("Error: Enter a single hic.table object, not a list of hic.tables.")
@@ -36,9 +35,13 @@ best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
     stop("Error: 'alpha' must be a numeric value between 0 and 1.")
   }
   
-  
-  # Remove rows where abs(M) >= SD
+  # Remove rows where abs(M) >= SD (M not yet created)
   new.table <- randomize_IFs(hic.table, SD)
+  
+  # Ensure M is created before filtering
+  new.table$M <- NA  # Initialize M to avoid 'not found' errors
+  
+  # Now filter based on SD
   new.table <- new.table[abs(new.table$M) < SD, ]
   
   # Define the sample space and exclude low A values
@@ -49,27 +52,28 @@ best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
   
   # Apply mean interaction frequencies for selected changes
   meanIF <- ((new.table[changes, ]$IF1 + new.table[changes, ]$IF2) / 2) %>% round() %>% as.integer()
-  suppressWarnings(new.table[changes, `:=`(IF1, meanIF)])
-  suppressWarnings(new.table[changes, `:=`(IF2, meanIF)])
+  new.table[changes, c("IF1", "IF2")] <- meanIF
   
   # Split the changes for applying the fold change (FC)
   midpoint <- floor(numChanges / 2)
-  newIF1 <- new.table[changes[1:midpoint], ]$IF1 * FC %>% as.integer()
-  newIF2 <- new.table[changes[(midpoint + 1):numChanges], ]$IF2 * FC %>% as.integer()
+  newIF1 <- new.table[changes[1:midpoint], "IF1"] * FC %>% as.integer()
+  newIF2 <- new.table[changes[(midpoint + 1):numChanges], "IF2"] * FC %>% as.integer()
   
   # Update the table with new interaction frequencies
-  new.table[changes[1:midpoint], `:=`(IF1, newIF1)]
-  new.table[changes[(midpoint + 1):numChanges], `:=`(IF2, newIF2)]
-  new.table = new.table[, `:=`(M, log2(IF2 / IF1))]
+  new.table[changes[1:midpoint], "IF1"] <- newIF1
+  new.table[changes[(midpoint + 1):numChanges], "IF2"] <- newIF2
+  
+  # Create the M column using the correct syntax
+  new.table$M <- log2(new.table$IF2 / new.table$IF1)
   
   # Add truth column to track changes
   truth <- rep(0, nrow(new.table))
   truth[changes] <- 1
-  new.table[, `:=`(truth, truth)]
+  new.table$truth <- truth
   
   # Normalize the table with hic_loess
-  new.table <- hic_loess(new.table, Plot = F)
-  new.table <- suppressMessages(hic_compare(new.table, Plot = F))
+  new.table <- hic_loess(new.table, Plot = FALSE)
+  new.table <- suppressMessages(hic_compare(new.table, Plot = FALSE))
   
   # Initialize vectors for performance metrics
   TP <- vector(length = 50)
@@ -105,6 +109,7 @@ best_A <- function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05)
   
   return(best_A)
 }
+
 
 
 
@@ -266,7 +271,7 @@ differential_result_plot <- function(hic.table.result){
 #' @export
 
 
-scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.8,  alpha = 0.05,
+scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.8, alpha = 0.05,
                                SD = 2, numChanges = 30, FC = 3, A.min = NA,
                                Plot = T,  parallel = FALSE, BP_param = bpparam()){
   
