@@ -17,9 +17,9 @@
 }
 
 
-#' Find the Best Quantile for A quantile cutoff in `filter_params` {HiCcompare}
+#' Find the Best Quantile for A quantile cutoff level in `hic_compare` {HiCcompare}
 #'
-#' This function identifies the best quantile for the parameter A quantile cutoff in `filter_params` {HiCcompare} by evaluating 
+#' This function identifies the best quantile for the parameter A quantile cutoff in filtering low average expressive IFs of `hic_compare()` {HiCcompare} by evaluating 
 #' different quantile levels based on performance metrics such as 
 #' Matthews Correlation Coefficient (MCC), True Positive Rate (TPR), and 
 #' False Positive Rate (FPR).
@@ -31,13 +31,11 @@
 #' @param alpha Numeric. Significance level for adjusting p-values (default is 0.05).
 #' @param Plot Logical. If TRUE, plots will be generated during the processing.
 #'
-#' @return A data frame containing the best quantile for A, the corresponding best A value,
-#'         and performance metrics (MCC, TPR, FPR).
+#' @return The best A value that optimize performance metrics (MCC, TPR, FPR).
 #'
 #' @details The function randomizes interaction frequencies, calculates mean interaction 
 #' frequencies, and performs a series of evaluations to determine the best quantile.
-#' The results include the quantile value, best A value, and performance metrics for 
-#' each evaluated quantile.
+#' The results include the best A value that can be applied in `hic_compare()`, differential analysis of `HiCcompare`, for filtering low average expression IFs.
 #'
 #' @examples
 #' # Assuming 'hic.table' is a valid Hi-C interaction frequency table

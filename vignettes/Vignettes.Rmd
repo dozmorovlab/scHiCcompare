@@ -336,15 +336,17 @@ hic.table_normalize <- hic_loess(hic.table = bulk.hic.table, Plot = T, Plot.smoo
 
 After obtaining the `hic.table` object showing the normalization result from speudo bulk matrices of two cell type groups or conditions, we can input it to `scHiC_bulk_compare()` function for further differential analysis.
 
-`scHiC_bulk_compare(norm.hic.table , D.interval, fprControl.logfc, Plot, ...)`
+`scHiC_bulk_compare(norm.hic.table , D.interval, A.min, fprControl.logfc, Plot, ...)`
 
--   `norm.hic.table` - The `hic.table` object of the `hic_loess` function for pair of pseudo bulk matrices.
-
--   `D.interval` - The distance intervals to consider in the analysis, or 'full' option indicating the inclusion of all genomic distances in the analysis. The distance should be scaled by dividing by the data resolution, D = (start2 - start1)/resolution (e.g., D = (16,000,000 - 17,000,000)/1,000,000 -\> D = 1).
-
--   `fprControl.logfc` - The value controlling the false positive rate by setting the threshold for the log fold change of differences. Detected differences should have a value larger than this threshold. Default is 0.8.
-
--   For other detail, you can look up `?scHiC_bulk_compare()`
+  - `norm.hic.table` - The `hic.table` object of the `hic_loess` function for pair of pseudo bulk matrices.
+  
+  - `D.interval` - The distance intervals to consider in the analysis, or 'full' option indicating the inclusion of all genomic distances in the analysis. The distance should be scaled by dividing by the data resolution, D = (start2 - start1)/resolution (e.g., D = (16,000,000 - 17,000,000)/1,000,000 -\> D = 1).
+  
+  - `A.min` - his parameter represents the quantile cutoff level used to filter low-expression interaction frequency (IF) bins during differential outlier detection in the hic_compare() function. Specifically, log fold change values associated with average expression levels (A, the mean of IF1 and IF2) below the specified A.min quantile are excluded from the analysis. You can specify the quantile level (e.g., 0.1, 0.2) as a numeric value between 0 and 1. You can also use `best_A()` function to identify best A level that maximize the test performance.
+  
+  - `fprControl.logfc` - The value controlling the false positive rate by setting the threshold for the log fold change of differences. Detected differences should have a value larger than this threshold. Default is 0.8.
+  
+  -   For other detail, you can look up `?scHiC_bulk_compare()`
 
 ```{r, message=FALSE, warning=FALSE, fig.width=5, fig.height=3}
 A = best_A(hic.table = hic.table_normalize, numChanges = 20)

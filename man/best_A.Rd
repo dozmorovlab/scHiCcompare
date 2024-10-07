@@ -2,7 +2,7 @@
 % Please edit documentation in R/best_A.R
 \name{best_A}
 \alias{best_A}
-\title{Find the Best Quantile for A quantile cutoff in \code{filter_params} {HiCcompare}}
+\title{Find the Best Quantile for A quantile cutoff in \code{hic_compare} {HiCcompare}}
 \usage{
 best_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, Plot = FALSE)
 }
@@ -20,11 +20,10 @@ best_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, Plot = FALSE)
 \item{Plot}{Logical. If TRUE, plots will be generated during the processing.}
 }
 \value{
-A data frame containing the best quantile for A, the corresponding best A value,
-and performance metrics (MCC, TPR, FPR).
+The best A value that optimize performance metrics (MCC, TPR, FPR).
 }
 \description{
-This function identifies the best quantile for the parameter A quantile cutoff in \code{filter_params} {HiCcompare} by evaluating
+This function identifies the best quantile for the parameter A quantile cutoff in filtering low average expressive IFs of \code{hic_compare()} {HiCcompare} by evaluating
 different quantile levels based on performance metrics such as
 Matthews Correlation Coefficient (MCC), True Positive Rate (TPR), and
 False Positive Rate (FPR).
@@ -32,8 +31,7 @@ False Positive Rate (FPR).
 \details{
 The function randomizes interaction frequencies, calculates mean interaction
 frequencies, and performs a series of evaluations to determine the best quantile.
-The results include the quantile value, best A value, and performance metrics for
-each evaluated quantile.
+The results include the best A value that can be applied in \code{hic_compare()}, differential analysis of \code{HiCcompare}, for filtering low average expression IFs.
 }
 \examples{
 # Assuming 'hic.table' is a valid Hi-C interaction frequency table
