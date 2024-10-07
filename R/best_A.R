@@ -53,26 +53,36 @@ best_A = function (hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05,
   library(data.table)
   library(HiCcompare)
   new.table <- .randomize_IFs(hic.table, SD)
-  new.table <-  as.data.table(new.table)
-  new.table <- new.table[abs(new.table$M) < 2, ]
+  new.table <- data.frame(new.table) # Ensure it's a data frame
+  new.table <- new.table[abs(new.table$M) < 2, ] # Filter based on M column
   sample_space <- 1:nrow(new.table)
-  tmp_A <- (new.table$IF1 + new.table$IF2)/2
+  tmp_A <- (new.table$IF1 + new.table$IF2) / 2
   low_A <- which(tmp_A < quantile(tmp_A, 0.1))
   changes <- sample(sample_space[-low_A], numChanges)
-  meanIF <- ((new.table[changes, ]$IF1 + new.table[changes, 
-  ]$IF2)/2) %>% round() %>% as.integer()
-  suppressWarnings(new.table[changes, `:=`(IF1, meanIF)])
-  suppressWarnings(new.table[changes, `:=`(IF2, meanIF)])
-  midpoint <- floor(numChanges/2)
-  newIF1 <- new.table[changes[1:midpoint], ]$IF1 * FC %>% as.integer()
-  newIF2 <- new.table[changes[(midpoint + 1):numChanges], ]$IF2 * 
-    FC %>% as.integer()
-  new.table[changes[1:midpoint], `:=`(IF1, newIF1)]
-  new.table[changes[(midpoint + 1):numChanges], `:=`(IF2, newIF2)]
-  new.table = new.table[, `:=`(M, log2(IF2/IF1))]
+  
+  # Calculate meanIF
+  meanIF <- round(((new.table[changes, "IF1"] + new.table[changes, "IF2"]) / 2))
+  new.table[changes, "IF1"] <- meanIF # Update IF1
+  new.table[changes, "IF2"] <- meanIF # Update IF2
+  
+  # Calculate new IFs for the changes
+  midpoint <- floor(numChanges / 2)
+  newIF1 <- as.integer(new.table[changes[1:midpoint], "IF1"] * FC)
+  newIF2 <- as.integer(new.table[changes[(midpoint + 1):numChanges], "IF2"] * FC)
+  
+  # Update IF1 and IF2 with new values
+  new.table[changes[1:midpoint], "IF1"] <- newIF1
+  new.table[changes[(midpoint + 1):numChanges], "IF2"] <- newIF2
+  
+  # Update M column with the new log2 ratio
+  new.table$M <- log2(new.table$IF2 / new.table$IF1)
+  
+  # Create a truth vector to identify changes
   truth <- rep(0, nrow(new.table))
   truth[changes] <- 1
-  new.table[, `:=`(truth, truth)]
+  new.table$truth <- truth # Add truth column to the data frame
+  
+  new.table <- as.data.table(new.table)
   new.table <- hic_loess(new.table, Plot = Plot)
   new.table <- suppressMessages(hic_compare(new.table, Plot = Plot))
   TP <- vector(length = 50)
