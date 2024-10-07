@@ -162,9 +162,9 @@ scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.
   
   library(data.table)
   library(HiCcompare)
-  # if(is.na(A.min)){
-  #   A.min <- best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
-  # }
+  if(is.na(A.min)){
+    A.min <- best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
+  }
   
   hic.table_result <- hic_compare(norm.hic.table, A.min = A.min,Plot = F, Plot.smooth = F,
                              BP_param =BP_param)
