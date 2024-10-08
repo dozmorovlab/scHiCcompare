@@ -17,6 +17,7 @@ Imports:
     dplyr,
     HiCcompare,
     lattice,
+    mclust,
     mice,
     miceadds,
     rstatix,
