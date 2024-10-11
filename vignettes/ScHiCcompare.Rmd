@@ -81,7 +81,7 @@ This will extract the matrix from the `.hic` file and save it to the `scHiC.500k
 
 `<NONE/VC/VC_SQRT/KR> <hicFile(s)> <chr1>[:x1:x2] <chr2>[:y1:y2] <BP/FRAG> <binsize>`
 
-The first argument is the normalization method; for `ScHiCcompare`, choose `NONE` to use raw data. The second argument is the .hic file name. For intrachromosomal maps, set both chromosome numbers the same. Interchromosomal maps can use different chromosomes, but note that ScHiCcompare only handles intrachromosomal interactions. Choose `BP` for basepair data, and specify the bin size (e.g., 10000000 for 1MB resolution). Common bin sizes are 1MB, 500KB, 100KB, 50KB, 5KB, and 1KB. Note that most matrices with resolutions higher than 10KB (i.e., matrices with resolutions of 1KB - 10KB) are typically too sparse for analysis in `ScHiCcompare`.
+The first argument is the normalization method; for `ScHiCcompare`, choose `NONE` to use raw data. The second argument is the .hic file name. For intrachromosomal maps, set both chromosome numbers the same. [??? "<chr1>[:x1:x2] <chr2>[:y1:y2]" is a little confusing. chr1 is the chromosome from file 1? Or is it a list of chromosomes? What do [:x1:x2] and [:y1:y2] do? start and end within each chromosome?] Interchromosomal maps can use different chromosomes, but note that ScHiCcompare only handles intrachromosomal interactions. Choose `BP` for basepair data, and specify the bin size (e.g., 10000000 for 1MB resolution). Common bin sizes are 1MB, 500KB, 100KB, 50KB, 5KB, and 1KB. Note that most matrices with resolutions higher than 10KB (i.e., matrices with resolutions of 1KB - 10KB) are typically too sparse for analysis in `ScHiCcompare`. [??? This seems to be pretty important; I would make this bolded or repeated further up in the "Input schi-c data" as it applies to all matricies, not just `.hic` files]
 
 From here we can import the matrix into R as you would normally for any tab-delimited file.
 
@@ -98,7 +98,7 @@ To use data in the .cool format, there are multiple ways to read these files (eg
 
     The `read_file` and `cooler2bedpe` functions will return a list object in the format of BEDPE, containing two elements: "cis" - Contains the intra-chromosomal contact matrices, one per chromosome; "trans" - Contains the inter-chromosomal contact matrix.
 
-    Thw example of a scHiC.cool file is imported by `read_file()` function is below. You can read more detail of argument in structure see more in [Input material](#addfunc) section.
+    An example of a scHiC.cool file being imported by `read_file()` function is below. You can read about this in more detail in the [Input material](#addfunc[??? needs link]) section.
 
     `library(ScHiCcompare)` `cool.file <- read_files("path/to/scHiC.cool", cell_type = "NSN", position.dataset = 1, type = "cool")`
 
@@ -120,9 +120,9 @@ To use data in the .cool format, there are multiple ways to read these files (eg
 
 ### Overview
 
-ScHiC table is an object gathering all scHi-C data of a group (a cell type or a condition). This object is usuable for following analysis steps, `Pooling_RF_impute` and `pseudo_bulkHic` functions.
+ScHiC table is an object gathering all scHi-C data of a group (a cell type or a condition). This object is usuable for the following analysis steps, `Pooling_RF_impute()` and `pseudo_bulkHic()` functions.
 
-To input for the `scHiC_table`, each single cell Hi-C data need to be processed as a sparse matrix format, which store pair-wise interaction frequencies of loci pairs. Since the full matrix of chromatin interactions is symmetric, only the upper triangular portion, including the diagonal and excluding any 0, is stored as sparse matrix format. The required sparse matrix format of each single cell Hi-C is:
+The input for the `scHiC_table()` function each single cell Hi-C data need to be processed as a sparse matrix format, which store pair-wise interaction frequencies of loci pairs. Since the full matrix of chromatin interactions is symmetric, only the upper triangular portion, including the diagonal and excluding any 0, is stored as sparse matrix format. The required sparse matrix format of each single cell Hi-C is:
 
 -   "chr" - a chromosome of first region
 -   “start1” - a start coordinate (in bp) of the first region
@@ -144,7 +144,7 @@ DT::datatable(head(MG_sparse), options = list(pageLength = 6, dom = 'tip'),
 
 #### Input material
 
-`scHiC_table()` function can receive list of single cell Hi-C datasets in sparse matrix format described as above structure. You can input the scHi-C data of singles cells as above describe ( see more [Input schi-c data](#addfunc) ), then modify them to sparse format, and gather them in `list()` object. If your datasets have format of 'txt' (sparse format) or 'cool', you can read and transform scHi-C datasets of a conditions to sparse format by using `read_files()` function to output the \`list() object.
+[??? Revise this paragraph for clarity] `scHiC_table()` function can receive list of single cell Hi-C datasets in sparse matrix format described as above structure. You can input the scHi-C data of singles cells as above describe ( see more [Input schi-c data](#addfunc[??? needs link]) ), then modify them to sparse format, and gather them in `list()` object. If your datasets have format of 'txt' (sparse format) or 'cool', you can read and transform scHi-C datasets of a conditions to sparse format by using `read_files()` function to output the \`list() object.
 
 `read_files(file.path, cell, position.dataset, type, txt.sparse.heads.position, out)`
 
@@ -161,20 +161,21 @@ The `read_files()` function output a list of scHiC data in sparse format for `ou
 ### Load data folder example saved in current working directory
 load_example_MGfolder()
 MGs.list <- read_files(file.path = "MGs_example", cell = "MG", position.dataset = c(1, 2, 3), type = "txt", txt.sparse.heads.position = c(1,2,4,5))
+#[??? "Error in value[[3L]](cond) : Error reading file: NA"]
 ```
 
 #### scHiC_table function
 
-After obtaining the list of single cell Hi-C dataset in sparse matrix format, you can use the list to transform into scHic table by `scHiC_table` function with the chosen chromosome. You can repeat these steps to generate scHiC tables of 2 conditions that are desired to be compared.
+After obtaining the list of single cell Hi-C datasets in sparse matrix format, you can then use this list to generate the scHic table with the `scHiC_table()` function for the chosen chromosome. You can repeat these steps to generate scHiC tables comparing 2 conditions. [??? maybe an example of comparing conditions is needed?]
 
 `scHiC_table(file.list, cell.type, position.dataset, select.chromosome)`
 
--   `file.list` - The list object where elements are processed scHi-C data file.
--   `cell.type` - The cell type used in the analysis (e.g., 'NSN', 'SN').
--   `position.dataset` - A vector of indices specifying the file positions to read from the directory.
+-   `file.list` - The list object where elements are processed scHi-C data file. [??? Clarify - each element of the list is a file path?]
+-   `cell.type` - The cell type to use in the analysis (e.g., 'NSN', 'SN').
+-   `position.dataset` - A vector of indices specifying the file positions to read from the directory. [??? I'm not sure what is meant by file positions in the directory. Does this determine the order of the files within the resulting table?]
 -   `select.chromosome` - The chromosome name to be studied (e.g., 'chr1' or 'chrX').
 
-The `scHiC_table()` function will output a table where its columns includes genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell.
+The `scHiC_table()` function will output a table where the columns represent both the genomic loci (cell, chromosome, start1, end1) and the interaction frequencies (IF) within that single cell dataset.
 
 ```{r, message=FALSE, echo=FALSE}
 ## full MG list
@@ -197,32 +198,32 @@ DT::datatable(head(scHiC.table_ODC,50), options = list(scrollX = TRUE), width = 
 
 ### Overview
 
-Single cell Hi-C data tends to be more sparsed due to the limitation of material at each single cell and technical challenges, and it is worse at missing more information at higher resolution. Imputation is designed to mitigate the sparsity chalenges by filling in missing data at the single-cell level.
+Single cell Hi-C data tends to be more sparse due to the limitation of material at each single cell and technical challenges [??? "Due to limitations and technical challenges"], and is worse at missing more information at higher resolution [??? Clarify "worse at missing more information at higher resolution"]. Imputation is designed to mitigate these sparsity chalenges by filling in the missing data at the single-cell level.
 
-The imputation process first segment data into its genomic distance (region2 - region1), then gather scHi-C distance data into pool bands based on its shared similar genomic distance effect (or similar mean of IFs at each of these distance data). There are 2 pooling style: progressive pooling and Fibonacci pooling. Progressive pooling pools of distances are consecutively combined to form larger sets, while Fibonacci pooling uses a Fibonacci sequence to combine distances.
+The imputation process first segments the data into genomic distances (region2 - region1), then gathers these scHi-C distances into pool bands based on its shared similar genomic distance effect [??? Clarify] (or similar mean of IFs at each of these distance data). There are 2 pooling methods: progressive pooling and Fibonacci pooling. In progressive pooling, pools of distances are consecutively combined to form larger sets. Fibonacci pooling uses the Fibonacci sequence [??? How?] to combine distances.
 
-Random forest imputation is applied on each pool band. During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range, if any pool contains more than `missPerc.theshold` missing values, it triggers an alternative imputation method, filling in missing values based on the mean for distances.
+Random forest imputation is applied to each pool band. During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range [??? Clarify - Main distance range or focus range?], if any pool contains more than `missPerc.theshold` missing values, it triggers an alternative imputation method, filling in missing values [??? missing distances?] based on the mean for distances [??? Which distances are used for the mean?].
 
 ### How to impute scHi-C data
 
 #### Input material
 
-To use `Pooling_RF_impute()`, we need scHiC table object created in previous section, which gather all single cells' Hi- C data of a condition ( see more [How to create scHiC table](#addfunc) ).
+[??? Revise] To use `Pooling_RF_impute()`, we need scHiC table object created in previous section, which gather all single cells' Hi- C data of a condition ( see more [How to create scHiC table](#addfunc[??? needs link]) ).
 
 #### Pooling_RF_impute function
 
-After obtaining the scHiC table of all single cell Hi-C dataset in sparse matrix format, you can impute these cells interaction frequencies by `Pooling_RF_impute` function with the chosen pooling style. Note that these single cells should belong to the same cell type or condition for each chromosome. You can repeat these steps to impute scHi-C data of 2 conditions that you wish to compare.
+After obtaining the scHiC table of [??? representing?] all single cell Hi-C dataset[??? multiple datasets?] in sparse matrix format, you can impute these cells interaction frequencies with the `Pooling_RF_impute()` function using your chosen pooling style. Note that these single cells should belong to the same cell type or condition for each chromosome. You can repeat these steps to impute scHi-C data of 2 conditions that you wish to compare. [??? Perhaps another example of comparing conditions]
 
-`Pooling_RF_impute(scHiC.table, n.imputation,main.Distances, pool.style, ...)`
+`Pooling_RF_impute(scHiC.table, n.imputation, main.Distances, pool.style, ...)`
 
--   `scHiC.table` - the scHic table oject across single cells created by the `scHiC_table()`.
--   `n.imputation` - Number of multiple imputations you want, from which the final imputed interaction frequencies (IFs) will be aggregated as a mean. The default is 5 imputations.
--   `main.Distances` - The genomic distance range (in bp) you want to focus on for full random forest imputation (e.g., 1:1000000). You can select 'full' for all scHiC data imputed. The default is from 1 to 10,000,000 bp.
+-   `scHiC.table` - the scHic table oject across single cells, created by `scHiC_table()`.
+-   `n.imputation` - Number of imputations from which the final imputed interaction frequencies (IFs) will be aggregated as a mean. The default is 5.
+-   `main.Distances` - The genomic distance range (in bp) you want to focus on for full random forest imputation (e.g., 1:1000000). You can select 'full' for all scHiC data imputed. The default is from 1 to 10,000,000 bp. [??? chr1 has > 240,000,000bp; expected default behavior would be 'full'?]
 -   `pool.style` - The pooling technique to be used. Options are 'progressive' or 'fibonacci'. The default is 'progressive'. For high-resolution data, 'progressive' may fail due to extreme sparsity, so it's recommended to switch to 'fibonacci', though it may take longer to compute.
 -  For other detail, you can look up `?Pooling_RF_impute()`
    
 
-The function `Pooling_RF_impute()` outputs imputed interactions frequency of each single cell in form of scHiC table, where each column is the imputed interaction frequency values for each single cells.
+The function `Pooling_RF_impute()` outputs imputed interactions frequency of each single cell in form of scHiC table, where each column is the imputed interaction frequency values for each single cells [??? each single cell matrix? dataset?].
 
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 ## Imputation 
@@ -240,7 +241,7 @@ DT::datatable(head(imp.cc.table.1,50), options = list(scrollX = TRUE), width = 7
 
 ### Overview
 
-One intermediate step in the `ScHiCcompare` workflow is transforming data into pseudo-bulk matrices. The output of speudo bulk matrices of two comparing groups is usable foe next step of the implement of normalization by `HiC_loess()` of `HiCcompare` package and `scHiC_bulk_compare()` of our implement.
+[??? Revise paragraph, unclear] One intermediate step in the `ScHiCcompare` workflow is transforming data into pseudo-bulk matrices. The output of pseudo bulk matrices of two comparing groups is usable for next step of the implement of normalization by `HiC_loess()` of `HiCcompare` package and `scHiC_bulk_compare()` of our implement.
 
 After the imputation of contacts within pooling groups, the data is reorganized into single-cell matrices for each cell type or condition. The imputed single-cell matrices within each group are summed to generate two pseudo-bulk matrices, one for each cell type or condition. By assuming that the interaction frequency between two loci in a single cell follows a similar distribution across all scHi-C matrices for a same cell type or condition, summing these interactions allows us to gather the maximum amount of information about each condition.
 
@@ -248,18 +249,18 @@ After the imputation of contacts within pooling groups, the data is reorganized 
 
 #### Input material
 
-To use `Pooling_RF_impute()`, we need scHiC table object created in previous section, which gather all single cells' Hi- C data of a condition ( see more [How to create scHiC table](#addfunc) ). You can run this step with imputed scHi-C table (output of imputation [Pooling_RF_impute function](#addfunc) ) or without imputed scHi-C table (output of [scHiC_table function](#addfunc)).
+To use `Pooling_RF_impute()`, we need the scHiC table object created in the previous section, which gathers all single cells' Hi-C data of a condition [??? unclear "gathers all single cells' Hi-C data of a condition"] ( see more [How to create scHiC table](#addfunc[??? needs link]) ). You can run this step with the imputed scHi-C table (output of imputation [Pooling_RF_impute function](#addfunc[??? needs link]) ) or without imputed scHi-C table (output of the [`scHiC_table()` function](#addfunc[??? needs link])).
 
 #### pseudo_bulkHic function
 
-With the input of a scHiC table, you can create speudo bulk matrix of a cell type or condition by `scHiC.table` pseudo_bulkHic. You can repeat these steps to create speudo bulk matrices of 2 conditions that you wish to compare.
+With the scHiC table, you can create pseudo bulk matrix for a cell type or other condition as shown below. You can repeat these steps to create pseudo bulk matrices of 2 conditions that you wish to compare. [??? might be helpful to show an example of 2 conditions]
 
 `pseudo_bulkHic(scHiC.table, out)`
 
--   `scHiC.table` - the scHic table oject across single cells created by the `scHiC_table()` or output of the `Pooling_RF_impute()`
--   `out` - the output format of pseudo bulk with option of 'sparse' or 'full' matrix.
+-   `scHiC.table` - the scHic table oject across single cells created by the `scHiC_table()` function or output of the `Pooling_RF_impute()` function
+-   `out` - the output format of the pseudo bulk matrix with options 'sparse' or 'full'.
 
-The function outputs a data frame representing the pseudo-bulk Hi-C data. If `out` is 'sparse', the output is in the format of a sparse upper triangular Hi-C matrix. If `out` is 'full', the output is in the format of a full speudo bulk Hi-C matrix.
+The function outputs a data frame representing the pseudo-bulk Hi-C data. If `out` is 'sparse', the output is in the format of a sparse upper triangular Hi-C matrix. If `out` is 'full', the output is in the format of a full pseudo bulk Hi-C matrix.
 
 ```{r, message=FALSE, warning=FALSE, fig.width=6, fig.height=3}
 ## Bulk matrix in sparse format
@@ -272,33 +273,33 @@ bulk.imp.sparse.1 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.1,
 
 ### Overview
 
-The differential analysis aims to detect differential chromatin interactions between single-cell Hi-C data from two cell types or conditions. The workflow involves clustering normalized log fold changes of interaction frequencies at each genomic distance between two cell types or conditions into difference and non-difference clusters.
+The differential analysis step aims to detect differential chromatin interactions between single-cell Hi-C data from two cell types or conditions. This workflow involves clustering normalized log fold change of interaction frequencies at each genomic distance between two cell types or conditions into difference and non-difference clusters.
 
-The non-difference cluster's log fold changes is assumed to have normal distribution centered around 0, identified through a Gaussian Mixture Model (GMM) cluster. The difference group consists of log fold changes belonging to other distributions clusters that deviate from the non-difference group's normal distribution. To improve the precision of difference group clustering, a control fold change threshold `fprControl.logfc` is applied, excluding bins with low log fold changesto focus on meaningful differences.
+The non-difference cluster's log fold change is assumed to have a normal distribution centered around 0, identified through a Gaussian Mixture Model (GMM) cluster. The difference group consists of log fold changes belonging to other distributions clusters that deviate from the non-difference group's normal distribution. To improve the precision of difference group clustering, a control [??? log] fold change threshold `fprControl.logfc` is applied, excluding bins with low log fold change, to find meaningful differences.
 
-In cases where the size of the differences is not large enough to form distinct distributions, these differences are likely outliers of the normal distribution, which are identified by the differential analysis of `HiCcompare`.
+In cases where the size of the differences are not large enough to form distinct distributions, these differences are likely [??? assumed?] outliers of the normal distribution, which are identified by the differential analysis of `HiCcompare`.
 
 ### How to apply differential analysis
 
 #### Input material
 
-To use `scHiC_bulk_compare()`, we need table of `hic_loess` function output of `HiCcompare` package, which jointly normalize pseudo bulk data of two cell types or conditions by loess regression. You can read more detail of
-
+To use the `scHiC_bulk_compare()` function, we need the table from the `hic_loess()` function output of `HiCcompare` package, which jointly normalize pseudo bulk data of two cell types or conditions by loess regression. You can read more detail of
+[??? combine the above and below paragraphs and revise for clarity]
 The function `hic_loess` of `HiCcompare` package need input of `hic.table` object, which is generated from pair of sparse upper triangular Hi-C matrices, can also be created using `create.hic.table()` function.
 
 `create.hic.table(sparse.mat1, sparse.mat2, chr, scale, ...)`
 
--   `sparse.mat1` - The input for the first sparse upper triangular Hi-C matrix. This can be the sparse matrix format of the pseudo-bulk scHi-C data from a specific cell type group, created using the `pseudo_bulkHic()` function (see more [pseudo_bulkHic function](#addfunc)).
+-   `sparse.mat1` - The input for the first sparse upper triangular Hi-C matrix. This parameter uses the sparse matrix format from the pseudo-bulk scHi-C data using a specific cell type or other grouping created using the `pseudo_bulkHic()` function (see more [pseudo_bulkHic function](#addfunc[??? needs link])).
 
--   `sparse.mat2` - The input for the second sparse upper triangular Hi-C matrix. Similarly, this can be the sparse matrix format of the pseudo-bulk scHi-C data from another cell type group, also created using the `pseudo_bulkHic()` function (see more [pseudo_bulkHic function](#addfunc)).
+-   `sparse.mat2` - The input for the second sparse upper triangular Hi-C matrix. Similarly, this uses the sparse matrix format from the pseudo-bulk scHi-C data using another cell type or other grouping, also created using the `pseudo_bulkHic()` function (see more [pseudo_bulkHic function](#addfunc[??? needs link])).
 
--   `chr` - The chromosome name corresponding to the matrices being entered, e.g., 'chr1' or 'chrX'.
+-   `chr` - The shared chromosome name for the matrices (`sparse.mat1` and `sparse.mat2`) being entered, e.g., 'chr1' or 'chrX'.
 
--   `scale` - Logical. If TRUE, the interaction frequencies (IFs) of the second sparse matrix will be adjusted as follows: IF2_scaled = $IF2 / (sum(IF2) / sum(IF1))$. In our analysis, we set `scale` to FALSE.
+-   `scale` - Logical. If TRUE, the interaction frequencies (IFs) of the second sparse matrix will be adjusted as follows: IF2_scaled = $IF2 / (sum(IF2) / sum(IF1))$. In our original analysis, we set `scale` to FALSE.
 
--   For other detail, you can look up `?create.hic.table()`.
+-   For more information, you can see `?create.hic.table()`.
 
-The function return `hic.table` object that can be used to normalize in `hic_loess`.
+The function returns a `hic.table` object that can be used to normalize with the `hic_loess()` function.
 
 ```{r, message=FALSE, warning=FALSE, fig.width=5, fig.height=3}
 data("scHiC.table_MG")
@@ -320,11 +321,11 @@ DT::datatable(head(bulk.hic.table, 50), options = list(scrollX = TRUE), width = 
 
 `hic_loess(hic.table, Plot = TRUE, Plot.smooth = FALSE, ...)`
 
--   `hic.table` - `hic.table` object that is created from `create.hic.table` function above
+-   `hic.table` - `hic.table` object that is created from the `create.hic.table()` function above
 
--   `Plot` - Logical, if the MD plot showing before/after loess normalization be output
+-   `Plot` - Logical, if the MD plot showing before/after loess normalization be output [??? Logical, output the MD plot showing before/after loess normalization, default?]
 
--   `Plot.smooth` - Logical, defaults to TRUE indicating the MD plot will be a smooth scatter plot. Set to FALSE for a scatter plot with discrete points.
+-   `Plot.smooth` - Logical, defaults to TRUE indicating the MD plot will be a smooth scatter plot. Set to FALSE for a scatter plot with discrete points. [??? Describe smoothing process a little]
 
 -   For other detail, you can look up `?hic_loess()`
 
@@ -335,15 +336,15 @@ hic.table_normalize <- hic_loess(hic.table = bulk.hic.table, Plot = T, Plot.smoo
 
 #### scHiC_bulk_compare function
 
-After obtaining the `hic.table` object showing the normalization result from speudo bulk matrices of two cell type groups or conditions, we can input it to `scHiC_bulk_compare()` function for further differential analysis.
+After obtaining the `hic.table` object showing the normalization result from the pseudo bulk matrices of two cell type groups or conditions, we can use the `scHiC_bulk_compare()` function for further differential analysis.
 
 `scHiC_bulk_compare(norm.hic.table , D.interval, A.min, fprControl.logfc, Plot, ...)`
 
-  - `norm.hic.table` - The `hic.table` object of the `hic_loess` function for pair of pseudo bulk matrices.
+  - `norm.hic.table` - The `hic.table` object from the `hic_loess()` function for the pair of pseudo bulk matrices. [??? Unclear - for the pair of pseudo bulk matrices or from the pair? Does `norm.hic.table` contain the pair?]
   
-  - `D.interval` - The distance intervals to consider in the analysis, or 'full' option indicating the inclusion of all genomic distances in the analysis. The distance should be scaled by dividing by the data resolution, D = (start2 - start1)/resolution (e.g., D = (16,000,000 - 17,000,000)/1,000,000 -\> D = 1).
+  - `D.interval` - The distance intervals to consider in the analysis, or 'full' option indicating the inclusion of all genomic distances in the analysis. The distance should be scaled by dividing by the data resolution, D = (start2 - start1)/resolution (e.g., D = (16,000,000 - 17,000,000)/1,000,000 -\> D = 1). [??? What is default? 'full'?]
   
-  - `A.min` - his parameter represents the quantile cutoff level used to filter low-expression interaction frequency (IF) bins during differential outlier detection in the hic_compare() function. Specifically, log fold change values associated with average expression levels (A, the mean of IF1 and IF2) below the specified A.min quantile are excluded from the analysis. You can specify the quantile level (e.g., 0.1, 0.2) as a numeric value between 0 and 1. You can also use `best_A()` function to identify best A level that maximize the test performance.
+  - `A.min` - This parameter represents the quantile cutoff level used to filter low-expression interaction frequency (IF) bins during differential outlier detection in the `hic_compare()` function. Specifically, log fold change values associated with average expression levels (A, the mean of IF1 and IF2) below the specified `A.min` quantile are excluded from the analysis. You can specify the quantile level (e.g., 0.1, 0.2) as a numeric value between 0 and 1. You can also use `best_A()` function to identify best A level that maximizes the test performance.
   
   - `fprControl.logfc` - The value controlling the false positive rate by setting the threshold for the log fold change of differences. Detected differences should have a value larger than this threshold. Default is 0.8.
   
@@ -360,7 +361,7 @@ hic.table.result <- scHiC_bulk_compare(norm.hic.table = hic.table_normalize, D.i
 
 There are several other functions included in `ScHiCcompare`. 
 
-plot_imputation_heatmap() produces a heatmap visualization for HiC and scHiC matrices. It requires input of sparse matrix format. You can read more detail about it by its help document or see example below [Pseudo Bulk](#addfunc).
+`plot_imputation_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires an input as a sparse matrix. More information can be found in its help document and the example below [Pseudo Bulk](#addfunc[??? needs link]).
 
 ```{r}
 plot.df = ODCs.list[[1]][,-1]
@@ -368,7 +369,7 @@ plot_imputation_heatmap(plot.df, main = 'scHiC matrix of a ODC cell')
 ```
 
 
-plot_imputed_distance_diagnostic() produces a visualization for imputation diagnostic at each genomic distsnce. It compare the distribution of a given distance data before and after imputation. It requires input of scHiC table of the original and imputed scHiC datasets. You can read more detail about it by its help document or see example below [Imputation](#addfunc).
+`plot_imputed_distance_diagnostic()` produces a visualization for imputation diagnostic at each genomic distsnce. It compare the distribution of a given distance data before and after imputation. It requires input of scHiC table of the original and imputed scHiC datasets. More information can be found in its help document and the example below [Imputation](#addfunc[??? needs link]).
 
 ```{r}
 plot_imputed_distance_diagnostic(org_sc_data = imp.cc.table.1, imp_sc_data = scHiC.table_ODC, D = 1)
@@ -376,7 +377,7 @@ plot_imputed_distance_diagnostic(org_sc_data = imp.cc.table.1, imp_sc_data = scH
 
 # Example of scHiCompare workflow
 
-Here, we used example 50 scHiC datasets of human brain (Lee et al., 2019) with ODC and MG cell type at chromosome 20 at 1MB resolution.
+Here is an example workflow using 50 scHiC human brain datasets (Lee et al., 2019) with ODC and MG cell types at chromosome 20 with a 1MB resolution.
 
 #### Create ScHiC table
 
@@ -399,7 +400,7 @@ scHiC.table_MG = scHiC_table(file.list = MGs.list,
 
 #### Imputation
 
-In this example, we focus on imputing at genomic distance from 1 to 10,000,000 (bp) with 10 times multiple imputation. We select to progressive pooling style to create pool bands for random forest imputation.
+In this example, we focus on imputing genomic distances from 1 to 10,000,000 (bp) with 10 times multiple imputation [??? 10 fold imputation?]. We select the progressive pooling method to create pool bands for the random forest imputation.
 
 ```{r, message=FALSE, warning=FALSE}
 ## Imputation with 'progressive' pooling
@@ -408,7 +409,7 @@ imp.cc.table.1 <- Pooling_RF_impute(scHiC.table = scHiC.table_ODC, n.imputation 
 imp.cc.table.2 <- Pooling_RF_impute(scHiC.table = scHiC.table_MG, n.imputation = 10,
                               main.Distances = 1:10000000, pool.style = 'progressive')
 ```
-
+[??? What is the "Diagnostic Density for imputed D = 1"? Further explaination on plots may be needed here.]
 ```{r, message=FALSE, warning=FALSE}
 # plot imputed Distance Diagnostic
 plot1 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_ODC, imp_sc_data = imp.cc.table.1, D = 1)
@@ -421,7 +422,7 @@ grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow =2)
 
 
 #### Pseudo Bulk
-
+[??? Further explaination on plots may be needed here.]
 ```{r, message=FALSE, warning=FALSE, fig.width=6, fig.height=3}
 ## Bulk matrix in sparse format
 bulk.imp.sparse.1 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.1, 
@@ -435,7 +436,7 @@ bulk.imp.sparse.2 = na.omit(pseudo_bulkHic(scHiC.table = imp.cc.table.2,
 
 bulk.org.sparse.1 = pseudo_bulkHic(scHiC.table =scHiC.table_ODC, out = 'sparse')
 
-## plot heatmap of speudobulk
+## plot heatmap of pseudobulk
 
 plot1 = plot_imputation_heatmap(scHiC.sparse = bulk.org.sparse.1, main = 'Before imputation',  zlim = c(0, 15))
 plot2 = plot_imputation_heatmap(scHiC.sparse = bulk.imp.sparse.1, main = 'After imputation',  zlim = c(0, 15))
@@ -444,7 +445,7 @@ grid.arrange(plot1, plot2, ncol = 2, name = 'arrange')
 ```
 
 #### Loess Normalization
-
+[??? Further explaination on plots may be needed here.]
 ```{r, warning=FALSE, message=FALSE}
 ## Jointly normalize data for a single chromosome by Loess HiCcompare
 library(HiCcompare)
@@ -455,7 +456,7 @@ hic.table_normalize <- hic_loess(bulk.hic.table, Plot = T, Plot.smooth = T)
 ```
 
 #### Differential Analysis
-
+[??? Further explaination on plots may be needed here.]
 ```{r, warning=FALSE, message=FALSE}
 hic.table.result <- scHiC_bulk_compare(norm.hic.table = hic.table_normalize, D.interval = 1:10,
                                     fprControl.logfc = 0.5, Plot = T)
