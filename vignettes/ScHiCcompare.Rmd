@@ -25,14 +25,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction
 
-`ScHiCcompare` is package of functions designed for the imputation, joint normalization, and detection of differential chromatin interactions between two groups of single-cell Hi-C datasets (scHi-C). It works with processed Hi-C data, specifically chromosome-specific chromatin interaction matrices, and accepts five-column tab-separated text files in a sparse matrix format.
+`ScHiCcompare` is package of functions designed for the imputation, joint normalization, and detection of differential chromatin interactions between two groups of single-cell Hi-C datasets (scHi-C). [??? How such groups are created? Talk about pre-defining them by clustering, which methods] It works with processed Hi-C data, specifically chromosome-specific chromatin interaction matrices, and accepts five-column tab-separated text files in a sparse matrix format. 
 
-What sets `ScHiCcompare` apart from other tools is its focus on processed chromatin interaction matrices rather than raw sequencing data. The package provides two key functionalities:
+<!-- What sets `ScHiCcompare` apart from other tools is its focus on processed chromatin interaction matrices rather than raw sequencing data. [??? Not important] -->The package provides two key functionalities:
 
 -   Imputation of single-cell Hi-C data
 -   Differential analysis to identify differences in chromatin interactions between groups.
 
-# Implement
+# Implement [??? Too many subheaders]
 
 ## Getting Start
 
@@ -42,7 +42,7 @@ What sets `ScHiCcompare` apart from other tools is its focus on processed chroma
 if (!requireNamespace("BiocManager", quietly=TRUE))
    install.packages("BiocManager")
 
-BiocManager::install("ScHiCcompare")
+BiocManager::install("ScHiCcompare") # {??? Use proper capitalization}
 
 # For the latest version install from GitHub
 # devtools::install_github("dozmorovlab/ScHiCcompare")
@@ -62,9 +62,9 @@ library(lattice)
 
 ### Input schi-c data
 
-You will need processed Hi-C data in the form of sparse upper triangular matrices to use ScHiCcompare with 5 columns (chr1, start1, chr2, start2, IF). ScHi-C data has different formats that are available from several sources, and two examples for downloading and extracting data are listed below.
+You will need processed Hi-C data in the form of sparse upper triangular matrices to use ScHiCcompare with 5 columns (chr1, start1, chr2, start2, IF). [??? What is IF?] ScHi-C data has different formats that are available from several sources, and two examples for downloading and extracting data are listed below [??? rewrite, redundant]. [??? Mention chromosome-specific]
 
-If you have full Hi-C contact matrices, you convert them to sparse upper triangular format using the `full2sparse()` function of `HiCcomapre` packge, then reformat the column to achieve the requirement input format.
+If you have full Hi-C contact matrices, you can convert them to sparse upper triangular format using the `full2sparse()` function of `HiCcomapre` packge, then reformat the column to achieve the requirement input format.
 
 #### Extracting data from .hic files
 
@@ -131,7 +131,7 @@ The input for the `scHiC_table()` function each single cell Hi-C data need to be
 
 ```{r}
 data(MG_1)
-MG_sparse <- MG_1[ ,c(1,2,4,5)]
+MG_sparse <- MG_1[ ,c(1,2,4,5)] # Use column names, but they look strange in the MG_1 object
 names(MG_sparse) <- c('chr' , 'start1', 'start2', 'IF')
 ```
 
@@ -146,7 +146,7 @@ DT::datatable(head(MG_sparse), options = list(pageLength = 6, dom = 'tip'),
 
 [??? Revise this paragraph for clarity] `scHiC_table()` function can receive list of single cell Hi-C datasets in sparse matrix format described as above structure. You can input the scHi-C data of singles cells as above describe ( see more [Input schi-c data](#addfunc[??? needs link]) ), then modify them to sparse format, and gather them in `list()` object. If your datasets have format of 'txt' (sparse format) or 'cool', you can read and transform scHi-C datasets of a conditions to sparse format by using `read_files()` function to output the \`list() object.
 
-`read_files(file.path, cell, position.dataset, type, txt.sparse.heads.position, out)`
+`read_files(file.path, cell, position.dataset, type, txt.sparse.heads.position, out)` [???  It is unnecessary and confusing. See comments to the function]
 
 -   `file.path` - The directory path where the scHiC files are stored.
 -   `cell` - Cell type name (e.g., 'MG', etc).
@@ -159,7 +159,7 @@ The `read_files()` function output a list of scHiC data in sparse format for `ou
 
 ```{r, warning= F, message=FALSE, results='hide', eval=FALSE}
 ### Load data folder example saved in current working directory
-load_example_MGfolder()
+load_example_MGfolder() # [??? Why not just provide .txt files? Get rid of it]
 MGs.list <- read_files(file.path = "MGs_example", cell = "MG", position.dataset = c(1, 2, 3), type = "txt", txt.sparse.heads.position = c(1,2,4,5))
 #[??? "Error in value[[3L]](cond) : Error reading file: NA"]
 ```
