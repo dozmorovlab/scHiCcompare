@@ -1,15 +1,15 @@
 
 #' Create scHiC Interaction Frequency Table
 #'
-#' This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells at a selected chromosome. The resulting table is usable for `Pooling_RF_impute` and `pseudo_bulkHic` functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell.
+#' This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells for a selected chromosome. The resulting table is usable for the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell dataset.
 #'
-#' @param file.list The list object where elements are processed scHi-C data file.
+#' @param file.list The list object where elements are processed scHi-C data file.[??? Clarify - each element of the list is a file path?]
 #' @param cell.type The cell type used in the analysis (e.g., 'NSN', 'SN').
-#' @param position.dataset A vector of indices specifying the file positions to read from the directory.
+#' @param position.dataset A vector of indices specifying the file positions to read from the directory.[??? I'm not sure what is meant by file positions in the directory. Does this determine the order of the files within the resulting table?]
 #' @param select.chromosome The chromosome name to be studied (e.g., 'chr1' or 'chrX').
-#' @return A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with `Pooling_RF_impute` and `pseudo_bulkHic` functions.
+#' @return A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions.
 #' @details
-#' This function processes single-cell Hi-C data in a list object. Then the function transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with foyr tab-separated columns (chr, start1,  start2, IF) and no row or column names or quotes around character strings. 
+#' This function processes single-cell Hi-C data in a list object, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with four tab-separated columns (chr, start1,  start2, IF) with no row or column names and no quotes around character strings.
 #' @examples
 #' \dontrun{
 #' # Load MG data folder example
@@ -40,7 +40,7 @@ scHiC_table <- function(file.list = NULL, cell.type, position.dataset, select.ch
   
   regions <- NULL
   options(scipen = 999)
-  
+  #[??? for loop can likely be vectorized for peformance here]
   for(i in 1:n_sc){
     data <- datasets[[i]]  # Get the dataset from the list
 
@@ -86,7 +86,7 @@ scHiC_table <- function(file.list = NULL, cell.type, position.dataset, select.ch
     region1 = cordination[,'region1'],
     region2 = cordination[,'region2']
   )
-  
+  #[??? for loop can likely be vectorized for peformance here]
   for (i in 1:n_sc) {
     data <- datasets[[i]]  # Get the dataset from the list
     
