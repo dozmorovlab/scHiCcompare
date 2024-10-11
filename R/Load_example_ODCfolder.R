@@ -7,7 +7,7 @@
 #' @param save_dir A character string specifying the directory where the 'ODCs_example' 
 #' folder will be created. If NULL (default), the function uses the current working directory.
 #'
-#' @return Saves the datasets as .txt files in the 'ODCs_example' folder.
+#' @return Saves the datasets as '.txt' files in the 'ODCs_example' folder.
 #'
 #' @examples
 #' load_example_ODCfolder() # Saves in 'ODCs_example' in the current working directory
