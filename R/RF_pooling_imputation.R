@@ -161,7 +161,7 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm =
   library(miceadds)
   # Temporally remove outlier
   if(outlier.rm == TRUE){
-    outlier.threshold <- quantile(data_input$IF, 0.85, na.rm = T) + 3 * IQR(data_input$IF, na.rm = T) ## extreme value
+    outlier.threshold <- quantile(data_input$IF, 0.85, na.rm = T) + 3 * IQR(data_input$IF, na.rm = T) ## extreme value [??? The outlier.threshold with a 0.85 quantile seems to be a pretty important assumption. Perhaps describe this and pass this as a parameter further upstream?]
     outlier.threshold <- max(2,outlier.threshold)
     outlier <-  unique(na.omit(data_input$IF)[na.omit(data_input$IF) > outlier.threshold] )
     outlier.pos <- which(data_input$IF %in% na.omit(outlier))
@@ -313,11 +313,11 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 #' @param scHiC.table A data frame containing interaction frequencies across single cells, created by the `scHiC_table` function. 
 #'                    The first four columns should represent 'cell', 'chr', 'region1', and 'region2', 
 #'                    followed by columns representing interaction frequencies ('IF') for individual cells.
-#' @param n.imputation An integer specifying the number of multiple imputations to be performed. Default is 5.
+#' @param n.imputation An integer specifying the number of imputations to be performed. Default is 5.
 #' @param maxit An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. Default is 1.
 #' @param outlier.rm A logical value indicating whether to remove outliers during the imputation process. Default is TRUE.
-#' @param main.Distances A vector of integers representing the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). 
-#' Default is from 1 to 10,000,000.
+#' @param main.Distances A vector of integers representing the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000).
+#' Default is from 1 to 10,000,000. [??? is 'full' an option as stated in ScHiCcompare.Rmd? chr1 has > 240,000,000bp; expected default behavior would be 'full'?]
 #' @param pool.style A string specifying the pooling technique to use. Options are 'progressive' or 'fibonacci'. 
 #' Default is 'progressive'.
 #' @param missPerc.theshold An integer specifying the missing value percentage threshold in each pool band. 

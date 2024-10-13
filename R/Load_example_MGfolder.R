@@ -7,7 +7,7 @@
 #' @param save_dir A character string specifying the directory where the 'MGs_example' 
 #' folder will be created. If NULL (default), the function uses the current working directory.
 #'
-#' @return Saves the datasets as .txt files in the 'MGs_example' folder.
+#' @return Saves the datasets as '.txt' files in the 'MGs_example' folder.
 #'
 #' @examples
 #' load_example_MGfolder() # Saves in 'MGs_example' in the current working directory

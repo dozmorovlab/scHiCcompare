@@ -6,12 +6,12 @@
 #' For 'cool', it uses the `HiCcompare` package to transform cooler files to BEDPE format.
 #'
 #' @param file.path The directory path where the data files are stored.
-#' @param cell A character string specifying a cell type (e.g., 'MG', etc).
-#' @param position.dataset A vector of indices specifying the file positions to read from the directory.
-#' @param type The file type, either 'txt' or 'cool'. Default is 'txt'. Each 'txt' file should be in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction frequency value (IFs) of two interacting regions.
-#' If the 'cool' type is selected, the .cool files are HDF5 containers that store Hi-C data, which will be read using `cooler2bedpe()` from the `HiCcompare` package.
-#' @param txt.sparse.heads.position A vector of four integers specifying the column positions of chromosome, start1, start2, and IF in the 'txt' file.
-#' @param out Output format with options 'sparse' and 'original'. If 'sparse', the sparse upper triangular matrix format is returned. If 'original', the dataset will retain its original structure. Default is 'sparse'.
+#' @param cell A character string specifying a cell type (e.g., 'MG', etc). [??? Where to find it?]
+#' @param position.dataset A vector of indices specifying the file positions to read from the directory. [??? What is a file index here? What does this do?]
+#' @param type The file type, either 'txt' or 'cool'. Default is 'txt'. [??? Is position.dataset needed for txt?] Each 'txt' file should be in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction frequency value (IFs) of two interacting regions.
+#' If the 'cool' type is selected, the 'cool' files are HDF5 containers that store Hi-C data, which will be read using `cooler2bedpe()` [??? Why not just use this function? writing a wrapper is reinventing the weel] from the `HiCcompare` package. [??? This parameter can be automated by reading the file extension from the 'file.path' argument]
+#' @param txt.sparse.heads.position A vector of four integers specifying the column positions of chromosome, start1, start2, and IF in the 'txt' file. [??? This could have a default order; 'out' is sparse, so (chr, start1, start2, IF)?] [??? why it is needed at all? very confusing]
+#' @param out Output format with options 'sparse' and 'original'. If 'sparse', the sparse upper triangular matrix format is returned. If 'original', the dataset will retain its original structure. Default is 'sparse'. [??? Why even care if the package uses sparse? HiCcompare has funcions to confert to full]
 #'
 #' @return A list of datasets, where each element corresponds to a dataset from the selected files. If `out` is 'sparse', each dataset element is transformed into sparse matrix format (chr, start1, start2, IF).
 #' If `out` is 'original', the original structure of each single-cell Hi-C dataset is preserved. If the 'cool' type is selected and `out` is 'original', each dataset will retain the structure from `cooler2bedpe()`, containing a list with two items:
@@ -21,9 +21,9 @@
 #' }
 #'
 #' @details
-#' This function reads single-cell Hi-C data in '.txt' or 'cool' format, with output options of 'sparse' and 'original'. Each input 'txt' file should be in the form of a sparse upper triangular Hi-C matrix, 
+#' This function reads single-cell Hi-C data in 'txt' or 'cool' format, with output options of 'sparse' and 'original'. Each input 'txt' file should be in the form of a sparse upper triangular Hi-C matrix, 
 #' storing pair-wise interaction frequencies of loci pairs. The 'txt' dataset should have one column indicating the interaction frequency (IF) of each pair of interacting regions, with tab-separated columns and no row names, column names, or quotes around character strings.
-#' If the 'cool' type is selected, the input .cool files are HDF5 containers that store Hi-C data, which will be read using `cooler2bedpe()` from the `HiCcompare` package. The function can provide output in the dataset's 'original' structure or in 'sparse' matrix format.
+#' If the 'cool' type is selected, the input 'cool' files are HDF5 containers that store Hi-C data, which will be read using `cooler2bedpe()` from the `HiCcompare` package. The function can provide output in the dataset's 'original' structure or in 'sparse' matrix format.
 #'
 #' @examples
 #' \dontrun{
@@ -50,8 +50,8 @@ read_files <- function(file.path, cell, position.dataset, type='txt', txt.sparse
   
   datasets <- list()  # Initialize a list to store the datasets
   
-  if (type == 'txt') {
-    for(i in 1:length(position.dataset)){
+  if (type == 'txt') { #[??? may want to capture anything not 'cool' or '.cool' and treat it like txt]
+    for(i in 1:length(position.dataset)){ #[??? perhaps just loop through seq_along(data_names)?]
       dataset <- tryCatch(
         
         read.delim(data_names[i]),
@@ -76,7 +76,7 @@ read_files <- function(file.path, cell, position.dataset, type='txt', txt.sparse
     for(i in 1:length(position.dataset)){
       dataset <- tryCatch(
         cooler2bedpe(data_names[i]),
-        error = function(e) stop(paste("Error reading .cool file:", data_names[i]))
+        error = function(e) stop(paste("Error reading cool file:", data_names[i]))
       )
       if(out == 'sparse'){
         ## Identify head position in sparse matrix format

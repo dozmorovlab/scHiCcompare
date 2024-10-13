@@ -4,7 +4,7 @@
 #' allowing users to visualize either original or imputed Hi-C data.
 #'
 #' @param scHiC.sparse A sparse matrix of Hi-C interaction frequencies in sparse format.
-#' @param zlim A numeric vector of length 2 specifying the limits of the color scale. Default is c(0, 7).
+#' @param zlim A numeric vector of length 2 specifying the limits of the color scale. Default is c(0, 7). [??? This should probably be calculated on the fly based on the given data by default?]
 #' @param color_low A character specifying the color for the lowest values. Default is "white".
 #' @param color_high A character specifying the color for the highest values. Default is "red".
 #' @param main A character string for the main title of the plot. Default is NULL.

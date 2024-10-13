@@ -8,7 +8,7 @@
 #' @param imp_sc_data A data frame containing the imputed single-cell Hi-C datain scHiC Table object.
 #'   The data frame should include columns for `region1`,`region2`,`Cell`, `Chr`, and `IF_i` for i single cells.
 #' @param D An integer specifying the genomic distance for which to plot the density 
-#'   curves of interaction frequencies. 
+#'   curves of interaction frequencies. [??? more explaination on what genomic distance is here. What is the default / should there be a default? How does this value change the plot/interpretation?]
 #'
 #' @return A ggplot2 object representing the density plot comparing original 
 #'   and imputed interaction frequencies.
