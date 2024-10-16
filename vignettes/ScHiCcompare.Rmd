@@ -330,7 +330,7 @@ for(i in 1:length(files_names)){
 
 In this example, we will work with scHi-C data from 10 single cells in both ODC and MG cell types. We will focus on chromosome 20, applying the full workflow of scHiCcompare (imputation, speudo-bulk normalization, and differential analysis) . We focus to detect differences for loci with genomic distances from 1 to 10,000,000 (bp). The progressive pooling style is selected to create pool bands for the random forest imputation. For differential analysis step, we set the log fold change - false positive control threshold as 0.8.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval = F}
 ## Imputation with 'progressive' pooling
 result = ScHiCcompare(file.path.1 = 'mod_ODCs_example', file.path.2 = 'mod_MGs_example',
              select.chromosome = 'chr20', 
@@ -343,9 +343,17 @@ result = ScHiCcompare(file.path.1 = 'mod_ODCs_example', file.path.2 = 'mod_MGs_e
 
 ```
 
+![](norm_result.png)
+
+![](differences.png)
+
 From the visualizations above, normalization effectively reduces the fuzziness between the imputed pseudo-bulk data of the two cell types. At a 1MB resolution, the differential analysis reveals that most of the detected differences occur at closer genomic distances, particularly below 5MB.
 
 We can extract the differential result in `$Differential_Analysis`, imputed results in `$Intermediate$Imputation`, and normalization result in `$Intermediate$Bulk.Normalization`
+
+```{r, echo = F}
+data(result)
+```
 
 ```{r}
 ### Extract imputed ODC cell type table
@@ -372,7 +380,7 @@ The imputation can be further evaluated using the `plot_imputed_distance_diagnos
 The output of `$Intermediate$Imputation` of `ScHiCcompare()` function has achieved this format of input table. We need to create the table for original IFs values in the same format. This job can be done simply by `scHiC_table()` function. You can see detail of this function by looking up `?scHiC_table()`.
 
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval = F}
 # Create scHiC table object for original IF
 scHiC.table_ODC = scHiC_table(file.path = 'mod_ODCs_example', cell.type = 'ODC', select.chromosome = 'chr20')
 scHiC.table_MG = scHiC_table(file.path = 'mod_MGs_example', cell.type = 'MG', select.chromosome = 'chr20')
@@ -392,6 +400,12 @@ plot4 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
                                          imp_sc_data = imp_MG_table, D = 4)
 grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow =2)
 
+```
+
+![](diagnostic_MG.png)
+
+```{r, eval=FALSE}
+
 # plot imputed Distance Diagnostic of ODC
 plot5 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_ODC,
                                          imp_sc_data = imp_ODC_table, D = 1)
@@ -403,6 +417,8 @@ plot8 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_ODC,
                                          imp_sc_data = imp_ODC_table, D = 4)
 grid.arrange(plot5, plot6, plot7, plot8, ncol = 2, nrow =2)
 ```
+
+![](diagnostic_ODC.png)
 
 The diagnostic visualizations show that for MG, the imputed values closely match the original interaction frequency (IF) distributions across most genomic distances. However, with only 10 single cells per group, the imputed values for ODC perform well only at closer genomic distances (e.g., D1, D2). The accuracy of the imputation can be further improved by increasing the number of single cells in each group. The scHiCcompare paper recommends using at least 60 single cells per group for optimal imputation accuracy.
 
