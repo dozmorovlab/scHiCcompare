@@ -99,10 +99,10 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
                          BP_param = bpparam()){
   
   # Read file 'txt' from 2 folder path
-  cond1_list <- read_files(file.path = file.path.1, type='txt',
-                         txt.sparse.heads.position = c(1,2,3,4), out = 'sparse')
-  cond2_list <- read_files(file.path = file.path.2, cell = 'condition2', type='txt',
-                           txt.sparse.heads.position  = c(1,2,3,4), out = 'sparse')
+  # cond1_list <- read_files(file.path = file.path.1, type='txt',
+  #                        txt.sparse.heads.position = c(1,2,3,4), out = 'sparse')
+  # cond2_list <- read_files(file.path = file.path.2, cell = 'condition2', type='txt',
+  #                          txt.sparse.heads.position  = c(1,2,3,4), out = 'sparse')
     
   
   # Step 0 : Transfer into scHiC table oject

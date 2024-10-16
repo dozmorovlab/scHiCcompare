@@ -21,6 +21,9 @@ vignette: >
 ```{r setup, include=FALSE}
 options(width = 1000)
 knitr::opts_chunk$set(echo = TRUE)
+# Set CRAN mirror
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+
 ```
 
 # Introduction
@@ -54,11 +57,13 @@ BiocManager::install("ScHiCcompare")
 ```
 
 ```{r, message=FALSE, warning=FALSE}
+library(data.table)
 library(scHiCcompare)
 library(tidyr)
 library(ggplot2)
 library(gridExtra)
 library(lattice)
+
 ```
 
 ## Import schi-c data into R
@@ -207,14 +212,15 @@ plot_HiCmatrix_heatmap(scHiC.sparse = ODC_1_plot.df, main = 'scHiC matrix of a O
 
 `plot_imputed_distance_diagnostic()` produces a visualization for imputation diagnostic of all single  at each genomic distsnce. It compare the distribution of a given distance data before and after imputation. It requires input of scHiC table of the original and imputed scHiC datasets. More information can be found in its help document and the example below [Imputation](#addfunc[??? needs link]).
 
-```{r}
-#load_example_MGfolder()
+```{r, warning=FALSE, message=FALSE}
 
 ## Original values before imputed 
 # By scHiC_table(), which outputs scHiC table to input for the diagnostic plot
-scHiC.table_MG = scHiC_table(file.path  = 'MGs_example',
-                             cell.type = 'MG', 
-                             select.chromosome = 'chr22')
+# scHiC.table_MG = scHiC_table(file.path  = path/to/MG/file,
+#                              cell.type = 'MG', 
+#                              select.chromosome = 'chr22')
+
+data(scHiC.table_MG.chr22)
 
 ## Imputed values 
 #  By Pooling_RF_impute(), which also outputs scHiC table object 
@@ -241,7 +247,7 @@ Here is an example workflow using scHiC human brain datasets (Lee et al., 2019) 
 
 To download human brain datasets (Lee et al., 2019), we used the `download_schic()` function of package of `Bandnorm` to download the scHiC data of  ODC and MG cell types groups in 1MB resolution.
 
-```{r, eval = TRUE}
+```{r, eval = FALSE}
 ### Install Bandnorm
 install.packages(c('ggplot2', 'dplyr', 'data.table', 'Rtsne', 'umap'))
 
@@ -266,8 +272,8 @@ Since the size of scHiC data is large, we will only consider 10 single cells Hi-
 
 ```{r}
 ## Load and create folder for example data - ODCs_example and MGs example folders
-Load_example_MGfolder()
-Load_example_ODCfolder()
+load_example_ODCfolder()
+load_example_MGfolder()
 
 ## Below is the format of an example files
 files_names = list.files('ODCs_example', full.names = T, recursive = T)
