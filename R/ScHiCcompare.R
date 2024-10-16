@@ -108,7 +108,7 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
   # Step 0 : Transfer into scHiC table oject
   scHiC.table_cond1 <- scHiC_table(file.path = file.path.1, cell.type = 'condition1',
                                    select.chromosome = select.chromosome)
-  scHiC.table_cond2 <- scHiC_table(file.list = cond2_list, cell.type = 'condition2',
+  scHiC.table_cond2 <- scHiC_table(file.path = file.path.2, cell.type = 'condition2',
                                    select.chromosome = select.chromosome)
   ## main distance of scHiC table - transfer to D
   res = min( abs( diff(unique(scHiC.table_cond1$region1)) ) )
