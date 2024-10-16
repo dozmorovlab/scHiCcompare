@@ -88,7 +88,7 @@ This will extract the matrix from the `.hic` file and save it to the `scHiC.500k
 
 `<NONE/VC/VC_SQRT/KR> <hicFile(s)> <chr1>[:x1:x2] <chr2>[:y1:y2] <BP/FRAG> <binsize>`
 
-The first argument is the normalization method; for `ScHiCcompare`, choose `NONE` to use raw data. The second argument is the .hic file name. For intrachromosomal maps, set both chromosome numbers the same (`<chr1>` and `<chr2>` are interacting chromosome; `[:x1:x2]` are optional define specific genomic ranges within each chromosome).  Interchromosomal maps can use different chromosomes, but note that ScHiCcompare only handles intrachromosomal interactions. Choose `BP` for basepair data, and specify the bin size (e.g., 10000000 for 1MB resolution). Common bin sizes are 1MB, 500KB, 100KB, 50KB, 5KB, and 1KB. ** Note that most matrices with resolutions higher than 10KB (i.e., matrices with resolutions of 1KB - 10KB) are typically too sparse for analysis in `ScHiCcompare`.**
+The first argument is the normalization method; for `ScHiCcompare`, choose `NONE` to use raw data. The second argument is the .hic file name. For intrachromosomal maps, set both chromosome numbers the same (`<chr1>` and `<chr2>` are interacting chromosome; `[:x1:x2]` are optional define specific genomic ranges within each chromosome).  Interchromosomal maps can use different chromosomes, but note that ScHiCcompare only handles intrachromosomal interactions. Choose `BP` for basepair data, and specify the bin size (e.g., 10000000 for 1MB resolution). Common bin sizes are 1MB, 500KB, 100KB, 50KB, 5KB, and 1KB. *Note that most matrices with resolutions higher than 10KB (i.e., matrices with resolutions of 1KB - 10KB) are typically too sparse for analysis in `ScHiCcompare`.*
 
 From here we can import the matrix into R as you would normally for any tab-delimited file.
 
@@ -189,7 +189,7 @@ ScHiCcompare(file.path.1, file.path.2,
   - `normalization` - Character string or NULL indicating the normalization method. Default is 'Loess'.  If 'NULL' is select, the workflow will skip `normalization` step.
   - `pool.style` - Character string specifying the pooling style for `imputation`. Options are 'progressive' or 'Fibonacci'. Default is 'progressive'. If the `imputation` is skipped as NULL, the `pool.style` also should be NULL.
    - `fprControl.logfc` - A numeric value controlling the false positive rate of `differential.detect` step by setting the threshold for the log fold change in the 'difference' cluster. Detected differences identified by Gaussian Mixed Model (GMM) clusters only include values with log fold change that are larger than this threshold. Default is 0.8.
-  -`A.min` - Numeric value or NULL that sets the A-value quantile cutoff for filtering low average interaction frequencies in the differential.detect step of the hic_compare() function from HiCcompare. This function detects outliers, considered "difference" bins when too few exist for GMM clustering. If not provided (NULL), an optimized minimum A threshold that maximizes MCC and TPR while minimizing FPR in the simulated Hi-C matrix.
+   - `A.min` - Numeric value or NULL that sets the A-value quantile cutoff for filtering low average interaction frequencies in the differential.detect step of the hic_compare() function from HiCcompare. This function detects outliers, considered "difference" bins when too few exist for GMM clustering. If not provided (NULL), an optimized minimum A threshold that maximizes MCC and TPR while minimizing FPR in the simulated Hi-C matrix.
   - `save.output.path` - Character string specifying the directory to save outputs, including the imputed cells in the form of a sparse upper triangular format, normalization result table, and differential analysis result table. If by defult, `save.output.path` = NULL, no files are saved.
   - `Plot` -  A logical value indicating whether to plot the `differential.dect` results in an MD plot. Default is TRUE.
   - `Plot.normalize` - A logical value indicating whether to plot the output of MD plot showing before/after loess `normalization`. Default is FALSE.
@@ -345,24 +345,27 @@ result = ScHiCcompare(file.path.1 = 'mod_ODCs_example', file.path.2 = 'mod_MGs_e
 
 From the visualizations above, normalization effectively reduces the fuzziness between the imputed pseudo-bulk data of the two cell types. At a 1MB resolution, the differential analysis reveals that most of the detected differences occur at closer genomic distances, particularly below 5MB.
 
-We can extract the differential result in `$Differential_Analysis`, imputed results in `$Intermediate$Imputation`, and normalization result in `$Intermediate$Bulk.Normalization``
+We can extract the differential result in `$Differential_Analysis`, imputed results in `$Intermediate$Imputation`, and normalization result in `$Intermediate$Bulk.Normalization`
 
 ```{r}
 ### Extract imputed ODC cell type table
 imp_ODC_table = result$Intermediate$Imputation$condition1
 
+```
+
+```{r, echo = F}
+DT::datatable(head(imp_ODC_table), options = list(scrollX = TRUE), width = 700)
+```
+
+```{r}
 ### Extract imputed pseudo bulk matrices normalization
 norm_result = result$Intermediate$Bulk.Normalization
 ```
 
-```{r, echo = T}
-DT::datatable(head(imp_ODC_table), options = list(pageLength = 6, dom = 'tip'),
-              rownames = FALSE, width = 700)
+```{r, echo = F}
 
-DT::datatable(head(norm_result), options = list(pageLength = 6, dom = 'tip'),
-              rownames = FALSE, width = 700)
+DT::datatable(head(norm_result), options = list(scrollX = TRUE), width = 700)
 ```
-
 
 The imputation can be further evaluated using the `plot_imputed_distance_diagnostic()` function, which compares the overall distribution of original and imputed interaction frequencies (IFs) across all tested single cells within a specified genomic distance range. This function requires input in the form of data frames for both the original and imputed IFs. Each data frame must include columns for region1, region2, Cell, Chr, and IF_i for each of the i single cells.
 
