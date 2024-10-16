@@ -208,12 +208,11 @@ plot_HiCmatrix_heatmap(scHiC.sparse = ODC_1_plot.df, main = 'scHiC matrix of a O
 `plot_imputed_distance_diagnostic()` produces a visualization for imputation diagnostic of all single  at each genomic distsnce. It compare the distribution of a given distance data before and after imputation. It requires input of scHiC table of the original and imputed scHiC datasets. More information can be found in its help document and the example below [Imputation](#addfunc[??? needs link]).
 
 ```{r}
-## Create the input for function
-data(MGs.list)
+#load_example_MGfolder()
 
 ## Original values before imputed 
 # By scHiC_table(), which outputs scHiC table to input for the diagnostic plot
-scHiC.table_MG = scHiC_table(file.list  = MGs.list,
+scHiC.table_MG = scHiC_table(file.path  = 'MGs_example',
                              cell.type = 'MG', 
                              select.chromosome = 'chr22')
 

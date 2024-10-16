@@ -48,6 +48,7 @@ scHiC_table <- function(file.path, cell.type, select.chromosome) {
     region1sc <- region1sc[region1sc != 0]  # Remove zero regions
     return(region1sc)
   })))
+  regions <- as.numeric(regions)
   
   if (is.null(regions) || length(regions) == 0) {
     stop("Error: No valid regions found in the datasets.")
