@@ -11,7 +11,7 @@ load_example_MGfolder(save_dir = NULL)
 folder will be created. If NULL (default), the function uses the current working directory.}
 }
 \value{
-Saves the datasets as .txt files in the 'MGs_example' folder.
+Saves the datasets as '.txt' files in the 'MGs_example' folder.
 }
 \description{
 This function loads example of MG datasets and saves them in a newly created folder named 'MGs_example'

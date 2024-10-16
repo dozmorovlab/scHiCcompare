@@ -3,104 +3,85 @@
 #'
 #' This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells for a selected chromosome. The resulting table is usable for the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell dataset.
 #'
-#' @param file.list The list object where elements are processed scHi-C data file.[??? Clarify - each element of the list is a file path?]
-#' @param cell.type The cell type used in the analysis (e.g., 'NSN', 'SN').
-#' @param position.dataset A vector of indices specifying the file positions to read from the directory.[??? I'm not sure what is meant by file positions in the directory. Does this determine the order of the files within the resulting table?]
+#' @param file.path Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)
+#' @param cell.type The cell type name used in the analysis (e.g., 'NSN', 'SN').
 #' @param select.chromosome The chromosome name to be studied (e.g., 'chr1' or 'chrX').
 #' @return A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions.
 #' @details
-#' This function processes single-cell Hi-C data in a list object, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with four tab-separated columns (chr, start1,  start2, IF) with no row or column names and no quotes around character strings.
+#' This function processes single-cell Hi-C data in a folder directory, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with four tab-separated columns (chr, start1,  start2, IF) with no row or column names and no quotes around character strings.
 #' @examples
 #' \dontrun{
 #' # Load MG data folder example
 #' load_example_MGfolder()
-#' MGs_example = read_files(file.path = "MGs_example", cell = "MG", position.dataset = c(1, 2, 3), type = "txt", txt.sparse.heads.position = c(1,2,4,5))
+#'
 #' # Create scHiC table to be used in scHiCcompare
-#' IF_table <- scHiC_table(file.list = MGs_example, cell.type = 'MG', position.dataset = 1:3, select.chromosome = 'chr22')
+#' IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset = 1:3, select.chromosome = 'chr22')
 #' }
 #' @import dplyr
 #' @export
 
 ## Create scHiC.table -----
-scHiC_table <- function(file.list = NULL, cell.type, position.dataset, select.chromosome){
+scHiC_table <- function(file.path, cell.type, select.chromosome) {
   # Input validation
-  if(missing(cell.type) || missing(position.dataset) || missing(select.chromosome)){
+  if (missing(cell.type) || missing(select.chromosome)) {
     stop("Error: Missing one or more required arguments.")
   }
   
-  # Read data 
-  datasets = file.list[position.dataset]
+  library(scHiCcompare)
+  
+  # Read data
+  datasets <- read_files(file.path = file.path, type='txt',
+                         txt.sparse.heads.position = c(1,2,3,4), out = 'sparse')
   n_sc <- length(datasets)
   
   if (n_sc == 0) {
     stop("Error: No datasets available for processing.")
   }
   
-  
-  
   regions <- NULL
   options(scipen = 999)
-  #[??? for loop can likely be vectorized for peformance here]
-  for(i in 1:n_sc){
-    data <- datasets[[i]]  # Get the dataset from the list
-
-    # Select chromosome
-    data <- data[data[,1] == select.chromosome,]
-    
-    # Transform dataset into sparse
-    data <- data[, -c(1)]
-    names(data) <- c('region1', 'region2', 'IF')
-    
-    # Remove rows with 0 values in any column
-    data <- data[data[,1] != 0 & data[,2] != 0,]
-    
-    # Extract single cell regions
-    region1sc <- unique(c(data$region1, data$region2))
-    regions <- unique(c(regions, region1sc))
-  }
+  
+  # Process datasets and extract unique regions
+  regions <- unique(unlist(lapply(datasets, function(data) {
+    data <- data[data[, 1] == select.chromosome, ]  # Select chromosome
+    region1sc <- unique(c(data[, 2], data[, 3]))  # Extract regions
+    region1sc <- region1sc[region1sc != 0]  # Remove zero regions
+    return(region1sc)
+  })))
   
   if (is.null(regions) || length(regions) == 0) {
     stop("Error: No valid regions found in the datasets.")
   }
   
+  # Define region sequences
   start.region <- min(regions, na.rm = TRUE)
   end.region <- max(regions, na.rm = TRUE)
-  bin <- min(abs(diff(as.numeric(regions))), na.rm = TRUE)
+  bin <- min(diff(sort(unique(regions))), na.rm = TRUE)
   
-  if (bin == 0 || is.na(bin)) {
+  if (bin <= 0 || is.na(bin)) {
     stop("Error: Unable to calculate bin size for regions.")
   }
   
   regions.seq <- seq(start.region, end.region, by = bin)
   
-  # Coordination of pair of bins
-  grid1 <- data.frame(X1 = 1:length(regions.seq), X2 = 1:length(regions.seq))  # diagonal line
-  grid2 <- data.frame(t(combn(1:length(regions.seq), 2)))  # off diagonal line value
-  grid <- rbind(grid1, grid2)
-  region1 <- regions.seq[grid[,1]]
-  region2 <- regions.seq[grid[,2]]
-  cordination <- cbind(region1, region2)
+  # Generate coordinate pairs (combinations of regions)
+  grid <- expand.grid(region1 = regions.seq, region2 = regions.seq)
+  grid <- grid[grid$region1 <= grid$region2, ]  # Only unique pairs and diagonal
   
   # Preallocate memory for the table
-  table <- data.frame(
-    region1 = cordination[,'region1'],
-    region2 = cordination[,'region2']
-  )
-  #[??? for loop can likely be vectorized for peformance here]
+  table <- grid
+  
+  # Join datasets
   for (i in 1:n_sc) {
-    data <- datasets[[i]]  # Get the dataset from the list
+    data <- datasets[[i]]  # Get the dataset
+    data <- data[data[, 1] == select.chromosome & data[, 3] != 0, -1]  # Filter rows
     
-    # Filter rows based on chromosome
-    data <- data[data[,1] == select.chromosome & data[,3], ]
     if (nrow(data) == 0) {
       warning(paste("Warning: No data found for chromosome", select.chromosome, "in dataset", i))
       next
     }
     
-    data <- data[, -c(1)]
-    names(data)[c(1, 2)] <- c('region1', 'region2')
-    names(data)[3] <- paste0('IF_', i)
-    data <- data[rowSums(data[,c(1,2)] == 0) == 0, ]
+    names(data) <- c('region1', 'region2', paste0('IF_', i))
     
     table <- tryCatch(
       dplyr::full_join(table, data, by = c('region1', 'region2')),

@@ -19,13 +19,13 @@ Pooling_RF_impute(
 The first four columns should represent 'cell', 'chr', 'region1', and 'region2',
 followed by columns representing interaction frequencies ('IF') for individual cells.}
 
-\item{n.imputation}{An integer specifying the number of multiple imputations to be performed. Default is 5.}
+\item{n.imputation}{An integer specifying the number of imputations to be performed. Default is 5.}
 
 \item{maxit}{An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. Default is 1.}
 
 \item{outlier.rm}{A logical value indicating whether to remove outliers during the imputation process. Default is TRUE.}
 
-\item{main.Distances}{A vector of integers representing the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000).
+\item{main.Distances}{A vector of integers or 'full' representing the scHiC data in main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins).
 Default is from 1 to 10,000,000.}
 
 \item{pool.style}{A string specifying the pooling technique to use. Options are 'progressive' or 'fibonacci'.
@@ -55,7 +55,7 @@ load_example_MGfolder()
 #Create scHicCompare table to be used in scHicCompare
 IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:50, type='txt', select.chromosome = 'chr22')
 # Example usage of Pooling_RF_impute
-imputed_table <- Pooling_RF_impute(IF_table = , n.imputation = 5, outlier.rm = TRUE, 
+imputed_table <- Pooling_RF_impute(IF_table, n.imputation = 5, outlier.rm = TRUE, 
                                   main.Distances = 1:10000000, pool.style = 'progressive')
 
 }

@@ -4,32 +4,30 @@
 \alias{scHiC_table}
 \title{Create scHiC Interaction Frequency Table}
 \usage{
-scHiC_table(file.list = NULL, cell.type, position.dataset, select.chromosome)
+scHiC_table(file.path, cell.type, select.chromosome)
 }
 \arguments{
-\item{file.list}{The list object where elements are processed scHi-C data file.}
+\item{file.path}{Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)}
 
-\item{cell.type}{The cell type used in the analysis (e.g., 'NSN', 'SN').}
-
-\item{position.dataset}{A vector of indices specifying the file positions to read from the directory.}
+\item{cell.type}{The cell type name used in the analysis (e.g., 'NSN', 'SN').}
 
 \item{select.chromosome}{The chromosome name to be studied (e.g., 'chr1' or 'chrX').}
 }
 \value{
-A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with \code{Pooling_RF_impute} and \code{pseudo_bulkHic} functions.
+A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions.
 }
 \description{
-This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells at a selected chromosome. The resulting table is usable for \code{Pooling_RF_impute} and \code{pseudo_bulkHic} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell.
+This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells for a selected chromosome. The resulting table is usable for the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell dataset.
 }
 \details{
-This function processes single-cell Hi-C data in a list object. Then the function transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with foyr tab-separated columns (chr, start1,  start2, IF) and no row or column names or quotes around character strings.
+This function processes single-cell Hi-C data in a folder directory, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with four tab-separated columns (chr, start1,  start2, IF) with no row or column names and no quotes around character strings.
 }
 \examples{
 \dontrun{
 # Load MG data folder example
 load_example_MGfolder()
-MGs_example = read_files(file.path = "MGs_example", cell = "MG", position.dataset = c(1, 2, 3), type = "txt", txt.sparse.heads.position = c(1,2,4,5))
+
 # Create scHiC table to be used in scHiCcompare
-IF_table <- scHiC_table(file.list = MGs_example, cell.type = 'MG', position.dataset = 1:3, select.chromosome = 'chr22')
+IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset = 1:3, select.chromosome = 'chr22')
 }
 }

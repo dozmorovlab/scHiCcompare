@@ -228,7 +228,7 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
   
   ## Impute all pools by RF
   process_pool <- function(i) {
-    print(paste0('Imputing pool band ', i) )
+    cat(paste0(' pool band ', i ,', ') )
     
     require(tidyr)
     ## Pooling data
@@ -316,8 +316,8 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 #' @param n.imputation An integer specifying the number of imputations to be performed. Default is 5.
 #' @param maxit An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. Default is 1.
 #' @param outlier.rm A logical value indicating whether to remove outliers during the imputation process. Default is TRUE.
-#' @param main.Distances A vector of integers representing the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000).
-#' Default is from 1 to 10,000,000. [??? is 'full' an option as stated in ScHiCcompare.Rmd? chr1 has > 240,000,000bp; expected default behavior would be 'full'?]
+#' @param main.Distances A vector of integers or 'full' representing the scHiC data in main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins).
+#' Default is from 1 to 10,000,000. 
 #' @param pool.style A string specifying the pooling technique to use. Options are 'progressive' or 'fibonacci'. 
 #' Default is 'progressive'.
 #' @param missPerc.theshold An integer specifying the missing value percentage threshold in each pool band. 
@@ -346,7 +346,7 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 #' #Create scHicCompare table to be used in scHicCompare
 #' IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:50, type='txt', select.chromosome = 'chr22')
 #' # Example usage of Pooling_RF_impute
-#' imputed_table <- Pooling_RF_impute(IF_table = , n.imputation = 5, outlier.rm = TRUE, 
+#' imputed_table <- Pooling_RF_impute(IF_table, n.imputation = 5, outlier.rm = TRUE, 
 #'                                   main.Distances = 1:10000000, pool.style = 'progressive')
 #'
 #' @export
@@ -359,10 +359,7 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 Pooling_RF_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outlier.rm = TRUE, 
                                main.Distances = 1:10000000, pool.style = 'progressive', missPerc.threshold = 95
                                ){
-  # input: scHiC.table, n.imputation, and, option for outlier remover, option for impute at main closer distance
-  # output: schic table (all single cell in columns) with imputed if
-  
-  
+
   ###################################################################################################
   ############################# Identify important Pools and Parameter ############################# 
   
@@ -372,16 +369,19 @@ Pooling_RF_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outlie
   n_all.distance = length(D)
   
   ## Identify main Distances
-  maxD = max(main.Distances)
-  maxD_res = maxD/res
-  main_D_range = 1:maxD_res
-  
+  if(is.character(main.Distances) ){
+    main_D_range = 1:max(D)
+  } else {
+    maxD = max(main.Distances)
+    maxD_res = maxD/res
+    main_D_range = 1:maxD_res
+  }
   
   ## List of all Distance Pool
   if(pool.style == 'progressive'){
     Dpool.list <- .all_progressive_pooling(vector_distance = D)
   } else if ( pool.style == 'fibonancci'){
-    Dpool.list <- all_fib_pooling(vector_distance = D)
+    Dpool.list <- .all_fib_pooling(vector_distance = D)
   }
   length.Dpool.list <- length(Dpool.list)
   

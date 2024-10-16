@@ -1,15 +1,20 @@
 #' Plot Imputed Distance Diagnostic
 #'
 #' This function plots the density curves of interaction frequencies 
-#' from original and imputed single-cell Hi-C data for a specified distance.
+#' from original and imputed single-cell Hi-C data for a specified genomic distance.
 #'
-#' @param org_sc_data A data frame containing the original single-cell Hi-C data in scHiC Table object.
-#'   The data frame should include columns for `region1`,`region2`,`Cell`, `Chr`, and `IF_i` for i single cells.
-#' @param imp_sc_data A data frame containing the imputed single-cell Hi-C datain scHiC Table object.
-#'   The data frame should include columns for `region1`,`region2`,`Cell`, `Chr`, and `IF_i` for i single cells.
-#' @param D An integer specifying the genomic distance for which to plot the density 
-#'   curves of interaction frequencies. [??? more explaination on what genomic distance is here. What is the default / should there be a default? How does this value change the plot/interpretation?]
+#' @param org_sc_data A data frame containing the original single-cell Hi-C data in scHiC Table format.
+#'   The data frame should include columns for `region1`, `region2`, `Cell`, `Chr`, and `IF_i` for each of the i single cells.
+#' @param imp_sc_data A data frame containing the imputed single-cell Hi-C data in scHiC Table format.
+#'   The data frame should include columns for `region1`, `region2`, `Cell`, `Chr`, and `IF_i` for each of the i single cells.
+#' @param D An integer specifying the genomic distance for which to plot the density curves of interaction frequencies. Genomic distance refers to the number of base pairs 
+#'   between two regions in the genome (e.g., loci or bins) that is scaled by resolution D = (start2 - start1)/resolution (e.g., D = (16,000,000 - 17,000,000)/1,000,000 -> D = 1).
 #'
+#' @details
+#' The distance D represents how far apart two genomic loci are. The observation that chromatin interaction frequency (IF) in Hi-C data tend to become less frequent as the genomic distance between two loci increases.
+#' ScHi-C interaction frequency in the same distance is assumed to have similar statistical property. To diagnose if the imputed IF values still retain these statistical property in each distance, the   
+#' `plot_imputed_distance_diagnostic()` function plot the density curves of interaction frequencies  from original and imputed single-cell Hi-C data for a specified genomic distance.
+#' 
 #' @return A ggplot2 object representing the density plot comparing original 
 #'   and imputed interaction frequencies.
 #' 
@@ -29,12 +34,14 @@
 #' sparse.org = full2sparse(org_36x36)
 #' sparse.imp = full2sparse(imp_36x36)
 #' 
-#' # Call the function with this sparse matrix to generate the heatmap
-#'plot_imputed_distance_diagnostic( org_sc_data = sparse.org, imp_sc_data = sparse.imp, D = 1)
+#' # Call the function with this sparse matrix to generate the plot
+#' plot_imputed_distance_diagnostic(org_sc_data = sparse.org, imp_sc_data = sparse.imp, D = 1)
 #' 
 #' @import ggplot2
 #' 
 #' @export
+
+
 plot_imputed_distance_diagnostic <- function(org_sc_data, imp_sc_data, D) {
   # Calculate the resolution
   res <- min(abs(diff(unique(org_sc_data$region1))))

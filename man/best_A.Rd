@@ -2,7 +2,7 @@
 % Please edit documentation in R/best_A.R
 \name{best_A}
 \alias{best_A}
-\title{Find the Best Quantile for A quantile cutoff level in \code{hic_compare} {HiCcompare}}
+\title{Find the Best Quantile for A quantile cutoff level in \code{hic_compare()} {HiCcompare}}
 \usage{
 best_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, Plot = FALSE)
 }
@@ -11,13 +11,13 @@ best_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, Plot = FALSE)
 
 \item{SD}{Numeric. The standard deviation of the fuzzing used to produce a Hi-C matrix from your data with few true differences.}
 
-\item{numChanges}{Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 300 changes, 100KB resolution - 1000 changes, etc.}
+\item{numChanges}{Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 300 changes, 100KB resolution - 1000 changes, etc. \link{??? If I were an end user, how would I know how to calculate this? Consider writing an algorithm for calculating this on the fly by default}}
 
 \item{FC}{Numeric. The fold change of the changes added to the Hi-C matrix.}
 
-\item{alpha}{Numeric. Significance level for adjusting p-values (default is 0.05).}
+\item{alpha}{Numeric. Significance level for adjusting p-values (default is 0.05). \link{??? When should this be changed? What effect will raising or lowering have?}}
 
-\item{Plot}{Logical. If TRUE, plots will be generated during the processing.}
+\item{Plot}{Logical. If TRUE, plots will be generated during processing.}
 }
 \value{
 The best A value that optimize performance metrics (MCC, TPR, FPR).
@@ -29,7 +29,7 @@ Matthews Correlation Coefficient (MCC), True Positive Rate (TPR), and
 False Positive Rate (FPR).
 }
 \details{
-The function randomizes interaction frequencies, calculates mean interaction
+This function randomizes interaction frequencies, calculates mean interaction
 frequencies, and performs a series of evaluations to determine the best quantile.
 The results include the best A value that can be applied in \code{hic_compare()}, differential analysis of \code{HiCcompare}, for filtering low average expression IFs.
 }

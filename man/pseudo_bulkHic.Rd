@@ -7,7 +7,7 @@
 pseudo_bulkHic(scHiC.table, out = "sparse")
 }
 \arguments{
-\item{scHiC.table}{A data frame containing interaction frequencies across single cells that is created by \code{scHiC_table} function.
+\item{scHiC.table}{A data frame containing interaction frequencies across single cells that is created by the \code{scHiC_table()} function.
 The first four columns should represent 'cell', 'chr', 'region1', and 'region2',
 followed by columns representing interaction frequencies ('IF') for individual cells.}
 
@@ -16,13 +16,13 @@ Default is 'sparse'.}
 }
 \value{
 A data frame representing the pseudo-bulk Hi-C data. If \code{out} is 'sparse',
-it returns a data frame with pseudo-bulk matrix in format of a sparse upper triangular Hi-C matrix with five columns:
+it returns a data frame with pseudo-bulk matrix in the format of a sparse upper triangular Hi-C matrix with five columns:
 chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).  If \code{out} is 'full',
 it returns a full matrix representation of the pseudo-bulk data.
 }
 \description{
 This function generates pseudo-bulk Hi-C data from a single-cell Hi-C interaction frequency table.
-It can return the data in either sparse or full matrix format.
+It returns the data in either sparse or full matrix format.
 }
 \examples{
 \dontrun{

@@ -57,10 +57,10 @@ pseudo_bulkHic <- function(scHiC.table, out = 'sparse'){
   
   # Return either sparse or full matrix
   if(out == 'sparse'){
-    message("Returning pseudo-bulk sparse matrix.")
+    cat("\nTransfering into pseudo-bulk sparse matrix.")
     output.table <- bulk.table
   } else {
-    message("Returning pseudo-bulk full matrix.")
+    cat("\nTransfering pseudo-bulk full matrix.")
     output.table <- HiCcompare::sparse2full(sparse.mat = bulk.table)
   }
   

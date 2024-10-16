@@ -11,7 +11,7 @@ load_example_ODCfolder(save_dir = NULL)
 folder will be created. If NULL (default), the function uses the current working directory.}
 }
 \value{
-Saves the datasets as .txt files in the 'ODCs_example' folder.
+Saves the datasets as '.txt' files in the 'ODCs_example' folder.
 }
 \description{
 This function loads example of ODC datasets and saves them in a newly created folder named 'ODCs_example'
