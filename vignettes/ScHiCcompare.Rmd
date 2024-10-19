@@ -203,22 +203,29 @@ ScHiCcompare(file.path.1, file.path.2,
   - `Plot.normalize` - A logical value indicating whether to plot the output of MD plot showing before/after loess `normalization`. Default is FALSE.
   - ...
   - For other detail, you cen look up `?ScHiCcompare()`
-  
+
+[??? Make a section describing output. Overall flow: Installation - Input - Function - Output - Helper functions - Real-life examples]  
 
 # Other functions
 
 There are several other functions included in `ScHiCcompare` package. 
 
+<<<<<<< HEAD
 `plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires an input as a sparse matrix [Input scHi-C data format](#input-schi-c-data-format) with 3 column of. More information can be found in its help document and the example below.
+=======
+`plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires an input as a sparse matrix [Input schi-c data format for `ScHiCcompare()`](#Input-schi-c-data-format-for-`ScHiCcompare()`) with 3 column of [??? of what?]. More information can be found in its help document and the example below.
+>>>>>>> 3c4ba2f829cb6288eca9e81df0b3107c710ec388
 
 ```{r}
-data("ODC_1")
-ODC_1_plot.df <- ODC_1[ ,c(2,4,5)]
+data(ODC_chr22_1)
+ODC_1_plot.df <- ODC_1[ ,c(2,4,5)] # [??? Simplify data]
 plot_HiCmatrix_heatmap(scHiC.sparse = ODC_1_plot.df, main = 'scHiC matrix of a ODC cell', zlim = c(0,5))
 ```
 
 
-`plot_imputed_distance_diagnostic()` produces a visualization for imputation diagnostic of all single  at each genomic distsnce. It compare the distribution of a given distance data before and after imputation. It requires input of scHiC table of the original and imputed scHiC datasets. More information can be found in its help document and the example below [Imputation](#addfunc[??? needs link]).
+`plot_imputed_distance_diagnostic()` produces a visualization for imputation diagnostic of all single  at each genomic distsnce. It compare the distribution of a given distance data before and after imputation. It requires input of scHiC table of the original and imputed scHiC datasets. More information can be found in its help document and the example below [Imputation](#addfunc[??? needs link]). 
+
+[??? You need `Pooling_RF_impute`? I thought, those results are returned by the main function]
 
 ```{r, warning=FALSE, message=FALSE}
 
@@ -232,7 +239,7 @@ data(scHiC.table_MG.chr22)
 
 ## Imputed values 
 #  By Pooling_RF_impute(), which also outputs scHiC table object 
-scHiC.table_imp.MG = Pooling_RF_impute(scHiC.table = scHiC.table_MG,
+scHiC.table_imp.MG = Pooling_RF_impute(scHiC.table = scHiC.table_MG, 
                                        n.imputation = 10,
                                        main.Distances = 1:10000000,
                                        pool.style = 'progressive')
@@ -262,8 +269,7 @@ install.packages(c('ggplot2', 'dplyr', 'data.table', 'Rtsne', 'umap'))
 if (!requireNamespace("devtools", quietly=TRUE))
     install.packages("devtools")
 
-library(devtools)
-install_github("immunogenomics/harmony")
+devtools::install_github("immunogenomics/harmony")
 
 devtools::install_github('sshen82/BandNorm', build_vignettes = FALSE)
 library(BandNorm)
@@ -277,8 +283,14 @@ download_schic("Lee2019", cell_type = 'MG', cell_path = 'MGs_example')
 
 Since the size of scHiC data is large, we will only consider 10 single cells Hi-C data for each cell type groups. The function `Load_example_MGfolder()` and `Load_example_ODCfolder()` can generate the example folders containing 10 single cells examples of ODC and MG in the given path. The files follow the same format as those downloaded via `download_schic()`.
 
+<<<<<<< HEAD
 
 ```{r, eval = F}
+=======
+[??? Unnecessary functions, delete. Show code how to make folders and actually use BandNorm to get the data. User needs at least such tutoeial, not new functions to learn]
+[??? Something is broken here]
+```{r}
+>>>>>>> 3c4ba2f829cb6288eca9e81df0b3107c710ec388
 ## Load and create folder for example data - ODCs_example and MGs example folders
 load_example_ODCfolder()
 load_example_MGfolder()
@@ -300,7 +312,13 @@ DT::datatable(head(ex_format), options = list(pageLength = 6, dom = 'tip'),
 
 From the raw scHiC data above, we need to modify the files in each folder to the required sparse upper triangular matrix format (chr, start1, start2, IF) [Input schi-c data format for `ScHiCcompare()`](#Input-schi-c-data-format-for-`ScHiCcompare()`). 
 
+<<<<<<< HEAD
 ```{r, eval = F}
+=======
+[??? Something is broken]
+
+```{r}
+>>>>>>> 3c4ba2f829cb6288eca9e81df0b3107c710ec388
 ### Modify sparse upper triangular format
 
 # Create a new directory 'mod_ODCs_example' to store the modified data for ODCs
@@ -341,7 +359,11 @@ for(i in 1:length(files_names)){
 
 ## ScHiCompare
 
-In this example, we will work with scHi-C data from 10 single cells in both ODC and MG cell types. We will focus on chromosome 20, applying the full workflow of scHiCcompare (imputation, speudo-bulk normalization, and differential analysis) . We focus to detect differences for loci with genomic distances from 1 to 10,000,000 (bp). The progressive pooling style is selected to create pool bands for the random forest imputation. For differential analysis step, we set the log fold change - false positive control threshold as 0.8.
+[??? Is it built in example? Need to be first]
+
+In this example, we will work with scHi-C data from 10 single cells in both ODC and MG cell types. We will focus on chromosome 20, applying the full workflow of scHiCcompare (imputation, speudo-bulk normalization, and differential analysis). We focus to detect differences for loci with genomic distances from 1 to 10,000,000 (bp). The progressive pooling style is selected to create pool bands for the random forest imputation. For differential analysis step, we set the log fold change - false positive control threshold as 0.8.
+
+[??? Make a real example, so pictures generated by the function]
 
 ```{r, message=FALSE, warning=FALSE, eval = F}
 ## Imputation with 'progressive' pooling
@@ -360,9 +382,11 @@ result = ScHiCcompare(file.path.1 = 'mod_ODCs_example', file.path.2 = 'mod_MGs_e
 
 ![](differences.png)
 
-From the visualizations above, normalization effectively reduces the fuzziness between the imputed pseudo-bulk data of the two cell types. At a 1MB resolution, the differential analysis reveals that most of the detected differences occur at closer genomic distances, particularly below 5MB.
+From the visualizations above, normalization effectively reduces the fuzziness [??? Unclear] between the imputed pseudo-bulk data of the two cell types. At a 1MB resolution, the differential analysis reveals that most of the detected differences occur at closer genomic distances, particularly below 5MB.
 
 We can extract the differential result in `$Differential_Analysis`, imputed results in `$Intermediate$Imputation`, and normalization result in `$Intermediate$Bulk.Normalization`
+
+[??? generate results programmatically]
 
 ```{r, echo = F}
 data(result)
@@ -390,8 +414,9 @@ DT::datatable(head(norm_result), options = list(scrollX = TRUE), width = 700)
 
 The imputation can be further evaluated using the `plot_imputed_distance_diagnostic()` function, which compares the overall distribution of original and imputed interaction frequencies (IFs) across all tested single cells within a specified genomic distance range. This function requires input in the form of data frames for both the original and imputed IFs. Each data frame must include columns for region1, region2, Cell, Chr, and IF_i for each of the i single cells.
 
-The output of `$Intermediate$Imputation` of `ScHiCcompare()` function has achieved this format of input table. We need to create the table for original IFs values in the same format. This job can be done simply by `scHiC_table()` function. You can see detail of this function by looking up `?scHiC_table()`.
+The output of `$Intermediate$Imputation` of `ScHiCcompare()` function has achieved this format of input table. We need to create the table for original IFs values in the same format. This job can be done simply by `scHiC_table()` [??? remove, use only necessary functions] function. You can see detail of this function by looking up `?scHiC_table()`.
 
+[??? Make real example]
 
 ```{r, message=FALSE, warning=FALSE, eval = F}
 # Create scHiC table object for original IF

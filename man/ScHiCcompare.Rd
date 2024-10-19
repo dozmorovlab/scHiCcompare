@@ -11,7 +11,7 @@ ScHiCcompare(
   normalization = "Loess",
   differential.detect = "MD.cluster",
   select.chromosome,
-  main.Distances = 1:10000000,
+  main.Distances = 1:1e+07,
   save.output.path = NULL,
   Plot = T,
   Plot.normalize = F,
