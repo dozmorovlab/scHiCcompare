@@ -24,6 +24,8 @@ knitr::opts_chunk$set(echo = TRUE)
 # Set CRAN mirror
 options(repos = c(CRAN = "https://cran.rstudio.com/"))
 
+#BiocManager::install("BiocStyle")
+library(BiocStyle)
 ```
 
 # Introduction
@@ -76,7 +78,7 @@ To use ScHiCcompare, you'll need processed Hi-C data formatted as sparse upper t
 
 ScHi-C data is available in different formats from various sources. Below are two examples of how to download and extract chromosome-specific data for analysis in R.
 
-If you have full Hi-C contact matrices, you can convert them to sparse upper triangular format using the `full2sparse()` function of `HiCcomprae` [??? Refer to all packages in BioC style, BiocStyle::Biocpkg()] packge, then reformat the column to achieve the requirement input format.
+If you have full Hi-C contact matrices, you can convert them to sparse upper triangular format using the `full2sparse()` function of `r BiocStyle::Biocpkg("HiCcompare")` packge, then reformat the column to achieve the requirement input format.
 
 #### Extracting data from .hic files
 
@@ -135,7 +137,7 @@ To use data in the .cool format, there are multiple ways to read these files. We
 
 `ScHiCcompare()` function conducts a differential analysis workflow, including imputation and normalization, between chromosome-specific chromatin interaction matrices of two conditions (or two cell types groups). 
 
- - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method. Imputation is applied to pool bands - data subsets based on progressively increasing genomic distance ranges. There are two pooling styles: `Progressive` pooling, in which each subsequent group combines more consecutive distances by gradually increasing the number of distances included by one; and `Fibonacci` pooling, where each group includes an increasing number of consecutive distances, with the number of distances in subsequent groups following the Fibonacci sequence. [??? It would help to insets an illustration here] For any pool band with all of their distances elements outside the `main.Distance` range [??? what's that?], if its percentage of missing values exceeds [??? And if not, no imputation?] the `missPerc.threshold`, the missing interaction frequencies (IFs) values are imputed using the mean IF values from the available data within that pool band.
+ - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method. Imputation is applied to pool bands - data subsets based on progressively increasing genomic distance ranges. There are two pooling styles: `Progressive` pooling, in which each subsequent group combines more consecutive distances by gradually increasing the number of distances elements included by one; and `Fibonacci` pooling, where each group includes an increasing number of consecutive distances, with the number of distances in subsequent groups following the Fibonacci sequence. [??? It would help to insets an illustration here] For any pool band with all of their distances elements outside the `main.Distance` range [??? what's that?], if its percentage of missing values exceeds [??? And if not, no imputation?] the `missPerc.threshold`, the missing interaction frequencies (IFs) values are imputed using the mean IF values from the available data within that pool band.
 
  - **Pseudo-bulk scHi-C** - Secondly, the imputed single-cell Hi-C data in each group are transformed into group-specific `pseudo-bulk` scHi-C matrices by summing all of these single cell Hi-C matrices.
 
@@ -145,7 +147,7 @@ To use data in the .cool format, there are multiple ways to read these files. We
 
 
 
-### Input schi-c data format for `ScHiCcompare()`
+### Input schi-c data format
 
 To use ScHiCcompare, you'll need pre-defined groups and chromosome-specific scHi-C data in **.txt** and store single cell Hi-C data in a given folder path.
 
@@ -161,8 +163,7 @@ The '.txt' files needs to be saved in tab-separated columns and no row names, co
 [??? Describe what the data is, what this code is doing]
 
 ```{r, echo= FALSE}
-data(MG_1)
-MG_sparse <- MG_1[ ,c(1,2,4,5)] 
+data(MG_chr22_1)
 names(MG_sparse) <- c('chr' , 'start1', 'start2', 'IF')
 DT::datatable(head(MG_sparse), options = list(pageLength = 6, dom = 'tip'),
               rownames = FALSE, width = 700)
@@ -208,7 +209,7 @@ ScHiCcompare(file.path.1, file.path.2,
 
 There are several other functions included in `ScHiCcompare` package. 
 
-`plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires an input as a sparse matrix [Input schi-c data format for `ScHiCcompare()`](#Input-schi-c-data-format-for-`ScHiCcompare()`) with 3 column of. More information can be found in its help document and the example below.
+`plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires an input as a sparse matrix [Input scHi-C data format](#input-schi-c-data-format) with 3 column of. More information can be found in its help document and the example below.
 
 ```{r}
 data("ODC_1")
@@ -277,7 +278,7 @@ download_schic("Lee2019", cell_type = 'MG', cell_path = 'MGs_example')
 Since the size of scHiC data is large, we will only consider 10 single cells Hi-C data for each cell type groups. The function `Load_example_MGfolder()` and `Load_example_ODCfolder()` can generate the example folders containing 10 single cells examples of ODC and MG in the given path. The files follow the same format as those downloaded via `download_schic()`.
 
 
-```{r}
+```{r, eval = F}
 ## Load and create folder for example data - ODCs_example and MGs example folders
 load_example_ODCfolder()
 load_example_MGfolder()
@@ -287,6 +288,11 @@ files_names = list.files('ODCs_example', full.names = T, recursive = T)
 ex_format = read.table(files_names[1])
 ```
 
+```{r, echo = F}
+data(ODC_1)
+ex_format = ODC_1
+```
+
 ```{r, echo = T}
 DT::datatable(head(ex_format), options = list(pageLength = 6, dom = 'tip'),
               rownames = FALSE, width = 700)
@@ -294,7 +300,7 @@ DT::datatable(head(ex_format), options = list(pageLength = 6, dom = 'tip'),
 
 From the raw scHiC data above, we need to modify the files in each folder to the required sparse upper triangular matrix format (chr, start1, start2, IF) [Input schi-c data format for `ScHiCcompare()`](#Input-schi-c-data-format-for-`ScHiCcompare()`). 
 
-```{r}
+```{r, eval = F}
 ### Modify sparse upper triangular format
 
 # Create a new directory 'mod_ODCs_example' to store the modified data for ODCs
@@ -340,7 +346,7 @@ In this example, we will work with scHi-C data from 10 single cells in both ODC 
 ```{r, message=FALSE, warning=FALSE, eval = F}
 ## Imputation with 'progressive' pooling
 result = ScHiCcompare(file.path.1 = 'mod_ODCs_example', file.path.2 = 'mod_MGs_example',
-             select.chromosome = 'chr20', 
+             select.chromosome = 'chr22', 
              main.Distances = 1:10000000,
              imputation = 'RF',
              normalization = 'Loess',
