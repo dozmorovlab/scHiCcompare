@@ -18,7 +18,7 @@
 load_example_ODCfolder <- function(save_dir = NULL) {
   # Get the list of all .rda files in the package's data directory that contain 'ODC' in their name
   data_dir <- system.file("data", package = "scHiCcompare")
-  dataset_files <- list.files(data_dir, pattern = "ODC_.*\\.rda$", full.names = TRUE)  # Pattern includes 'ODC'
+  dataset_files <- list.files(data_dir, pattern = "ODC.bandnorm.*\\.rda$", full.names = TRUE)  # Pattern includes 'ODC'
   
   # Set save_dir to the current working directory if NULL
   if (is.null(save_dir)) {

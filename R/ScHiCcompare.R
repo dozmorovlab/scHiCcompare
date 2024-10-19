@@ -95,7 +95,7 @@ withoutNorm_hicTable <- function(hic.table){
 ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalization = 'Loess', differential.detect = 'MD.cluster',
                          select.chromosome, main.Distances = 1:10000000, save.output.path =  NULL, Plot = T, Plot.normalize = F,
                          pool.style = 'progressive' ,n.imputation = 5,  maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
-                         A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05, SD = 2, numChanges = 30, FC = 3, 
+                         A.min = NULL, fprControl.logfc = 1, alpha = 0.05, SD = 2, numChanges = 30, FC = 3, 
                          BP_param = bpparam()){
   
   # Read file 'txt' from 2 folder path

@@ -215,11 +215,14 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
   
   ## List of all Distance Pool
   if(pool.style == 'progressive'){
-    Dpool.list <- .all_progressive_pooling(vector_distance = D)
+    Dpool.list.full <- .all_progressive_pooling(vector_distance = c(min(D):max(D)))
   } else if ( pool.style == 'fibonancci'){
-    Dpool.list <- all_fib_pooling(vector_distance = D)
+    Dpool.list.full <- all_fib_pooling(vector_distance = c(min(D):max(D)) )
   }
- 
+  
+  ## only pool listi from the input in correct original order
+  Dpool.list.pos <- which(sapply(Dpool.list.full, function(x) all(x %in% D)))
+  Dpool.list <- Dpool.list.full[Dpool.list.pos]
   length.Dpool.list <- length(Dpool.list)
   
   new_table <- NULL
@@ -228,7 +231,7 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
   
   ## Impute all pools by RF
   process_pool <- function(i) {
-    cat(paste0(' pool band ', i ,', ') )
+    cat(paste0(' pool band ', Dpool.list.pos[i] ,', ') )
     
     require(tidyr)
     ## Pooling data
@@ -365,7 +368,7 @@ Pooling_RF_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outlie
   
   ## distance of scHiC table
   res = min( abs( diff(unique(scHiC.table$region1)) ) )
-  D =unique( abs(scHiC.table$region1 - scHiC.table$region2)/res )
+  D =unique( abs(scHiC.table$region2 - scHiC.table$region1)/res )
   n_all.distance = length(D)
   
   ## Identify main Distances
@@ -438,7 +441,7 @@ Pooling_RF_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outlie
     ## Now, impute D_set1 to its mean of that distance
     new_table_list = list()
     for (j in 1:length(pool_aboveNA_NOTmainD)){
-      print(pool_aboveNA_NOTmainD[j])
+      cat(paste(' ,pool bans', pool_aboveNA_NOTmainD[j]))
       data = do.call(rbind, lapply(Dpool.list[[pool_aboveNA_NOTmainD[j]]], function(x) { 
         data <- predictorMatrixNP_sc_D(scHiC.table, distance = x)
         return(data)
@@ -470,18 +473,20 @@ Pooling_RF_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outlie
       new_table_list[[j]] = update_new_table
     }
     
-    # Check if any pool contain backward D (NA replacement). If so, then need to remove it/them
-    ## Where does the last D locate in last pool
-    lastD.poolPosition <- which(Dpool.list[[length.Dpool.list]] ==  max(D))
-    lastPool <- Dpool.list[[length.Dpool.list]]
-    # check if last D stay at the end of last pool
-    if (lastD.poolPosition < length(lastPool)){
-      # identify backward D
-      backward_D <- lastPool[ (lastD.poolPosition + 1) : length(lastPool)]
-      # identify backward D location in new_table_list of last pool
-      new_table_lastPool <- new_table_list[[length((new_table_list))]]
-      backward_D_position <- which(abs((new_table_lastPool$region1 - new_table_lastPool$region2) / res) %in% backward_D)
-      new_table_list[[length(pool_aboveNA_NOTmainD)]] <- new_table_lastPool[-backward_D_position,]
+    if(max(D) %in% D_aboveNA_NOTmainD){
+      # Check if any pool contain backward D (NA replacement). If so, then need to remove it/them
+      ## Where does the last D locate in last pool
+      lastD.poolPosition <- which(Dpool.list[[length.Dpool.list]] ==  max(D))
+      lastPool <- Dpool.list[[length.Dpool.list]]
+      # check if last D stay at the end of last pool
+      if (lastD.poolPosition < length(lastPool)){
+        # identify backward D
+        backward_D <- lastPool[ (lastD.poolPosition + 1) : length(lastPool)]
+        # identify backward D location in new_table_list of last pool
+        new_table_lastPool <- new_table_list[[length((new_table_list))]]
+        backward_D_position <- which(abs((new_table_lastPool$region1 - new_table_lastPool$region2) / res) %in% backward_D)
+        new_table_list[[length(pool_aboveNA_NOTmainD)]] <- new_table_lastPool[-backward_D_position,]
+      }
     }
     
     new_table_D1 <- do.call(rbind, new_table_list)
