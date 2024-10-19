@@ -164,8 +164,8 @@ The '.txt' files needs to be saved in tab-separated columns and no row names, co
 
 ```{r, echo= FALSE}
 data(MG_chr22_1)
-names(MG_sparse) <- c('chr' , 'start1', 'start2', 'IF')
-DT::datatable(head(MG_sparse), options = list(pageLength = 6, dom = 'tip'),
+names(MG_chr22_1) <- c('chr' , 'start1', 'start2', 'IF')
+DT::datatable(head(MG_chr22_1), options = list(pageLength = 6, dom = 'tip'),
               rownames = FALSE, width = 700)
 ```
 
@@ -218,8 +218,7 @@ There are several other functions included in `ScHiCcompare` package.
 
 ```{r}
 data(ODC_chr22_1)
-ODC_1_plot.df <- ODC_1[ ,c(2,4,5)] # [??? Simplify data]
-plot_HiCmatrix_heatmap(scHiC.sparse = ODC_1_plot.df, main = 'scHiC matrix of a ODC cell', zlim = c(0,5))
+plot_HiCmatrix_heatmap(scHiC.sparse = ODC_chr22_1, main = 'scHiC matrix of a ODC cell', zlim = c(0,5))
 ```
 
 
