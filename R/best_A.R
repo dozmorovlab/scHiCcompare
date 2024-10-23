@@ -26,9 +26,9 @@
 #'
 #' @param hic.table A hic.table object
 #' @param SD Numeric. The standard deviation of the fuzzing used to produce a Hi-C matrix from your data with few true differences.
-#' @param numChanges Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 300 changes, 100KB resolution - 1000 changes, etc. [??? If I were an end user, how would I know how to calculate this? Consider writing an algorithm for calculating this on the fly by default]
+#' @param numChanges Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 30 changes, 100KB resolution - 3000 changes, etc. 
 #' @param FC Numeric. The fold change of the changes added to the Hi-C matrix.
-#' @param alpha Numeric. Significance level for adjusting p-values (default is 0.05). [??? When should this be changed? What effect will raising or lowering have?]
+#' @param alpha Numeric. Significance level for adjusting p-values (default is 0.05). 
 #' @param Plot Logical. If TRUE, plots will be generated during processing.
 #'
 #' @return The best A value that optimize performance metrics (MCC, TPR, FPR).

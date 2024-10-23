@@ -42,14 +42,6 @@ withoutNorm_hicTable <- function(hic.table){
 #' @param A.min A numeric value or NULL, specifying the A-value quantile cutoff to filter lower average expression in `differential.detect` step of `hic_compare()` function (from HiCcompare). 
 #'  `hic_compare()` is used to detect outliers, which is assumed to be 'differences' bins in case of its number is too small (or none) to be cluster by GMM method.
 #'  If not provided, an optimized minimum A threshold that maximizes MCC and TPR while minimizing FPR in the simulated Hi-C matrix.
-#' @param SD A numeric value specifying the standard deviation threshold for fuzzing, used to produce a simulated Hi-C matrix. This value is used to modify the process finding optimal
-#'  'A.min' quantile cutoff for detecting significant outliers in `differential.detect` step. Users can select the value based on their assumption of the scHi-C data. Default is 2.
-#' @param numChanges An integer or NULL, indicating the number of changes to add to the simulated Hi-C matrix. This value is used to modify the process finding the optimal 'A.min' quantile cutoff
-#'  for detecting significant outliers. Based on the users assumption about possible number of difference, they can set the number of changes that should be proportional
-#'  to the resolution of the data. High-resolution data should be assumed more changes. If `numChanges` = NULL, the function is set number of changes (or simulated difference) is scaled by a factor of 30
-#'  (e.g., 1MB resolution - 30 changes, 500KB resolution - 60 changes, etc.) Default is NULL. 
-#' @param FC A numeric value representing the fold change threshold added to the simulated Hi-C matrix. This value is used to identify the optimal 'A.min' quantile cutoff for detecting significant outliers
-#'  in `differential.detect` step. Users can select the FC value based on their assumption of difference fold change in their data. Default is 3. 
 #' @param Plot A logical value indicating whether to plot the `differential.dect` results in an MD plot. Default is TRUE.
 #' @param Plot.normalize A logical value indicating whether to plot the `normalization` results in an MD plot. Default is FALSE.
 #' @param BP_param Parameters for `BiocParallel`, to be passed to the `bpparam()` function. See `?bpparam()` for more info.
@@ -95,7 +87,7 @@ withoutNorm_hicTable <- function(hic.table){
 ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalization = 'Loess', differential.detect = 'MD.cluster',
                          select.chromosome, main.Distances = 1:10000000, save.output.path =  NULL, Plot = T, Plot.normalize = F,
                          pool.style = 'progressive' ,n.imputation = 5,  maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
-                         A.min = NULL, fprControl.logfc = 1, alpha = 0.05, SD = 2, numChanges = 30, FC = 3, 
+                         A.min = NULL, fprControl.logfc = 1, alpha = 0.05,
                          BP_param = bpparam()){
   
   # Read file 'txt' from 2 folder path
@@ -167,6 +159,9 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
   library(HiCcompare)
   cat('\nProcessing detect differential chromotin interaction ')
   if(is.null(A.min)){
+    SD = 2; FC = 3
+    # numChanges proprtion with 30
+    numChanges = (1000000/res) * 30
     A.min <-  suppressWarnings(best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha))
   }
   # HiCcompare
@@ -192,7 +187,7 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
      
       ##### Group 1 ##### 
       df = impute1_result
-      folder_name <- "Imputed_Condition1_cells"
+      folder_name <- paste0('imp_', basename(file.path.1))
       full_output_path <- file.path(save.output.path, folder_name)
       dir.create(full_output_path, recursive = TRUE)
       cat("\nImputed cells in condition1 saved", "to:", full_output_path, "\n")
@@ -224,9 +219,10 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
       })
     }
     
+    
     ##### Group 2 ##### 
     df = impute2_result
-    folder_name <- "Imputed_Condition2_cells"
+    folder_name <- paste0('imp_', basename(file.path.2))
     full_output_path <- file.path(save.output.path, folder_name)
     dir.create(full_output_path, recursive = TRUE)
     cat("\nImputed cells in condition2 saved", "to:", full_output_path, "\n")
