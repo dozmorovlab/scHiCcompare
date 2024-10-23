@@ -3,12 +3,12 @@
 #'
 #' This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells for a selected chromosome. The resulting table is usable for the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell dataset.
 #'
-#' @param file.path Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)
+#' @param file.path Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
 #' @param cell.type The cell type name used in the analysis (e.g., 'NSN', 'SN').
 #' @param select.chromosome The chromosome name to be studied (e.g., 'chr1' or 'chrX').
 #' @return A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions.
 #' @details
-#' This function processes single-cell Hi-C data in a folder directory, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with four tab-separated columns (chr, start1,  start2, IF) with no row or column names and no quotes around character strings.
+#' This function processes single-cell Hi-C data in a folder directory, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with five tab-separated columns (chr1, start1, chr2, start2, IF) with no row or column names and no quotes around character strings.
 #' @examples
 #' \dontrun{
 #' # Load MG data folder example
@@ -31,7 +31,7 @@ scHiC_table <- function(file.path, cell.type, select.chromosome) {
   
   # Read data
   datasets <- read_files(file.path = file.path, type='txt',
-                         txt.sparse.heads.position = c(1,2,3,4), out = 'sparse')
+                         txt.sparse.heads.position = c(1,2,3,4,5), out = 'sparse')
   n_sc <- length(datasets)
   
   if (n_sc == 0) {
@@ -43,8 +43,8 @@ scHiC_table <- function(file.path, cell.type, select.chromosome) {
   
   # Process datasets and extract unique regions
   regions <- unique(unlist(lapply(datasets, function(data) {
-    data <- data[data[, 1] == select.chromosome, ]  # Select chromosome
-    region1sc <- unique(c(data[, 2], data[, 3]))  # Extract regions
+    data <- data[data$chr1 == select.chromosome, ]  # Select chromosome
+    region1sc <- unique(c(data$start1, data$start2))  # Extract regions
     region1sc <- region1sc[region1sc != 0]  # Remove zero regions
     return(region1sc)
   })))
@@ -75,7 +75,7 @@ scHiC_table <- function(file.path, cell.type, select.chromosome) {
   # Join datasets
   for (i in 1:n_sc) {
     data <- datasets[[i]]  # Get the dataset
-    data <- data[data[, 1] == select.chromosome & data[, 3] != 0, -1]  # Filter rows
+    data <- data[data$chr1 == select.chromosome & data$IF != 0, -c(1,3)]  # Filter rows
     
     if (nrow(data) == 0) {
       warning(paste("Warning: No data found for chromosome", select.chromosome, "in dataset", i))

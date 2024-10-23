@@ -72,13 +72,15 @@ read_files <- function(file.path, position.dataset = NULL, type='txt',
     # Process the data for sparse matrix format if 'out' is 'sparse'
     if(out == 'sparse'){
       ## Identify head positions for sparse matrix format
-      chr.position <- txt.sparse.heads.position[1]
+      chr1.position <- txt.sparse.heads.position[1]
       start1.position <- txt.sparse.heads.position[2]
-      start2.position <- txt.sparse.heads.position[3]
-      if.position <- txt.sparse.heads.position[4]
+      chr2.position <- txt.sparse.heads.position[3]
+      start2.position <- txt.sparse.heads.position[4]
+      if.position <- txt.sparse.heads.position[5]
       
-      dataset <- dataset[, c(chr.position, start1.position, start2.position, if.position)]
-      names(dataset) <- c('chr', 'start1', 'start2', 'IF')
+      dataset <- dataset[, c(chr1.position, start1.position,
+                             chr2.position, start2.position, if.position)]
+      names(dataset) <- c('chr1', 'start1', 'chr2' ,'start2', 'IF')
     }
     
     datasets[[i]] <- dataset  # Store each dataset in the list

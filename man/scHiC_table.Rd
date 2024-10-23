@@ -7,7 +7,7 @@
 scHiC_table(file.path, cell.type, select.chromosome)
 }
 \arguments{
-\item{file.path}{Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)}
+\item{file.path}{Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)}
 
 \item{cell.type}{The cell type name used in the analysis (e.g., 'NSN', 'SN').}
 
@@ -20,7 +20,7 @@ A data frame containing the interaction frequency table with genomic loci (cell,
 This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells for a selected chromosome. The resulting table is usable for the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell dataset.
 }
 \details{
-This function processes single-cell Hi-C data in a folder directory, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with four tab-separated columns (chr, start1,  start2, IF) with no row or column names and no quotes around character strings.
+This function processes single-cell Hi-C data in a folder directory, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with five tab-separated columns (chr1, start1, chr2, start2, IF) with no row or column names and no quotes around character strings.
 }
 \examples{
 \dontrun{

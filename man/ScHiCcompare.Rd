@@ -11,7 +11,7 @@ ScHiCcompare(
   normalization = "Loess",
   differential.detect = "MD.cluster",
   select.chromosome,
-  main.Distances = 1:1e+07,
+  main.Distances = 1:10000000,
   save.output.path = NULL,
   Plot = T,
   Plot.normalize = F,
@@ -21,7 +21,7 @@ ScHiCcompare(
   outlier.rm = TRUE,
   missPerc.threshold = 95,
   A.min = NULL,
-  fprControl.logfc = 0.8,
+  fprControl.logfc = 1,
   alpha = 0.05,
   SD = 2,
   numChanges = 30,
@@ -30,9 +30,9 @@ ScHiCcompare(
 )
 }
 \arguments{
-\item{file.path.1}{Character string specifying the directory containing scHi-C data for the first condition (first cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)}
+\item{file.path.1}{Character string specifying the directory containing scHi-C data for the first condition (first cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)}
 
-\item{file.path.2}{Character string specifying the directory containing Hi-C data for the second condition (second cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)}
+\item{file.path.2}{Character string specifying the directory containing Hi-C data for the second condition (second cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)}
 
 \item{imputation}{Character string or NULL of indicating the imputation method. Default is 'RF' for Random Forest imputation.}
 

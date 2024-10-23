@@ -34,7 +34,7 @@ library(BiocStyle)
 
 `r BiocStyle::Biocpkg("ScHiCcompare")` is designed for the imputation, joint normalization, and detection of differential chromatin interactions between two groups of single-cell Hi-C datasets (scHi-C). The groups can be pre-defined based on biological conditions or can be created by clustering single cells according to their chromatin interaction patterns. Clustering can be performed using methods like [Higashi](https://github.com/ma-compbio/Higashi), [scHiCcluster](https://github.com/zhoujt1994/scHiCluster) methods, etc. 
 
-`r BiocStyle::Biocpkg("ScHiCcompare")` works with processed Hi-C data, specifically chromosome-specific chromatin interaction matrices, and accepts five-column tab-separated text files in a sparse matrix format. 
+`r BiocStyle::Biocpkg("ScHiCcompare")` works with processed Hi-C data, specifically chromosome-specific chromatin interaction matrices, and accepts four-column tab-separated text files in a sparse matrix format. 
 
 The package provides two key functionalities:
 
@@ -94,13 +94,18 @@ Each '.txt' data of a single-cell HiC should be formatted as modified sparse upp
 The '.txt' files needs to be saved in tab-separated columns and no row names, column names, or quotes around character strings with example format below.
 
 ```{r, echo=FALSE}
-data(mod.ODC_chr22_1) [??? The name of the data should be the same as the returned object]
-names(ODC_chr22_1) <- c('chr' , 'start1', 'start2', 'IF') [??? Make the object with those column names at the first place]
+data(mod.ODC_chr22_1) 
+names(ODC_chr22_1) <- c('chr' , 'start1', 'start2', 'IF') 
 DT::datatable(head(ODC_chr22_1), options = list(pageLength = 6, dom = 'tip'),
               rownames = FALSE, width = 700)
 ```
 
 To run `ScHiCcompare()`, you need two folders with condition-specific scHiC '.txt' files. The condition-specific groups of cells should be pre-defined based on criteria such as experimental conditions, clustering results, or biological characteristics. 
+
+
+#### Download
+
+#### Import
 
 ### Differential scHi-C analysis with ScHiCcompare
 
@@ -224,7 +229,7 @@ plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
   
   You can search data on [GEO](#https://www.ncbi.nlm.nih.gov/geo/) by query of `single-cell Hi-C` , `scHi-C`, or a GEO (GSE) series numbers (e.g., GSE80006), etc. Once you select the dataset, processed data  (.txt, .csv, .bed, .hic, etc.)  can often be found under the "Supplementary files" section and downloaded via `FTP` links at the bottom of the page. Additionally, [GEO](#https://www.ncbi.nlm.nih.gov/geo/) data also can be downloaded at variety of formats using different download mechanisms.For more details about downloading data in various formats, visit the GEO download guide: <https://www.ncbi.nlm.nih.gov/geo/info/download.html>.
   
-  You can also download these data by R. Example below show steps to download mices [??? so many typos, correct, i do not understand] scHi-C dataset (Flyamer et al.2017) on [GEO](#https://www.ncbi.nlm.nih.gov/geo/).
+  You can also download these data by R. Example below show steps to download mouse scHi-C dataset (Flyamer et al.2017) on [GEO](#https://www.ncbi.nlm.nih.gov/geo/).
   
 ```{r, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -278,13 +283,13 @@ ScHi-C data is available in different formats from various sources. Below are so
 
   - **`.bedepe, .csv, or .txt` formats** : 
   
-If your raw scHiC data has been processed to '.bedepe', '.csv', or '.txt' formats, you read them straightly to R by `read.delim()`, `read.table`, etc. Once the data is loaded, if you have full Hi-C contact matrices, you can convert them to sparse upper triangular format using the `full2sparse()` function of `r BiocStyle::Biocpkg("HiCcompare")` packge, then reformatting the columns to achieve the requirement [input](#input) format.
+If your raw scHiC data has been processed to '.bedepe', '.csv', or '.txt' formats, you can read them straightly to R by `read.delim()`, `read.table()`, etc. Once the data is loaded, if you have full Hi-C contact matrices, you can convert them to sparse upper triangular format using the `full2sparse()` function of `r BiocStyle::Biocpkg("HiCcompare")` packge, then reformatting the columns to achieve the requirement [input](#input) format.
 
   - **`.hic` format**:  
   
-To access and import `.hic` files into R, you can use tools such as `r BiocStyle::Biocpkg("strawr")` for reading and processing .hic files. You can read other similar example in `r BiocStyle::Biocpkg("HiCcompare")` packge [vignette](https://www.bioconductor.org/packages/release/bioc/vignettes/HiCcompare/inst/doc/HiCcompare-vignette.html)
+To access and import `.hic` files into R, you can use tools such as `r BiocStyle::Biocpkg("strawr")` for reading and processing `.hic` files. You can read other similar example in `r BiocStyle::Biocpkg("HiCcompare")` packge [vignette](https://www.bioconductor.org/packages/release/bioc/vignettes/HiCcompare/inst/doc/HiCcompare-vignette.html)
 
-Example of reading `.hic` by `r BiocStyle::Biocpkg("strawr")`. By using `straw()`, it reads the .hic file of each single cell Hi-C and outputs as data.frame in sparse upper triangular format. You need to repeat (loop) this step for single cell Hi-C of a same cell type (condition) group.
+Example of reading `.hic` by `r BiocStyle::Biocpkg("strawr")` is shown below. By using `straw()`, it reads the `.hic` file of each single cell Hi-C and outputs as data.frame in sparse upper triangular format. You need to repeat (loop) this step for single cell Hi-C of a same cell type (condition) group.
     
 ```{r, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -310,7 +315,7 @@ contact_matrix <- straw(
 
   - **`.cool` format**:  
   
-To access and import `.cool` files into R,  you can use `cooler2bedpe()` function of  `r BiocStyle::Biocpkg("HiCcompare")` package or [cooler](#<http://cooler.readthedocs.io/en/latest/index.html>) to access the data. You can read example of [cooler](#<http://cooler.readthedocs.io/en/latest/index.html>) on  `r BiocStyle::Biocpkg("HiCcompare")` [vignette](https://www.bioconductor.org/packages/release/bioc/vignettes/HiCcompare/inst/doc/HiCcompare-vignette.html)
+To access and import `.cool` files into R,  you can use `cooler2bedpe()` function of `r BiocStyle::Biocpkg("HiCcompare")` package or [cooler](#<http://cooler.readthedocs.io/en/latest/index.html>) to access the data. You can read example of [cooler](#<http://cooler.readthedocs.io/en/latest/index.html>) on  `r BiocStyle::Biocpkg("HiCcompare")` [vignette](https://www.bioconductor.org/packages/release/bioc/vignettes/HiCcompare/inst/doc/HiCcompare-vignette.html)
 
 For example, the files can be read directly into R by `cooler2bedpe()` function, which will return a list object in the format of BEDPE, containing two elements: "cis" - Contains the intra-chromosomal contact matrices, one per chromosome; "trans" - Contains the inter-chromosomal contact matrix. You can read about this in more detail by `?cooler2bedpe()`.
   
@@ -393,7 +398,7 @@ In this example, we will work with scHi-C data from 10 single cells in both ODC 
 
 ```{r, message=FALSE, warning=FALSE}
 ## Imputation with 'progressive' pooling
-result = ScHiCcompare(file.path.1 = 'mod_ODCs_example', file.path.2 = 'mod_MGs_example', [??? Can't run]
+result = ScHiCcompare(file.path.1 = 'ODCs_example', file.path.2 = 'MGs_example',
              select.chromosome = 'chr20', 
              main.Distances = 1:10000000,
              imputation = 'RF',

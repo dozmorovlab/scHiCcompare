@@ -17,8 +17,8 @@ withoutNorm_hicTable <- function(hic.table){
 #' This function performs a differential analysis between two single-cell Hi-C data groups. It includes the 
 #' steps of imputation, normalization, and detection of differential chromatin interactions (DCIs).
 #'
-#' @param file.path.1 Character string specifying the directory containing scHi-C data for the first condition (first cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)
-#' @param file.path.2 Character string specifying the directory containing Hi-C data for the second condition (second cell-type group). The folder should contain '.txt' scHi-C files in sparse upper triangular format (chr, start1, end1, IF)
+#' @param file.path.1 Character string specifying the directory containing scHi-C data for the first condition (first cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
+#' @param file.path.2 Character string specifying the directory containing Hi-C data for the second condition (second cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
 #' @param imputation Character string or NULL of indicating the imputation method. Default is 'RF' for Random Forest imputation.
 #' @param normalization Character string or NULL indicating the normalization method. Default is 'Loess'.
 #' @param differential.detect Character string indicating the differential detection method. Default is 'MD.cluster'.
@@ -210,9 +210,12 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
       cell_data_list <- split(sparse_df, sparse_df$cell_id)
       
       # Loop through each cell data frame and save to individual .txt files using fwrite
+      file_name = list.files(file.path.1)
       lapply(names(cell_data_list), function(cell) {
+        cell_index = as.numeric(gsub("[^0-9]", "", cell) )
+        org_name = file_name[cell_index]
         # Define the output file path for the current cell
-        output_file_path <- file.path(full_output_path, paste0('grp1.imp_',cell, ".txt"))
+        output_file_path <- file.path(full_output_path, paste0('imp_',org_name))
         
         # Save the data frame to a .txt file
         #fwrite(cell_data_list[[cell]], file = output_file_path, sep = "\t", row.names = FALSE, quote = FALSE)
@@ -240,9 +243,12 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
     cell_data_list <- split(sparse_df, sparse_df$cell_id)
     
     # Loop through each cell data frame and save to individual .txt files using fwrite
+    file_name = list.files(file.path.2)
     lapply(names(cell_data_list), function(cell) {
+      cell_index = as.numeric(gsub("[^0-9]", "", cell) )
+      org_name = file_name[cell_index]
       # Define the output file path for the current cell
-      output_file_path <- file.path(full_output_path, paste0('grp2.imp_',cell, ".txt"))
+      output_file_path <- file.path(full_output_path, paste0('imp_',org_name))
       
       # Save the data frame to a .txt file
       write.table(cell_data_list[[cell]][,-1], output_file_path,  row.names = FALSE, quote = FALSE)
