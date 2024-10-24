@@ -68,7 +68,7 @@ library(data.table)
 
 ## Overview
 
-`ScHiCcompare()` function conducts a differential analysis workflow, including imputation and normalization, between chromosome-specific chromatin interaction matrices of two conditions (or two cell types groups). 
+`ScHiCcompare()` [??? Rename the function to keep capitalization consistent with the package - scHiCcompare] function conducts a differential analysis workflow, including imputation and normalization, between chromosome-specific chromatin interaction matrices of two conditions (or two cell types groups). 
 
  - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method to pool bands - data subsets based on progressively increasing genomic distance ranges. There are two pooling strategies:
 
@@ -337,19 +337,19 @@ From the visualizations above, normalization effectively reduces the irregular t
 
 ## Output
 
-When running the `ScHiCcompare()` function, the output object in R will be exported that contained plots, differential results, pseudo-bulk matrices in sparse format, normalized results, and imputation tables. 
-
-You can extract the full differential result in `$Differential_Analysis`. Intermediate results can be accessed with `$Intermediate`, including imputation result table (`$Intermediate$Imputation`), speudo-bulk matrix in sparse format (`$Intermediate$PseudoBulk`), and normalization table (`$Intermediate$Bulk.Normalization`).
+The `ScHiCcompare()` function will return an object that containes plots, differential results, pseudo-bulk matrices in sparse format, normalized results, and imputation tables. The full differential result are available in in `$Differential_Analysis`. Intermediate results can be accessed with `$Intermediate`, including imputation result table (`$Intermediate$Imputation`), speudo-bulk matrix in sparse format (`$Intermediate$PseudoBulk`), and normalization table (`$Intermediate$Bulk.Normalization`).
 
 You also can have option to save the results into chosen directory by parameter in `ScHiCcompare()` [function](#ScHiCcompare-function). This will save normalization result table, differential result table, and imputed scHi-C in sparse format (each group is a sub-folder). The sample of saved output folder structure is:
  
         + Bulk_normalization_table.txt
         + Differential_analysis_table.txt
-        + Imputed_{group 1's name} 
+        + Imputed_{group 1's name}
           └── + imp_{cell name}.txt
-        + Imputed_Condition2_cells
-          └── + imp_{group 2's name}.txt
+        + Imputed_Condition2_cells [??? Doesn't match the naming in group 1]
+          └── + imp_{group 2's name}.txt [??? Doesn't match the naming in group 1]
 
+[??? Document the columns of these tables,
+and the contend of the folders]
 
 ### Example of output
 
@@ -358,28 +358,19 @@ Below is continuous example from [Example of real anlysis](#Example-of-real-anly
 ```{r}
 ### Extract imputed ODC cell type table
 imp_ODC_table = result$Intermediate$Imputation$condition1
-```
-
-```{r, echo=FALSE}
 DT::datatable(head(imp_ODC_table), options = list(scrollX = TRUE), width = 700)
 ```
 
 ```{r}
 ## Extract Pseudo-bulk matrix from imputed scHi-C data
 ## Pseudo bulk matrix in sparse format
-psudobulk_result =result$Intermediate$PseudoBulk$condition1
-```
-
-```{r, echo=FALSE}
+psudobulk_result = result$Intermediate$PseudoBulk$condition1
 DT::datatable(head(psudobulk_result), options = list(scrollX = TRUE), width = 700)
 ```
 
 ```{r}
 ### Extract imputed pseudo bulk matrices normalization
 norm_result = result$Intermediate$Bulk.Normalization
-```
-
-```{r, echo=FALSE}
 DT::datatable(head(norm_result), options = list(scrollX = TRUE), width = 700)
 ```
 
@@ -415,10 +406,13 @@ imp_MG_table = result$Intermediate$Imputation$condition2
 imp_ODC_table = result$Intermediate$Imputation$condition1
 ```
 
+[??? Instead of IF1, IF2 etc columns, use the original file names.
+Those file names correspond to individual cells. User wants to trace how imputed
+values correspond to the original ones.]
+
 ```{r, echo=FALSE}
 DT::datatable(imp_ODC_table, options = list(scrollX = TRUE), width = 700)
 ```
-
 
 Therefore, we need to create the table input for original IFs values in the same format. Below is continuous example from [Example of real anlysis](#Example-of-real-anlysis) above, showing how you can construct this table for original IF values and compare them with the output fro of imputed IF values.
 
@@ -457,9 +451,7 @@ plot4 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
 grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow =2)
 ```
 
-The diagnostic visualizations show that, with only 10 single cells per group, the imputed values for MG perform well only at closer genomic distances (e.g., D1, D2). The accuracy of the imputation can be further improved by increasing the number of single cells in each group. The scHiCcompare paper recommends using at least 60 single cells per group for optimal imputation accuracy.
-
-
+The diagnostic visualizations show that, with only 10 single cells per group, the imputed values for MG perform well (closest to the original distribution) only at closer genomic distances (e.g., D1, D2). The accuracy of the imputation can be further improved by increasing the number of single cells in each group. We recommends using at least 60 single cells per group for optimal imputation accuracy.
 
 # Session Info
 
