@@ -14,7 +14,7 @@ plot_HiCmatrix_heatmap(
 )
 }
 \arguments{
-\item{scHiC.sparse}{A sparse matrix of Hi-C interaction frequencies in sparse format (chr, start1, start2, IF).}
+\item{scHiC.sparse}{A modified sparse matrix of Hi-C interaction frequencies in format (chr1, start1, chr2, start2, IF).}
 
 \item{zlim}{A numeric vector of length 2 specifying the limits of the color scale. If the zlim is not specified, the zlim vector include minimum and maximum values of the matrix.}
 

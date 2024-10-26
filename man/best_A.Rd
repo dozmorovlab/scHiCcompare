@@ -11,11 +11,11 @@ best_A(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05, Plot = FALSE)
 
 \item{SD}{Numeric. The standard deviation of the fuzzing used to produce a Hi-C matrix from your data with few true differences.}
 
-\item{numChanges}{Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 300 changes, 100KB resolution - 1000 changes, etc. \link{??? If I were an end user, how would I know how to calculate this? Consider writing an algorithm for calculating this on the fly by default}}
+\item{numChanges}{Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 30 changes, 100KB resolution - 3000 changes, etc.}
 
 \item{FC}{Numeric. The fold change of the changes added to the Hi-C matrix.}
 
-\item{alpha}{Numeric. Significance level for adjusting p-values (default is 0.05). \link{??? When should this be changed? What effect will raising or lowering have?}}
+\item{alpha}{Numeric. Significance level for adjusting p-values (default is 0.05).}
 
 \item{Plot}{Logical. If TRUE, plots will be generated during processing.}
 }

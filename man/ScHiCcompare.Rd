@@ -23,9 +23,6 @@ ScHiCcompare(
   A.min = NULL,
   fprControl.logfc = 1,
   alpha = 0.05,
-  SD = 2,
-  numChanges = 30,
-  FC = 3,
   BP_param = bpparam()
 )
 }
@@ -73,17 +70,6 @@ If not provided, an optimized minimum A threshold that maximizes MCC and TPR whi
 Detected differences identified by Gaussian Mixed Model (GMM) clusters only include values with log fold change that are larger than this threshold. Default is 0.8.}
 
 \item{alpha}{A numeric value for the significance level of outlier detection of \code{differential.detect} step by the analysis of \code{hic_compare()} function from HiCcompare. Default is 0.05.}
-
-\item{SD}{A numeric value specifying the standard deviation threshold for fuzzing, used to produce a simulated Hi-C matrix. This value is used to modify the process finding optimal
-'A.min' quantile cutoff for detecting significant outliers in \code{differential.detect} step. Users can select the value based on their assumption of the scHi-C data. Default is 2.}
-
-\item{numChanges}{An integer or NULL, indicating the number of changes to add to the simulated Hi-C matrix. This value is used to modify the process finding the optimal 'A.min' quantile cutoff
-for detecting significant outliers. Based on the users assumption about possible number of difference, they can set the number of changes that should be proportional
-to the resolution of the data. High-resolution data should be assumed more changes. If \code{numChanges} = NULL, the function is set number of changes (or simulated difference) is scaled by a factor of 30
-(e.g., 1MB resolution - 30 changes, 500KB resolution - 60 changes, etc.) Default is NULL.}
-
-\item{FC}{A numeric value representing the fold change threshold added to the simulated Hi-C matrix. This value is used to identify the optimal 'A.min' quantile cutoff for detecting significant outliers
-in \code{differential.detect} step. Users can select the FC value based on their assumption of difference fold change in their data. Default is 3.}
 
 \item{BP_param}{Parameters for \code{BiocParallel}, to be passed to the \code{bpparam()} function. See \code{?bpparam()} for more info.}
 }
