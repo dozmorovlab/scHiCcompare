@@ -336,21 +336,42 @@ From the visualizations above, normalization effectively reduces the irregular t
 
 The `ScHiCcompare()` function will return an object that containes plots, differential results, pseudo-bulk matrices in sparse format, normalized results, and imputation tables. The full differential result are available in in `$Differential_Analysis`. Intermediate results can be accessed with `$Intermediate`, including imputation result table (`$Intermediate$Imputation`), speudo-bulk matrix in sparse format (`$Intermediate$PseudoBulk`), and normalization table (`$Intermediate$Bulk.Normalization`).
 
-You also can have option to save the results into chosen directory by parameter in `ScHiCcompare()` [function](#ScHiCcompare-function). This will save normalization result table, differential result table, and imputed scHi-C in sparse format (each group is a sub-folder). The sample of saved output folder structure is:
+You also can have option to save the results into chosen directory by parameter in `ScHiCcompare()` [function](#ScHiCcompare-function). This will save normalization result table, differential result table, and imputed cell scHi-C data (each group is a sub-folder). The sample of saved output folder structure is:
  
         + Bulk_normalization_table.txt
         + Differential_analysis_table.txt
         + Imputed_{group 1's name}
           └── + imp_{cell name}.txt
-        + Imputed_group 1's name 
+        + Imputed_group 2's name 
           └── + imp_{cell name}.txt 
 
-[??? Document the columns of these tables,
-and the contend of the folders]
+Normalization result `Bulk_normalization_table.txt` outputs 15 columns with contents:
+  - Interacting bins coordination [chr1, start1, end1, chr2, start2, end2, D (scaled genomic distance)]
+  - Bulk IF values [bulk.IF1, bulk.IF2, M (their log fold change, $log(IF_2/IF_1)$)]
+  - Normalized bulk IF values [adj.bulk.IF1, adj.bulk.IF2, adj.M (their log fold change, $log(adj.IF_2/adj.IF_1)$)]
+  - Loess correction factor [mc]
+  - Average expression value of bulk IF [A].
+  
+Differential result table `Differential_analysis_table.txt` has 17 columns with first 15 columns same as normalization result table and additionally 2 columns of log fold change Z score [Z] and differential result cluster (1 - differential, 0 - non differential) [Difference.cluster].
+
+Imputed cell's scHiC data is saved in folder for each group, which has modified output of five columns [chr1, start1, chr2, start2, IF].
+
 
 ### Example of output
 
 Below is continuous example from [Example of real anlysis](#Example-of-real-anlysis) above, showing how you can extract different result option from the `ScHiCcompare()` function.
+
+```{r}
+### Extract imputed differential result
+diff_result = result$Differential_Analysis
+DT::datatable(head(diff_result), options = list(scrollX = TRUE), width = 700)
+```
+
+```{r}
+### Extract imputed pseudo bulk matrices normalization
+norm_result = result$Intermediate$Bulk.Normalization
+DT::datatable(head(norm_result), options = list(scrollX = TRUE), width = 700)
+```
 
 ```{r}
 ### Extract imputed ODC cell type table
@@ -360,16 +381,12 @@ DT::datatable(head(imp_ODC_table), options = list(scrollX = TRUE), width = 700)
 
 ```{r}
 ## Extract Pseudo-bulk matrix from imputed scHi-C data
-## Pseudo bulk matrix in sparse format
+## Pseudo bulk matrix in standard sparse format
 psudobulk_result = result$Intermediate$PseudoBulk$condition1
 DT::datatable(head(psudobulk_result), options = list(scrollX = TRUE), width = 700)
 ```
 
-```{r}
-### Extract imputed pseudo bulk matrices normalization
-norm_result = result$Intermediate$Bulk.Normalization
-DT::datatable(head(norm_result), options = list(scrollX = TRUE), width = 700)
-```
+
 
 Furthermore, you also have some parameter options in the function to indicate which plots to output and option to save the results in given directory.
 
@@ -402,10 +419,6 @@ The output of `$Intermediate$Imputation` of `ScHiCcompare()` function has achiev
 imp_MG_table = result$Intermediate$Imputation$condition2
 imp_ODC_table = result$Intermediate$Imputation$condition1
 ```
-
-[??? Instead of IF1, IF2 etc columns, use the original file names.
-Those file names correspond to individual cells. User wants to trace how imputed
-values correspond to the original ones.]
 
 ```{r, echo=FALSE}
 DT::datatable(imp_ODC_table, options = list(scrollX = TRUE), width = 700)

@@ -218,10 +218,15 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
         org_name = file_name1[cell_index]
         # Define the output file path for the current cell
         output_file_path <- file.path(full_output_path, paste0('imp_',org_name))
-        
+        # Define the output file path for the current cell
+        output_file_path <- file.path(full_output_path, paste0('imp_',org_name))
+        save.data.fotmat <- data.frame(chr1 = cell_data_list[[cell]]$chr,
+                                       start1 = cell_data_list[[cell]]$region1,
+                                       chr2 = cell_data_list[[cell]]$chr,
+                                       start2 = cell_data_list[[cell]]$region2,
+                                       IF = cell_data_list[[cell]]$IF)
         # Save the data frame to a .txt file
-        #fwrite(cell_data_list[[cell]], file = output_file_path, sep = "\t", row.names = FALSE, quote = FALSE)
-        write.table(cell_data_list[[cell]][,-1], output_file_path,  row.names = FALSE, quote = FALSE)
+        write.table(save.data.fotmat, output_file_path,  row.names = FALSE, quote = FALSE)
 
       })
     }
@@ -252,9 +257,13 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
       org_name = file_name2[cell_index]
       # Define the output file path for the current cell
       output_file_path <- file.path(full_output_path, paste0('imp_',org_name))
-      
+      save.data.fotmat <- data.frame(chr1 = cell_data_list[[cell]]$chr,
+                                     start1 = cell_data_list[[cell]]$region1,
+                                     chr2 = cell_data_list[[cell]]$chr,
+                                     start2 = cell_data_list[[cell]]$region2,
+                                     IF = cell_data_list[[cell]]$IF)
       # Save the data frame to a .txt file
-      write.table(cell_data_list[[cell]][,-1], output_file_path,  row.names = FALSE, quote = FALSE)
+      write.table(save.data.fotmat, output_file_path,  row.names = FALSE, quote = FALSE)
     
     })
     
