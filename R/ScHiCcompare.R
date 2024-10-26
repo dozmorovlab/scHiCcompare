@@ -95,8 +95,8 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
   #                        txt.sparse.heads.position = c(1,2,3,4), out = 'sparse')
   # cond2_list <- read_files(file.path = file.path.2, cell = 'condition2', type='txt',
   #                          txt.sparse.heads.position  = c(1,2,3,4), out = 'sparse')
-    
-  
+  file_name1 = list.files(file.path.1)
+  file_name2 = list.files(file.path.2)
   # Step 0 : Transfer into scHiC table oject
   scHiC.table_cond1 <- scHiC_table(file.path = file.path.1, cell.type = 'condition1',
                                    select.chromosome = select.chromosome)
@@ -127,6 +127,14 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
     scHiC.table_cond2 <- Pooling_RF_impute(scHiC.table = scHiC.table_cond2, n.imputation = n.imputation,  maxit = maxit, outlier.rm = outlier.rm, 
                                    main.Distances = main.Distances, pool.style =pool.style, missPerc.threshold = missPerc.threshold)
     impute1_result = scHiC.table_cond1; impute2_result = scHiC.table_cond2
+    
+    ### Change cell name
+    imp_cell_name1 = sub("\\.txt$", "", basename(file_name1))
+    names(impute1_result)[5:ncol(impute1_result)] <- paste0('imp_', imp_cell_name1)
+    
+    imp_cell_name2 = sub("\\.txt$", "", basename(file_name2))
+    names(impute2_result)[5:ncol(impute2_result)] <- paste0('imp_', imp_cell_name2)
+    
   } else {
     impute1_result = NULL; impute2_result = NULL
   }
@@ -186,7 +194,7 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
     if(!is.null(impute1_result)){
      
       ##### Group 1 ##### 
-      df = impute1_result
+      df = scHiC.table_cond1
       folder_name <- paste0('imp_', basename(file.path.1))
       full_output_path <- file.path(save.output.path, folder_name)
       dir.create(full_output_path, recursive = TRUE)
@@ -205,10 +213,9 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
       cell_data_list <- split(sparse_df, sparse_df$cell_id)
       
       # Loop through each cell data frame and save to individual .txt files using fwrite
-      file_name = list.files(file.path.1)
       lapply(names(cell_data_list), function(cell) {
         cell_index = as.numeric(gsub("[^0-9]", "", cell) )
-        org_name = file_name[cell_index]
+        org_name = file_name1[cell_index]
         # Define the output file path for the current cell
         output_file_path <- file.path(full_output_path, paste0('imp_',org_name))
         
@@ -221,7 +228,7 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
     
     
     ##### Group 2 ##### 
-    df = impute2_result
+    df = scHiC.table_cond2
     folder_name <- paste0('imp_', basename(file.path.2))
     full_output_path <- file.path(save.output.path, folder_name)
     dir.create(full_output_path, recursive = TRUE)
@@ -239,10 +246,10 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
     cell_data_list <- split(sparse_df, sparse_df$cell_id)
     
     # Loop through each cell data frame and save to individual .txt files using fwrite
-    file_name = list.files(file.path.2)
+    
     lapply(names(cell_data_list), function(cell) {
       cell_index = as.numeric(gsub("[^0-9]", "", cell) )
-      org_name = file_name[cell_index]
+      org_name = file_name2[cell_index]
       # Define the output file path for the current cell
       output_file_path <- file.path(full_output_path, paste0('imp_',org_name))
       

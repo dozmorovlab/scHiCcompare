@@ -68,7 +68,7 @@ library(data.table)
 
 ## Overview
 
-`ScHiCcompare()` [??? Rename the function to keep capitalization consistent with the package - scHiCcompare] function conducts a differential analysis workflow, including imputation and normalization, between chromosome-specific chromatin interaction matrices of two conditions (or two cell types groups). 
+`ScHiCcompare()` function conducts a differential analysis workflow, including imputation and normalization, between chromosome-specific chromatin interaction matrices of two conditions (or two cell types groups). 
 
  - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method to pool bands - data subsets based on progressively increasing genomic distance ranges. There are two pooling strategies:
 
@@ -80,7 +80,7 @@ library(data.table)
 
  - **Pseudo-bulk scHi-C** - Second, the imputed single-cell Hi-C data in each group are transformed into group-specific `pseudo-bulk` scHi-C matrices by summing all of these single cell Hi-C matrices.
 
- - **Normalization** - After obtaining two group-specific pseudo-bulk matrices, `normalization` removes global and local biases between two pseudo-bulk matrices. The `r BiocStyle::Biocpkg("ScHiCcompare")` workflow applies a loess [??? Search and replace to make capitalization consistent with the manuscript, Loess] regression model from `r BiocStyle::Biocpkg("HiCcompare")` to jointly normalize two imputed pseudo-bulk matrices. Briefly,
+ - **Normalization** - After obtaining two group-specific pseudo-bulk matrices, `normalization` removes global and local biases between two pseudo-bulk matrices. The `r BiocStyle::Biocpkg("ScHiCcompare")` workflow applies a LOESS regression model from `r BiocStyle::Biocpkg("HiCcompare")` to jointly normalize two imputed pseudo-bulk matrices. Briefly,
     + The data is visualized using a mean-difference (MD) plot, where \( M \), **M**ean difference (calculated as \( M = \log_2(IF_2 / IF_1) \), Y-axis) is plotted against \( D \), the **D**istance between interacting regions (X-axis). In this plot, a loess regression curve is fitted to adjust the interaction frequencies of the two condition groups, centering the \( M \) differences around a baseline of \( M = 0 \).
 
  - **Differential analysis** - `differential analysis` is performed on the processed pseudo-bulk matrices to identify differential chromatin interactions between the two cell types or conditions. This involves clustering the normalized log fold changes of interaction frequencies into difference and non-difference groups.
@@ -101,16 +101,14 @@ Each cell-specific scHi-C **.txt** file should be formatted as modified sparse u
 
 The '.txt' files needs to be saved in tab-separated columns and no row names, column names, or quotes around character strings with example format below.
 
-[??? Where is chr2 in the displayed table? The data object does not represent 5 columns. 
-Do we need this object in the first place, or can you demo the data format using some other example?
-Can you use a file from "Prepare Input folders" section?]
-[??? Data and object should be the same. If your data object is `ODC_chr22_1`,
-it should be loaded as `data(ODC_chr22_1)`]
 
 ```{r, echo=FALSE}
-data(mod.ODC_chr22_1) 
-names(ODC_chr22_1) <- c('chr' , 'start1', 'start2', 'IF') 
-DT::datatable(head(ODC_chr22_1), options = list(pageLength = 6, dom = 'tip'),
+data("ODC.bandnorm_chr20_1") 
+```
+
+```{r, echo=FALSE}
+names(ODC.bandnorm_chr20_1) <- c('chr1' , 'start1', 'chr2','start2', 'IF') 
+DT::datatable(head(ODC.bandnorm_chr20_1), options = list(pageLength = 6, dom = 'tip'),
               rownames = FALSE, width = 700)
 ```
 
@@ -124,7 +122,7 @@ Below is examples of steps to download and import scHi-C data into R. Then you c
   
   - **[GEO](#https://www.ncbi.nlm.nih.gov/geo/) (Gene Expression Omnibus)**:
   
-  You can search data on [GEO](#https://www.ncbi.nlm.nih.gov/geo/) using queries such as `single-cell Hi-C` , `scHi-C`, or a GEO (GSE) series numbers (e.g., GSE80006 [??? add link]), etc. Once you select a dataset, processed data  (.txt, .csv, .bed, .hic, etc.)  can be found under the "Supplementary files" section and downloaded via `FTP` links at the bottom of the page. Additionally, [GEO](#https://www.ncbi.nlm.nih.gov/geo/) offers various download formats using different mechanisms. For more details about downloading data in different formats, visit the GEO download guide: <https://www.ncbi.nlm.nih.gov/geo/info/download.html>.
+  You can search data on [GEO](#https://www.ncbi.nlm.nih.gov/geo/) using queries such as `single-cell Hi-C` , `scHi-C`, or a GEO (GSE) series numbers (e.g., [GSE80006](#https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80006)), etc. Once you select a dataset, processed data  (.txt, .csv, .bed, .hic, etc.)  can be found under the "Supplementary files" section and downloaded via `FTP` links at the bottom of the page. Additionally, [GEO](#https://www.ncbi.nlm.nih.gov/geo/) offers various download formats using different mechanisms. For more details about downloading data in different formats, visit the GEO download guide: <https://www.ncbi.nlm.nih.gov/geo/info/download.html>.
   
   You can also download these data by R. Example below show steps to download mouse scHi-C dataset (Flyamer et al.2017) on [GEO](#https://www.ncbi.nlm.nih.gov/geo/).
   
@@ -153,7 +151,7 @@ getGEOSuppFiles(geo_id, baseDir = "path/to/save")
   
   Additionally, some tools collect scHi-C data from various studies, like  <https://noble.gs.washington.edu/proj/schic-topic-model/>. Below is example of a R function from `r BiocStyle::Biocpkg("Bandnorm")`, which also access existing single cell Hi-C data at 1mb resolution 
 
-  To download human brain ODC and MG [??? clarify what are those abbreviations?] cell type (Lee et al., 2019), we used the `download_schic()` function of `r BiocStyle::Biocpkg("Bandnorm")` package to download the scHiC data of  ODC and MG cell types groups in 1MB resolution.
+  To download human brain oligodendrocytes (ODC) and microglia (MG) cell type (Lee et al., 2019), we used the `download_schic()` function of `r BiocStyle::Biocpkg("Bandnorm")` package to download the scHiC data of  ODC and MG cell types groups in 1MB resolution.
 
 ```{r, eval=FALSE}
 ### Install Bandnorm
@@ -206,7 +204,7 @@ contact_matrix <- straw(
     norm = "NONE",          # Normalization method (KR, VC, or NONE)
     filepath,               # Path to .hic file
     chr1loc = "chr1",       # Chromosome 1
-    chr1loc [??? The argument has the same name?] = "chr1",       # Chromosome 2 (same with chromosome 1for intra-chromosomal interactions)
+    chr2loc  = "chr1",       # Chromosome 2 (same with chromosome 1 for intra-chromosomal interactions)
     unit = "BP",            # Base pair (BP) resolution or fragment (FRAG) resolution
     binsize = 200000        # Bin size (e.g., 200kb)
 )
@@ -254,11 +252,11 @@ for (dataset_file in dataset_files) {
 }
 
 
-###################### ODC ###################### [??? That's not ODC]
+###################### MG ###################### 
 data_dir <- system.file("data", package = "scHiCcompare")
 dataset_files <- list.files(data_dir, pattern = "MG.bandnorm.*\\.rda$", full.names = TRUE)  # Pattern includes 'ODC'
 
-# Create the 'ODCs_example' folder within the current directory. [??? That's not ODC]
+# Create the 'MGs_example' folder within the current directory. 
 save_dir <- file.path(getwd(), "MGs_example")
 dir.create(save_dir, recursive = TRUE)
 
@@ -266,7 +264,7 @@ dir.create(save_dir, recursive = TRUE)
 for (dataset_file in dataset_files) {
   dataset_name <- tools::file_path_sans_ext(basename(dataset_file)) 
   load(dataset_file)
-  # Save the dataset into the 'ODCs_example' folder [??? That's not ODC]
+  # Save the dataset into the 'MGs_example' folder 
   write.table( get(dataset_name), file = file.path(save_dir, paste0(dataset_name, ".txt")), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
 }
 
@@ -279,8 +277,8 @@ Since the data downloaded by `r BiocStyle::Biocpkg("Bandnorm")` has the required
 The function requires three *Input Parameter*:
 
 - `file.path.1, file.path.2` - Character strings specifying paths to folders containing scHi-C data for the first and second condition groups (cell-type groups).
-- `select.chromosome` -  Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chrX'.) [??? Why Integer? don't we always use character here?]
-- `main.Distances`- Numeric vector or character ('full' [??? Can you use Inf here? That's infinity, and handled as numeric. We typically don't mix types in one argument]) indicating the range (or full range) of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on. [??? "As such, the number of genomic distance bins will be automatically selected" - add if this is correct. And what if you specify weird range, like 1:2? or 1:Inf?] As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting 'full' or a large distance range at high resolution (e.g., below 200kb) can make the function take longer to run due to extreme sparsity. By default, scHiCcompare detects differences within biologically relevant distance range from 1 to 10MB (`main.Distances` = 1:10000000).
+- `select.chromosome` -  Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chr10'.) 
+- `main.Distances`- Numeric vector indicating the range of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on (eg. 1:100000, 1:Inf, etc), which all genomic ranges selection can be specified by 1:Inf. The `main.Distance` vector needs to be proportional with data's resolution (ex,. for 10kb - 1:10000, 1:50000, 1:100000, 1:Inf, etc). As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting a large distance range at high resolution (e.g., below 200kb) can make the function take longer to run due to extreme sparsity. By default, scHiCcompare detects differences within biologically relevant distance range from 1 to 10MB (`main.Distances` = 1:10000000).
 
 
 ```{r, eval=FALSE}
@@ -291,7 +289,7 @@ ScHiCcompare(file.path.1, file.path.2,
              normalization = 'Loess',
              differential.detect = 'MD.cluster',
              pool.style = 'progressive', fprControl.logfc = 0.8,  A.min = NULL, 
-             n.imputation = 5,  maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
+             n.imputation = 5, outlier.rm = TRUE, missPerc.threshold = 95,
              save.output.path =  NULL, Plot = TRUE, Plot.normalize = FALSE)
 ```
 
@@ -303,8 +301,7 @@ ScHiCcompare(file.path.1, file.path.2,
 - `fprControl.logfc` - A numeric value controlling the false positive rate of GMM difference clusters  (`differential.detect`) (eg,. 0.5, 0.8, 1, 1.5, etc) . Default is 1.
 - `A.min` - Numeric value or NULL that sets the A-value quantile cutoff (eg,. 7, 10, etc) for filtering low average interaction frequencies in the outlier detection in differential step of the `hic_compare()` function from `r BiocStyle::Biocpkg("HiCcompare")`.  If not provided (NULL), A is auto-detected.
 - `n.imputation` - Interger values specifying the number of imputations for the `imputation` step. Default is 5.
-- `maxit` -  Integer specifying the maximum number of iterations for internal refinement [??? of what?] process within a single `imputation` cycle. Default is 1. [??? I don't see useful value for it.]
-- `outlier.rm` -  A logical value indicating whether outlier values [??? defined as?] should be removed during `imputation`. Default is TRUE.
+- `outlier.rm` -  A logical value indicating whether outlier values (which values are 1.5 times the interquartile range (IQR)) should be removed during `imputation`. Default is TRUE.
 - `missPerc.threshold` -  Numeric value specifying the maximum allowable percentage of missing data in each pool band (eg,. 90, 95, 98, etc) to identify `main.Distances`'s pool bands that are imputed by the `imputation` method. Default is 95%.
 
 *Optional Output Parameter* :
@@ -345,8 +342,8 @@ You also can have option to save the results into chosen directory by parameter 
         + Differential_analysis_table.txt
         + Imputed_{group 1's name}
           └── + imp_{cell name}.txt
-        + Imputed_Condition2_cells [??? Doesn't match the naming in group 1]
-          └── + imp_{group 2's name}.txt [??? Doesn't match the naming in group 1]
+        + Imputed_group 1's name 
+          └── + imp_{cell name}.txt 
 
 [??? Document the columns of these tables,
 and the contend of the folders]
@@ -385,11 +382,11 @@ Furthermore, you also have some parameter options in the function to indicate wh
 There are several other functions included in `ScHiCcompare` package. 
 
 ## Heatmap HiC matrix plot
-`plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires an input as a modified sparse matrix, same format of `ScHiCcompare()` [Input](#input) with 4 [??? five] columns of chr, start1, start2, IF. More information can be found in its help document and the example below.
+`plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires an input as a modified sparse matrix, same format of `ScHiCcompare()` [Input](#input) with five columns of chr1, start1, chr2 start2, IF. More information can be found in its help document and the example below.
 
 ```{r}
-data(mod.ODC_chr22_1)
-plot_HiCmatrix_heatmap(scHiC.sparse = ODC_chr22_1, main = 'scHiC matrix of a ODC cell', zlim = c(0,5))
+data("ODC.bandnorm_chr20_1")
+plot_HiCmatrix_heatmap(scHiC.sparse = ODC.bandnorm_chr20_1, main = 'scHiC matrix of a ODC cell', zlim = c(0,5))
 ```
 
 

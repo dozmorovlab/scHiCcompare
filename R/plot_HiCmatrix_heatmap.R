@@ -3,7 +3,7 @@
 #' This function generates a heatmap of Hi-C interaction frequencies from a given sparse matrix, 
 #' allowing users to visualize either original or imputed Hi-C data.
 #'
-#' @param scHiC.sparse A sparse matrix of Hi-C interaction frequencies in sparse format (chr, start1, start2, IF).
+#' @param scHiC.sparse A modified sparse matrix of Hi-C interaction frequencies in format (chr1, start1, chr2, start2, IF).
 #' @param zlim A numeric vector of length 2 specifying the limits of the color scale. If the zlim is not specified, the zlim vector include minimum and maximum values of the matrix.
 #' @param color_low A character specifying the color for the lowest values. Default is "white".
 #' @param color_high A character specifying the color for the highest values. Default is "red".
@@ -37,7 +37,7 @@ plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white
   library(lattice)
   
   # Transform sparse matrices to full matrices
-  scHiC.sparse <- scHiC.sparse[ ,c(2:4)]
+  scHiC.sparse <- scHiC.sparse[ ,c(2,4,5)]
   org_sc_full <- sparse2full(scHiC.sparse)
   
   if(is.null(zlim)){
