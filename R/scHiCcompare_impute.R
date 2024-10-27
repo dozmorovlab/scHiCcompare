@@ -621,7 +621,7 @@ scHiCcompare_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outl
   
   ## If Pooling styles is applied
   if(pool.style == 'none'){     # If None pooling is selected  
-    new_table = RF_impute.outrm.schic (scHiC.table = scHiC.table, n_imputation = n.imputation,
+    new_table = RF_process(scHiC.table = scHiC.table, n_imputation = n.imputation,
                                        outlier.rm = outlier.rm , main_Distances = main.Distances,
                                        missPerc.threshold = missPerc.threshold)
     
