@@ -14,142 +14,6 @@ find.collinear <- function(x, threshold = 0.999, ...) {
 }
 
 
-#####################  RF without Pooling imputation  ##################### 
-
-
-RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit = 1,
-                                   main_Distances = 1:10000000, missPerc.threshold = 95){
-  
-  
-  ############################# Identify important Pools and Parameter 
-  
-  ## distance of scHiC table
-  res = min( abs( diff(unique(scHiC.table$region1)) ) )
-  D =unique( abs(scHiC.table$region1 - scHiC.table$region2)/res )
-  n_all.distance = length(D)
-  n_distance = length(D)
-  
-  ## Identify main Distances
-  maxD = max(main_Distances)
-  maxD_res = maxD/res
-  main_D_range = 0:maxD_res
-  
-  
-  
- ############################# Imputation process 
-  new_table = NULL
-  na_perc_all = NULL
-  for (i in D){
-    cat(paste0(' band ', D[i] ,', ') )
-    ## Test na percent
-    #print(i)
-    data.pool <- predictorMatrixNP_sc_D(scHiC.table, distance = i)
-    data_input = data.pool$IF
-    na_perc = ( sum(is.na(data_input)) / length(data_input) ) *100
-    na_perc_all = c(na_perc_all, na_perc)
-  }
-  
-  
-  ### If all Distance have NA < 95%
-  if(length(which(na_perc_all > missPerc.threshold)) == 0){
-    new_table = MICE5_progressivePooling_impute.outrm(scHiC.table = scHiC.table, n_imputation = n_imputation, outlier.rm = outlier.rm)
-    
-    
-  } else { ### if any pool have NA > 95%
-    
-    ## Check which pool have above 95% -> impute mean only
-    D_outside.mainD = D[!(D %in% main_D_range)]
-    D_above.t = D[na_perc_all > missPerc.threshold]
-    D_outside.mainD_obove.t = D_outside.mainD[D_outside.mainD %in% D_above.t]
-    
-    ## Impute
-    require(tidyr)
-    l = n_distance-1
-    new_table = NULL
-    # only impute on distance data have single cell>1
-    for( i in 1:n_distance){
-      D_pos = 0:l
-      data = predictorMatrix_sc_D(scHiC.table, distance = D_pos[i])
-      data =data[order(data$region1),]
-      data_input = data[,-c(2,3)]
-      print(i)
-      
-      # Temporally remove outlier
-      if(outlier.rm == TRUE){
-        outlier <- unique(boxplot.stats(data_input$IF)$out)
-        outlier.pos <- which(data_input$IF %in% outlier)
-        outlier.value <- data_input$IF[outlier.pos]
-        data_input$IF[outlier.pos] <- NA #replace outlier with NA for now
-      }
-      
-      require(mice)
-      require(lattice)
-      library(miceadds)
-      
-      ## Classify variable class
-      data_input$Single_cell <- as.character(data_input$Single_cell)
-      #data_input$Cell_type= as.numeric(as.factor(data_input$Cell_type))
-      
-      ## Classify method and predictor matrix
-      rm.na.data = na.omit(data)
-      rm.na.data.input = na.omit(data_input)
-      if( D_pos[i] %in% D_outside.mainD_obove.t ||
-          all(rm.na.data.input$IF == rm.na.data.input$IF[1]) ||
-          anyDuplicated(rm.na.data.input$Single_cell) == 0 ||
-          all(data.frame(table(rm.na.data$bin))$Freq == 1) || 
-          length(find.collinear(data_input)) > 0 ){ # if all vector only have IF = 1 or if there is only 1 value per bin_single cell or if there is collinearity happening in IF
-        agg_new_if2 <- data_input$IF
-        agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = T))
-      } else if( nrow(rm.na.data.input) ==0 ){ #if the distance is entirely missing, we input 0 for now
-        agg_new_if2 <- data_input$IF
-        agg_new_if2[is.na(agg_new_if2)] <- rep(1, nrow(data_input))
-        
-      } else {
-        # get initial default imputation setting
-        set.seed(123)
-        
-        ini <- suppressWarnings(mice(data_input, maxit = 0))
-        #set up method
-        meth= ini$meth
-        meth['IF'] <- "rf" 
-        #set up predictor matrix
-        pred = ini$pred
-        #pred[,'Single_cell'] <- -2 #random intercept
-        
-        ## Imputation
-        #simulate for n time of multiple imputations, with 5 iteration
-        imp <- suppressWarnings(mice(data_input, method = meth, predictorMatrix = pred, print = FALSE,maxit = maxit, set.seed(123), m=n_imputation) )
-        #returns the long format of all multiple imputation
-        imp_data = complete(imp, action = 'long', include = F) 
-        #if the vector has all if>1, aggregate mean of all imputed complete data
-        agg_new_if2 = round(aggregate(imp_data[,4] , by = list(imp_data$.id),FUN= mean))
-        agg_new_if2 = agg_new_if2$x}
-      
-      # Add back outlier, if they were removed in previous steps
-      if(outlier.rm == TRUE){
-        agg_new_if2[outlier.pos] <- outlier.value
-      }
-      
-      # Create new scHicTable
-      new_data <- data.frame(Single_cell = data$Single_cell, region1 = data$region1,
-                             region2 = data$region2, IF = agg_new_if2)
-      ## Transform new_data into wide format and Re-format to new scHicTable
-      library(tidyr)
-      update_new_table <- pivot_wider(new_data, names_from = Single_cell, values_from = IF)
-      update_new_table <- data.frame(region1 = update_new_table$region1,
-                                     region2 = update_new_table$region2,
-                                     cell = rep(unique(scHiC.table$cell), nrow(update_new_table)),
-                                     chr  = rep(unique(scHiC.table$chr), nrow(update_new_table)), 
-                                     update_new_table[,-c(1:2)])
-      colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 1:(ncol(update_new_table)-4))
-      
-      new_table <- rbind(new_table, update_new_table)
-    }
-    
-  }
-  
-  return(new_table)
-}
 
 
 
@@ -436,6 +300,240 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
   }
   ## Merge all elements of new_table_list into 1 data frame
   new_table <- do.call(rbind, new_table_list)
+  
+  return(new_table)
+}
+
+
+
+
+#####################  RF without Pooling imputation  ##################### 
+RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit = 1){
+  ## distance of scHiC table
+  res = min( abs( diff(unique(scHiC.table$region1)) ) )
+  D =unique( abs(scHiC.table$region1 - scHiC.table$region2)/res )
+  n_distance = length(D)
+  
+  l = n_distance-1
+  new_table = NULL
+  # only impute on distance data have single cell>1
+  for( i in 1:n_distance){
+    D_pos = 0:l
+    data = predictorMatrix_sc_D(scHiC.table, distance = D_pos[i])
+    data =data[order(data$region1),]
+    data_input = data[,-c(2,3)]
+    print(i)
+    
+    # Temporally remove outlier
+    if(outlier.rm == TRUE){
+      outlier <- unique(boxplot.stats(data_input$IF)$out)
+      outlier.pos <- which(data_input$IF %in% outlier)
+      outlier.value <- data_input$IF[outlier.pos]
+      data_input$IF[outlier.pos] <- NA #replace outlier with NA for now
+    }
+    
+    require(mice)
+    require(lattice)
+    library(miceadds)
+    
+    ## Classify variable class
+    data_input$Single_cell <- as.character(data_input$Single_cell)
+    #data_input$Cell_type= as.numeric(as.factor(data_input$Cell_type))
+    
+    ## Classify method and predictor matrix
+    rm.na.data = na.omit(data)
+    rm.na.data.input = na.omit(data_input)
+    if( all(rm.na.data.input$IF == rm.na.data.input$IF[1]) || anyDuplicated(rm.na.data.input$Single_cell) == 0 || all(data.frame(table(rm.na.data$bin))$Freq == 1) || length(find.collinear(data_input)) > 0 ){ # if all vector only have IF = 1 or if there is only 1 value per bin_single cell or if there is collinearity happening in IF
+      agg_new_if2 <- data_input$IF
+      agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = T))
+    } else if( nrow(rm.na.data.input) ==0 ){ #if the distance is entirely missing, we input 0 for now
+      agg_new_if2 <- data_input$IF
+      agg_new_if2[is.na(agg_new_if2)] <- rep(1, nrow(data_input))
+      
+    } else {
+      # get initial default imputation setting
+      set.seed(123)
+      
+      ini <- suppressWarnings(mice(data_input, maxit = 0))
+      #set up method
+      meth= ini$meth
+      meth['IF'] <- "rf" 
+      #set up predictor matrix
+      pred = ini$pred
+      #pred[,'Single_cell'] <- -2 #random intercept
+      
+      ## Imputation
+      #simulate for n time of multiple imputations, with 5 iteration
+      imp <- suppressWarnings(mice(data_input, method = meth, predictorMatrix = pred, print = FALSE,maxit = maxit, set.seed(123), m=n_imputation) )
+      #returns the long format of all multiple imputation
+      imp_data = complete(imp, action = 'long', include = F) 
+      #if the vector has all if>1, aggregate mean of all imputed complete data
+      agg_new_if2 = round(aggregate(imp_data[,4] , by = list(imp_data$.id),FUN= mean))
+      agg_new_if2 = agg_new_if2$x}
+    
+    # Add back outlier, if they were removed in previous steps
+    if(outlier.rm == TRUE){
+      agg_new_if2[outlier.pos] <- outlier.value
+    }
+    
+    # Create new scHicTable
+    new_data <- data.frame(Single_cell = data$Single_cell, region1 = data$region1,
+                           region2 = data$region2, IF = agg_new_if2)
+    ## Transform new_data into wide format and Re-format to new scHicTable
+    library(tidyr)
+    update_new_table <- pivot_wider(new_data, names_from = Single_cell, values_from = IF)
+    update_new_table <- data.frame(region1 = update_new_table$region1,
+                                   region2 = update_new_table$region2,
+                                   cell = rep(unique(scHiC.table$cell), nrow(update_new_table)),
+                                   chr  = rep(unique(scHiC.table$chr), nrow(update_new_table)), 
+                                   update_new_table[,-c(1:2)])
+    colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 1:(ncol(update_new_table)-4))
+    
+    new_table <- rbind(new_table, update_new_table)
+    
+    
+  }
+  return(new_table)
+}  
+
+
+
+
+
+
+RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit = 1,
+                                   main_Distances = 1:10000000, missPerc.threshold = 95){
+  
+  
+  ############################# Identify important Pools and Parameter 
+  
+  ## distance of scHiC table
+  res = min( abs( diff(unique(scHiC.table$region1)) ) )
+  D =unique( abs(scHiC.table$region1 - scHiC.table$region2)/res )
+  n_all.distance = length(D)
+  n_distance = length(D)
+  
+  ## Identify main Distances
+  maxD = max(main_Distances)
+  maxD_res = maxD/res
+  main_D_range = 0:maxD_res
+  
+  
+  
+  ############################# Imputation process 
+  new_table = NULL
+  na_perc_all = NULL
+  for (i in D){
+    
+    ## Test na percent
+    #print(i)
+    data.pool <- predictorMatrixNP_sc_D(scHiC.table, distance = i)
+    data_input = data.pool$IF
+    na_perc = ( sum(is.na(data_input)) / length(data_input) ) *100
+    na_perc_all = c(na_perc_all, na_perc)
+  }
+  
+  
+  ### If all Distance have NA < 95%
+  if(length(which(na_perc_all > missPerc.threshold)) == 0){
+    new_table = RF_impute.outrm.schic(scHiC.table = scHiC.table, n_imputation = n_imputation,
+                                                      outlier.rm = outlier.rm, maxit = maxit)
+    
+    
+  } else { ### if any pool have NA > 95%
+    
+    ## Check which pool have above 95% -> impute mean only
+    D_outside.mainD = D[!(D %in% main_D_range)]
+    D_above.t = D[na_perc_all > missPerc.threshold]
+    D_outside.mainD_obove.t = D_outside.mainD[D_outside.mainD %in% D_above.t]
+    
+    ## Impute
+    require(tidyr)
+    l = n_distance-1
+    new_table = NULL
+    # only impute on distance data have single cell>1
+    for( i in 1:n_distance){
+      
+      cat(paste0('band ', D_pos[i] ,', ') )
+      D_pos = 0:l
+      data = predictorMatrix_sc_D(scHiC.table, distance = D_pos[i])
+      data =data[order(data$region1),]
+      data_input = data[,-c(2,3)]
+      print(i)
+      
+      # Temporally remove outlier
+      if(outlier.rm == TRUE){
+        outlier <- unique(boxplot.stats(data_input$IF)$out)
+        outlier.pos <- which(data_input$IF %in% outlier)
+        outlier.value <- data_input$IF[outlier.pos]
+        data_input$IF[outlier.pos] <- NA #replace outlier with NA for now
+      }
+      
+      require(mice)
+      require(lattice)
+      library(miceadds)
+      
+      ## Classify variable class
+      data_input$Single_cell <- as.character(data_input$Single_cell)
+      #data_input$Cell_type= as.numeric(as.factor(data_input$Cell_type))
+      
+      ## Classify method and predictor matrix
+      rm.na.data = na.omit(data)
+      rm.na.data.input = na.omit(data_input)
+      if( D_pos[i] %in% D_outside.mainD_obove.t ||
+          all(rm.na.data.input$IF == rm.na.data.input$IF[1]) ||
+          anyDuplicated(rm.na.data.input$Single_cell) == 0 ||
+          all(data.frame(table(rm.na.data$bin))$Freq == 1) || 
+          length(find.collinear(data_input)) > 0 ){ # if all vector only have IF = 1 or if there is only 1 value per bin_single cell or if there is collinearity happening in IF
+        agg_new_if2 <- data_input$IF
+        agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = T))
+      } else if( nrow(rm.na.data.input) ==0 ){ #if the distance is entirely missing, we input 0 for now
+        agg_new_if2 <- data_input$IF
+        agg_new_if2[is.na(agg_new_if2)] <- rep(1, nrow(data_input))
+        
+      } else {
+        # get initial default imputation setting
+        set.seed(123)
+        
+        ini <- suppressWarnings(mice(data_input, maxit = 0))
+        #set up method
+        meth= ini$meth
+        meth['IF'] <- "rf" 
+        #set up predictor matrix
+        pred = ini$pred
+        #pred[,'Single_cell'] <- -2 #random intercept
+        
+        ## Imputation
+        #simulate for n time of multiple imputations, with 5 iteration
+        imp <- suppressWarnings(mice(data_input, method = meth, predictorMatrix = pred, print = FALSE,maxit = maxit, set.seed(123), m=n_imputation) )
+        #returns the long format of all multiple imputation
+        imp_data = complete(imp, action = 'long', include = F) 
+        #if the vector has all if>1, aggregate mean of all imputed complete data
+        agg_new_if2 = round(aggregate(imp_data[,4] , by = list(imp_data$.id),FUN= mean))
+        agg_new_if2 = agg_new_if2$x}
+      
+      # Add back outlier, if they were removed in previous steps
+      if(outlier.rm == TRUE){
+        agg_new_if2[outlier.pos] <- outlier.value
+      }
+      
+      # Create new scHicTable
+      new_data <- data.frame(Single_cell = data$Single_cell, region1 = data$region1,
+                             region2 = data$region2, IF = agg_new_if2)
+      ## Transform new_data into wide format and Re-format to new scHicTable
+      library(tidyr)
+      update_new_table <- pivot_wider(new_data, names_from = Single_cell, values_from = IF)
+      update_new_table <- data.frame(region1 = update_new_table$region1,
+                                     region2 = update_new_table$region2,
+                                     cell = rep(unique(scHiC.table$cell), nrow(update_new_table)),
+                                     chr  = rep(unique(scHiC.table$chr), nrow(update_new_table)), 
+                                     update_new_table[,-c(1:2)])
+      colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 1:(ncol(update_new_table)-4))
+      
+      new_table <- rbind(new_table, update_new_table)
+    }
+    
+  }
   
   return(new_table)
 }
