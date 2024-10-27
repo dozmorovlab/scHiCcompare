@@ -524,11 +524,13 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
           anyDuplicated(rm.na.data.input$Single_cell) == 0 ||
           all(data.frame(table(rm.na.data$bin))$Freq == 1) || 
           length(find.collinear(data_input)) > 0 ){ # if all vector only have IF = 1 or if there is only 1 value per bin_single cell or if there is collinearity happening in IF
+        if( nrow(rm.na.data.input) ==0 ){ #if the distance is entirely missing, we input 0 for now
+          agg_new_if2 <- data_input$IF
+          agg_new_if2[is.na(agg_new_if2)] <- rep(1, nrow(data_input))
+        } else {
         agg_new_if2 <- data_input$IF
         agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = T))
-      } else if( nrow(rm.na.data.input) ==0 ){ #if the distance is entirely missing, we input 0 for now
-        agg_new_if2 <- data_input$IF
-        agg_new_if2[is.na(agg_new_if2)] <- rep(1, nrow(data_input))
+        }
         
       } else {
         # get initial default imputation setting
