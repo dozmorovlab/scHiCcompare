@@ -113,6 +113,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
 }
 
 
+
 ################# progressive RF imputation process ################# 
 
 ############ Function to design data matrix 
@@ -303,6 +304,9 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
   
   return(new_table)
 }
+
+
+
 
 
 
@@ -572,6 +576,9 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
   
   return(new_table)
 }
+
+
+
 
 
 
