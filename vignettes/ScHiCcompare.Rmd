@@ -323,7 +323,7 @@ result = ScHiCcompare(file.path.1 = 'ODCs_example', file.path.2 = 'MGs_example',
              imputation = 'RF',
              normalization = 'Loess',
              differential.detect = 'MD.cluster',
-             pool.style = 'none', fprControl.logfc = 0.8, 
+             pool.style = 'progressive', fprControl.logfc = 0.8, 
              Plot = TRUE, Plot.normalize = TRUE,
              save.output.path = 'Result')
 
