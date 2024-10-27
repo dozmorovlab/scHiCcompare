@@ -320,6 +320,7 @@ RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = T
   # only impute on distance data have single cell>1
   for( i in 1:n_distance){
     D_pos = 0:l
+    cat(paste0('band ', D_pos[i] ,', ') )
     data = predictorMatrixNP_sc_D(scHiC.table, distance = D_pos[i])
     data =data[order(data$region1),]
     data_input = data[,-c(2,3)]
@@ -454,9 +455,8 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
     new_table = NULL
     # only impute on distance data have single cell>1
     for( i in 1:n_distance){
-      
-      cat(paste0('band ', D_pos[i] ,', ') )
       D_pos = 0:l
+      cat(paste0('band ', D_pos[i] ,', ') )
       data = predictorMatrixNP_sc_D(scHiC.table, distance = D_pos[i])
       data =data[order(data$region1),]
       data_input = data[,-c(2,3)]
