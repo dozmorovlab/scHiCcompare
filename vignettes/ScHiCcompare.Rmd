@@ -70,7 +70,7 @@ library(data.table)
 
 `ScHiCcompare()` function conducts a differential analysis workflow, including imputation and normalization, between chromosome-specific chromatin interaction matrices of two conditions (or two cell types groups). 
 
- - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method to pool bands - data subsets based on progressively increasing genomic distance ranges. There are two pooling strategies:
+ - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method on each genomic distance or pooling bands. There are two pooling strategies:
 
     1. `Progressive` pooling, in which each subsequent group combines more consecutive distances by gradually increasing the number of distances elements included by one.
     
@@ -278,7 +278,7 @@ The function requires three *Input Parameter*:
 
 - `file.path.1, file.path.2` - Character strings specifying paths to folders containing scHi-C data for the first and second condition groups (cell-type groups).
 - `select.chromosome` -  Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chr10'.) 
-- `main.Distances`- Numeric vector indicating the range of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on (eg. 1:100000, 1:Inf, etc), which all genomic ranges selection can be specified by 1:Inf. The `main.Distance` vector needs to be proportional with data's resolution (ex,. for 10kb - 1:10000, 1:50000, 1:100000, 1:Inf, etc). As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting a large distance range at high resolution (e.g., below 200kb) can make the function take longer to run due to extreme sparsity. By default, scHiCcompare detects differences within biologically relevant distance range from 1 to 10MB (`main.Distances` = 1:10000000).
+- `main.Distances`- Numeric vector indicating the range of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on (eg. 1:100000, Inf, etc), which all genomic ranges selection can be specified by Inf. The `main.Distance` vector needs to be proportional with data's resolution (ex,. for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc). As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting a large distance range at high resolution (e.g., below 200kb) can make the function take longer to run due to extreme sparsity. By default, scHiCcompare detects differences within biologically relevant distance range from 1 to 10MB (`main.Distances` = 1:10000000).
 
 
 ```{r, eval=FALSE}
@@ -297,7 +297,7 @@ ScHiCcompare(file.path.1, file.path.2,
 
 - `imputation` - Character string or NULL of indicating the imputation method. If 'NULL' is select, the workflow will skip the `imputation` step. Default is 'RF' for Random Forest imputation.
 - `normalization` - Character string or NULL indicating the normalization method. If 'NULL' is select, the workflow will skip the `normalization` step. Default is 'Loess'.
-- `pool.style` - Character string specifying the pooling style for `imputation`. Options are 'progressive' or 'Fibonacci'. Default is 'progressive'.
+- `pool.style` - Character string specifying the pooling style for `imputation`. Options are 'none, 'progressive' or 'Fibonacci'. Default is 'progressive'.
 - `fprControl.logfc` - A numeric value controlling the false positive rate of GMM difference clusters  (`differential.detect`) (eg,. 0.5, 0.8, 1, 1.5, etc) . Default is 1.
 - `A.min` - Numeric value or NULL that sets the A-value quantile cutoff (eg,. 7, 10, etc) for filtering low average interaction frequencies in the outlier detection in differential step of the `hic_compare()` function from `r BiocStyle::Biocpkg("HiCcompare")`.  If not provided (NULL), A is auto-detected.
 - `n.imputation` - Interger values specifying the number of imputations for the `imputation` step. Default is 5.
@@ -323,7 +323,7 @@ result = ScHiCcompare(file.path.1 = 'ODCs_example', file.path.2 = 'MGs_example',
              imputation = 'RF',
              normalization = 'Loess',
              differential.detect = 'MD.cluster',
-             pool.style = 'progressive', fprControl.logfc = 0.8, 
+             pool.style = 'none', fprControl.logfc = 0.8, 
              Plot = TRUE, Plot.normalize = TRUE,
              save.output.path = 'Result')
 

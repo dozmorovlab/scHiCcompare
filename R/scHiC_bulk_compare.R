@@ -2,7 +2,7 @@
 GMM_layer <- function(hic_table, D.interval = 1:10, threshold = 0.8) {
   hic_result <- NULL
   ## if D.interval == 'full'
-  if(is.character(D.interval)){
+  if(is.infinite(D.interval)){
     D.interval = unique(hic_table$D)
     D.interval = D.interval[!D.interval == 0]
   }

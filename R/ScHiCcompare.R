@@ -104,18 +104,23 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
   scHiC.table_cond2 <- scHiC_table(file.path = file.path.2, cell.type = 'condition2',
                                    select.chromosome = select.chromosome)
   ## main distance of scHiC table - transfer to D
-  res = min( abs( diff(unique(scHiC.table_cond1$region1)) ) )
-  D.max = abs(max(main.Distances))/res 
-  D.min = max(1, abs(min(main.Distances))/res)
-  # Check if D.min and D.max are whole numbers
-  if (D.max %% 1 != 0) {
-    message("Warning: The end of main.Distances is not proportional to the resolution. Adjust the input.")
+  if(is.infinite(main.Distances) ){
+    D.interval = Inf
+  } else {
+    res = min( abs( diff(unique(scHiC.table_cond1$region1)) ) )
+    D.max = abs(max(main.Distances))/res 
+    D.min = max(1, abs(min(main.Distances))/res)
+    # Check if D.min and D.max are whole numbers
+    if (D.max %% 1 != 0) {
+      message("Warning: The end of main.Distances is not proportional to the resolution. Adjust the input.")
+    }
+    
+    if (D.min %% 1 != 0) {
+      message("Warning: The start of main.Distances is not proportional to the resolution. Adjust the input.")
+    }
+    D.interval = c(D.min : D.max)
   }
   
-  if (D.min %% 1 != 0) {
-    message("Warning: The start of main.Distances is not proportional to the resolution. Adjust the input.")
-  }
-  D.interval = c(D.min : D.max)
 
   
   

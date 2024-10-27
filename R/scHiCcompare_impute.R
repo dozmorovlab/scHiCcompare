@@ -607,7 +607,7 @@ scHiCcompare_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outl
   n_all.distance = length(D)
   
   ## Identify main Distances
-  if(is.character(main.Distances) ){
+  if(is.infinite(main.Distances) ){
     main_D_range = 1:max(D)
   } else {
     maxD = max(main.Distances)
