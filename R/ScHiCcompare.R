@@ -104,7 +104,7 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
   scHiC.table_cond2 <- scHiC_table(file.path = file.path.2, cell.type = 'condition2',
                                    select.chromosome = select.chromosome)
   ## main distance of scHiC table - transfer to D
-  if(is.infinite(main.Distances) ){
+  if(is.infinite(max(main.Distances)) ){
     D.interval = Inf
   } else {
     res = min( abs( diff(unique(scHiC.table_cond1$region1)) ) )
