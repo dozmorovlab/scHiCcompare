@@ -28,8 +28,8 @@ withoutNorm_hicTable <- function(hic.table){
 #' @param save.output.path Character string specifying the directory to save outputs, including the imputed cells in the form of a sparse upper triangular format,
 #'  normalization result table, and differential analysis result table. If NULL, no files are saved.
 #' @param Plot Logical. If TRUE, a plot of the differential results will be generated. Default is TRUE.
-#' @param pool.style Character string specifying the pooling style for `imputation`. Options are 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
-#'  is skipped as NULL, the `pool.style` also should be NULL
+#' @param pool.style Character string specifying the pooling style for `imputation`. Options are 'none', 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
+#'  is skipped as NULL, the `pool.style` also should be NULL.
 #' @param n.imputation Integer specifying the number of imputations for the `imputation` step. Default is 5.
 #' @param maxit Integer specifying the maximum number of iterations for internal refinement process within a single `imputation` cycle. Default is 1.
 #' @param outlier.rm Logical. If TRUE, outliers are removed during `imputation`. Default is TRUE.
@@ -49,9 +49,10 @@ withoutNorm_hicTable <- function(hic.table){
 #' @details
 #' 
 #' This function implements the ScHiCcompare workflow. It first reads sparse Hi-C data from two conditions 
-#' and imputes missing interaction frequencies (if specified) using a random forest model (RF) along with a chosen 
-#' pooling method (either progressive or Fibonacci). In progressive pooling, distances are combined consecutively 
-#' to form larger sets, while Fibonacci pooling uses a Fibonacci sequence for combination.
+#' and imputes missing interaction frequencies (if specified) using a random forest model (RF) with option of a chosen 
+#' pooling method (either progressive or Fibonacci). In progressive pooling, genomic distances are combined consecutively 
+#' to form subsequent pooled bands, while Fibonacci pooling uses a Fibonacci sequence for combination of distance data in
+#'  following bands. If none of pooling style is selected, each band contains individual genomic distance data.
 #' 
 #' Next, pseudo-bulk Hi-C matrices are generated, followed by joint normalization using Loess regression (from HiCcompare) 
 #' before detecting differential chromatin interactions via a Gaussian Mixture Model (GMM) clustering approach. 

@@ -11,7 +11,7 @@ ScHiCcompare(
   normalization = "Loess",
   differential.detect = "MD.cluster",
   select.chromosome,
-  main.Distances = 1:10000000,
+  main.Distances = 1:1e+07,
   save.output.path = NULL,
   Plot = T,
   Plot.normalize = F,
@@ -49,8 +49,8 @@ normalization result table, and differential analysis result table. If NULL, no 
 
 \item{Plot.normalize}{A logical value indicating whether to plot the \code{normalization} results in an MD plot. Default is FALSE.}
 
-\item{pool.style}{Character string specifying the pooling style for \code{imputation}. Options are 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
-is skipped as NULL, the \code{pool.style} also should be NULL}
+\item{pool.style}{Character string specifying the pooling style for \code{imputation}. Options are 'none', 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
+is skipped as NULL, the \code{pool.style} also should be NULL.}
 
 \item{n.imputation}{Integer specifying the number of imputations for the \code{imputation} step. Default is 5.}
 
@@ -84,9 +84,10 @@ steps of imputation, normalization, and detection of differential chromatin inte
 }
 \details{
 This function implements the ScHiCcompare workflow. It first reads sparse Hi-C data from two conditions
-and imputes missing interaction frequencies (if specified) using a random forest model (RF) along with a chosen
-pooling method (either progressive or Fibonacci). In progressive pooling, distances are combined consecutively
-to form larger sets, while Fibonacci pooling uses a Fibonacci sequence for combination.
+and imputes missing interaction frequencies (if specified) using a random forest model (RF) with option of a chosen
+pooling method (either progressive or Fibonacci). In progressive pooling, genomic distances are combined consecutively
+to form subsequent pooled bands, while Fibonacci pooling uses a Fibonacci sequence for combination of distance data in
+following bands. If none of pooling style is selected, each band contains individual genomic distance data.
 
 Next, pseudo-bulk Hi-C matrices are generated, followed by joint normalization using Loess regression (from HiCcompare)
 before detecting differential chromatin interactions via a Gaussian Mixture Model (GMM) clustering approach.
