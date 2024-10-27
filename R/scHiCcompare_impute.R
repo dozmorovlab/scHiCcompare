@@ -308,7 +308,43 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 
 
 #####################  RF without Pooling imputation  ##################### 
+## Function to design data matrix
+predictorMatrix_sc_D <- function(scHiC.table, distance){
+  ## Add D - distance column into scHiC table
+  res  = min( abs( diff(unique(scHiC.table$region1)) ) )
+  D = abs(scHiC.table$region1 - scHiC.table$region2)/res
+  scHiC.table.up <- cbind(D,scHiC.table)
+  
+  ## Extract IF vector at corresponding distance 
+  entire.if = scHiC.table[,-c(1:4)]
+  row.index.D = which(D == distance)
+  IF =  as.vector( unlist(c(entire.if[row.index.D,])) )
+  IF[IF == 0] <- NA
+  
+  ## Extract name of level 1: single cells for each bin
+  matrix_position = ncol(scHiC.table.up) - 5
+  single_cell <- rep(c(1:matrix_position), each= length(row.index.D))
+  
+  ## Extract name of level 2: bins
+  region1 = region2 = NULL
+  for(i in 1:length(row.index.D)){
+    rg1 <- scHiC.table$region1[row.index.D[i]]
+    rg2 <- scHiC.table$region2[row.index.D[i]]
+    # get vector name of bin
+    region1 = c(region1, rg1)
+    region2 = c(region2, rg2)
+    
+  }
+  
+  ## Combining to data.frame
+  report <- data.frame( Single_cell = single_cell, region1, region2, IF = IF)
+  
+  return(report)
+}
 
+
+
+#### Implement full range RF
 RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit = 1){
   ## distance of scHiC table
   res = min( abs( diff(unique(scHiC.table$region1)) ) )
@@ -321,10 +357,9 @@ RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = T
   for( i in 1:n_distance){
     D_pos = 0:l
     cat(paste0('band ', D_pos[i] ,', ') )
-    data = predictorMatrixNP_sc_D(scHiC.table, distance = D_pos[i])
+    data = predictorMatrix_sc_D(scHiC.table, distance = D_pos[i])
     data =data[order(data$region1),]
     data_input = data[,-c(2,3)]
-    print(i)
     
     # Temporally remove outlier
     if(outlier.rm == TRUE){
@@ -457,10 +492,9 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
     for( i in 1:n_distance){
       D_pos = 0:l
       cat(paste0('band ', D_pos[i] ,', ') )
-      data = predictorMatrixNP_sc_D(scHiC.table, distance = D_pos[i])
+      data = predictorMatrix_sc_D(scHiC.table, distance = D_pos[i])
       data =data[order(data$region1),]
       data_input = data[,-c(2,3)]
-      print(i)
       
       # Temporally remove outlier
       if(outlier.rm == TRUE){
