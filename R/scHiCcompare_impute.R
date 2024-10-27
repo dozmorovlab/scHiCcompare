@@ -308,6 +308,7 @@ pools_impute <-  function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 
 
 #####################  RF without Pooling imputation  ##################### 
+
 RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit = 1){
   ## distance of scHiC table
   res = min( abs( diff(unique(scHiC.table$region1)) ) )
@@ -319,7 +320,7 @@ RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = T
   # only impute on distance data have single cell>1
   for( i in 1:n_distance){
     D_pos = 0:l
-    data = predictorMatrix_sc_D(scHiC.table, distance = D_pos[i])
+    data = predictorMatrixNP_sc_D(scHiC.table, distance = D_pos[i])
     data =data[order(data$region1),]
     data_input = data[,-c(2,3)]
     print(i)
@@ -400,7 +401,7 @@ RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = T
 
 
 
-
+###### Entire of Random Forest Process
 RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit = 1,
                                    main_Distances = 1:10000000, missPerc.threshold = 95){
   
@@ -456,7 +457,7 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
       
       cat(paste0('band ', D_pos[i] ,', ') )
       D_pos = 0:l
-      data = predictorMatrix_sc_D(scHiC.table, distance = D_pos[i])
+      data = predictorMatrixNP_sc_D(scHiC.table, distance = D_pos[i])
       data =data[order(data$region1),]
       data_input = data[,-c(2,3)]
       print(i)
