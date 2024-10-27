@@ -122,10 +122,10 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
   # Step 1: Imputation 
   if (!is.null(imputation)){
     cat('Imputing Condition 1 group cells in: ')
-    scHiC.table_cond1 <- Pooling_RF_impute(scHiC.table = scHiC.table_cond1, n.imputation = n.imputation,  maxit = maxit, outlier.rm = outlier.rm, 
+    scHiC.table_cond1 <- scHiCcompare_impute(scHiC.table = scHiC.table_cond1, n.imputation = n.imputation,  maxit = maxit, outlier.rm = outlier.rm, 
                              main.Distances = main.Distances, pool.style = pool.style, missPerc.threshold = missPerc.threshold)
     cat('\nImputing Condition 2 group cells in: ')
-    scHiC.table_cond2 <- Pooling_RF_impute(scHiC.table = scHiC.table_cond2, n.imputation = n.imputation,  maxit = maxit, outlier.rm = outlier.rm, 
+    scHiC.table_cond2 <- scHiCcompare_impute(scHiC.table = scHiC.table_cond2, n.imputation = n.imputation,  maxit = maxit, outlier.rm = outlier.rm, 
                                    main.Distances = main.Distances, pool.style =pool.style, missPerc.threshold = missPerc.threshold)
     impute1_result = scHiC.table_cond1; impute2_result = scHiC.table_cond2
     
