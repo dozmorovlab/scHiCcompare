@@ -37,7 +37,7 @@ RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = T
   
   
  ############################# Imputation process 
-  new_table = NULL; new_table_list = rep(list(NULL), (length.Dpool.list) )
+  new_table = NULL
   na_perc_all = NULL
   for (i in D){
     cat(paste0(' band ', D[i] ,', ') )
