@@ -40,7 +40,7 @@ RF_impute.outrm.schic <-  function(scHiC.table, n_imputation = 5, outlier.rm = T
   new_table = NULL; new_table_list = rep(list(NULL), (length.Dpool.list) )
   na_perc_all = NULL
   for (i in D){
-    cat(paste0(' band ', Dpool.list.pos[i] ,', ') )
+    cat(paste0(' band ', D[i] ,', ') )
     ## Test na percent
     #print(i)
     data.pool <- predictorMatrixNP_sc_D(scHiC.table, distance = i)
