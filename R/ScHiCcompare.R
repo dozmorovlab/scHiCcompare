@@ -16,31 +16,31 @@ withoutNorm_hicTable <- function(hic.table){
 #'
 #' This function performs a differential analysis between two single-cell Hi-C data groups. It includes the 
 #' steps of imputation, normalization, and detection of differential chromatin interactions (DCIs).
-#'
-#' @param file.path.1 Character string specifying the directory containing scHi-C data for the first condition (first cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
+#' [??? Wrap help sentences by 80-character margin]
+#' @param file.path.1 Character string specifying the directory containing scHi-C data for the first condition (first cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF) [??? Should be 5 column format. We've discussed this ad nauseum.]
 #' @param file.path.2 Character string specifying the directory containing Hi-C data for the second condition (second cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
-#' @param imputation Character string or NULL of indicating the imputation method. Default is 'RF' for Random Forest imputation.
-#' @param normalization Character string or NULL indicating the normalization method. Default is 'Loess'.
-#' @param differential.detect Character string indicating the differential detection method. Default is 'MD.cluster'.
-#' @param select.chromosome Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chrX'.)
+#' @param imputation Character string or NULL of indicating the imputation method. Default is 'RF' for Random Forest imputation. [??? Add all available options.]
+#' @param normalization Character string or NULL indicating the normalization method. Default is 'Loess'. [??? Add all available options. If only two options, it should be a TRUE/FALSE switch]
+#' @param differential.detect Character string indicating the differential detection method. Default is 'MD.cluster'. [??? Add all available options. If only two options, it should be a TRUE/FALSE switch]
+#' @param select.chromosome Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chrX'.) [??? Default? Or if it is required, say so]
 #' @param main.Distances Numeric vector or character 'full' indicating the interacting range (or full range) of genomic distances (in bp) for the method to focus.
-#'  Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins). Default is 1 to 10,000,000.
+#'  Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins). Default is 1 to 10,000,000bp. 
 #' @param save.output.path Character string specifying the directory to save outputs, including the imputed cells in the form of a sparse upper triangular format,
-#'  normalization result table, and differential analysis result table. If NULL, no files are saved.
+#'  normalization result table, and differential analysis result table. If NULL, no files are saved. [??? Default?]
 #' @param Plot Logical. If TRUE, a plot of the differential results will be generated. Default is TRUE.
 #' @param pool.style Character string specifying the pooling style for `imputation`. Options are 'none', 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
 #'  is skipped as NULL, the `pool.style` also should be NULL.
-#' @param n.imputation Integer specifying the number of imputations for the `imputation` step. Default is 5.
-#' @param maxit Integer specifying the maximum number of iterations for internal refinement process within a single `imputation` cycle. Default is 1.
-#' @param outlier.rm Logical. If TRUE, outliers are removed during `imputation`. Default is TRUE.
+#' @param n.imputation Integer specifying the number of imputations for the `imputation` step. Default is 5. [??? What is the justification? If not tested, it must. Is more the better?]
+#' @param maxit Integer specifying the maximum number of iterations for internal refinement process within a single `imputation` cycle. Default is 1. [??? What is the justification? If not tested, it must. Is more the better?]
+#' @param outlier.rm Logical. If TRUE, outliers are removed during `imputation`. Default is TRUE. [??? Was it tested?]
 #' @param missPerc.threshold Numeric value specifying the maximum allowable percentage of missing data in each pool band.
 #'  Only pool bands within the `main.Distances` range and having a missing percentage below this threshold will be imputed
-#'  by the `imputation` method. Default is 95%.
+#'  by the `imputation` method. Default is 95%. [??? Was it tested?]
 #' @param fprControl.logfc A numeric value controlling the false positive rate of `differential.detect` step by setting the threshold for the log fold change in the 'difference' cluster. 
-#'  Detected differences identified by Gaussian Mixed Model (GMM) clusters only include values with log fold change that are larger than this threshold. Default is 0.8.
+#'  Detected differences identified by Gaussian Mixed Model (GMM) clusters only include values with log fold change that are larger than this threshold. Default is 0.8.[??? Was it tested?]
 #' @param alpha A numeric value for the significance level of outlier detection of `differential.detect` step by the analysis of `hic_compare()` function from HiCcompare. Default is 0.05. 
 #' @param A.min A numeric value or NULL, specifying the A-value quantile cutoff to filter lower average expression in `differential.detect` step of `hic_compare()` function (from HiCcompare). 
-#'  `hic_compare()` is used to detect outliers, which is assumed to be 'differences' bins in case of its number is too small (or none) to be cluster by GMM method.
+#'  `hic_compare()` is used to detect outliers, which is assumed to be 'differences' bins in case of its number is too small (or none) to be cluster by GMM method. [??? Default]
 #'  If not provided, an optimized minimum A threshold that maximizes MCC and TPR while minimizing FPR in the simulated Hi-C matrix.
 #' @param Plot A logical value indicating whether to plot the `differential.dect` results in an MD plot. Default is TRUE.
 #' @param Plot.normalize A logical value indicating whether to plot the `normalization` results in an MD plot. Default is FALSE.
@@ -49,29 +49,29 @@ withoutNorm_hicTable <- function(hic.table){
 #' @details
 #' 
 #' This function implements the ScHiCcompare workflow. It first reads sparse Hi-C data from two conditions 
-#' and imputes missing interaction frequencies (if specified) using a random forest model (RF) with option of a chosen 
-#' pooling method (either progressive or Fibonacci). In progressive pooling, genomic distances are combined consecutively 
-#' to form subsequent pooled bands, while Fibonacci pooling uses a Fibonacci sequence for combination of distance data in
-#'  following bands. If none of pooling style is selected, each band contains individual genomic distance data.
+#' and, by default, imputes missing interaction frequencies using a random forest model (RF) with a 
+#' pooling method (either progressive or Fibonacci). In progressive pooling of interaction frequencies, 
+#' genomic distance ranges are increasing linearly to form subsequent pooled bands, 
+#' while Fibonacci pooling uses a Fibonacci sequence to increase the size of genomic distance ranges. 
+#' If none of pooling style is selected, each band [??? Is 'band' even relevant here? Can't we say 'the original data is used'?] contains individual genomic distance data.
 #' 
 #' Next, pseudo-bulk Hi-C matrices are generated, followed by joint normalization using Loess regression (from HiCcompare) 
 #' before detecting differential chromatin interactions via a Gaussian Mixture Model (GMM) clustering approach. 
-#' 
-#' The differential analysis clusters normalized log fold changes in interaction frequencies between the two cell types 
+#' GMM clusters normalized log fold changes in interaction frequencies between the two cell types 
 #' at each genomic distance into "difference" and "non-difference" groups. The non-difference group is assumed to 
-#' follow a normal distribution centered around 0 and is clustered using a Gaussian Mixture Model. 
+#' follow a normal distribution centered around 0. 
 #' The difference cluster comprises points that belong to other distributions. If the size of the differences is 
-#' insufficient to form distinct distributions, these differences are considered outliers of the normal distribution, 
-#' identified by the `hic_compare()` function.
+#' insufficient to form distinct distributions, these differences are 
+#' identified by the `HiCcompare::hic_compare()` function.
 
 #' 
 #'
 #' @return A list containing the differential analysis results and intermediate results (imputation, pseudo-bulk, normalization).
 #' If `save.output.path` is provided , the imputed results for both conditions are saved in sparse format in the given firectory. Normalization and differential analysis results 
-#' are also saved if `save.output.path` is provided. 
+#' are also saved if `save.output.path` is provided. See the vignette for more details
 #'
 #' @examples
-#' \dontrun{
+#' \dontrun{ [??? Make it run by including actual .txt.gz files]
 #' Load_example_MGFolder()
 #' Load_example_ODCFolder()
 #' result <- ScHiCcompare(
