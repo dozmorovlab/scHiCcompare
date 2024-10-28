@@ -1,18 +1,18 @@
 #' Plot Imputed Distance Diagnostic
 #'
-#' This function plots the density curves of interaction frequencies 
-#' from original and imputed single-cell Hi-C data for a specified genomic distance.
+#' This function plots the distribution density curves of interaction frequencies 
+#' from original and imputed single-cell Hi-C data at a given genomic distance.
 #'
-#' @param org_sc_data A data frame containing the original single-cell Hi-C data in scHiC Table format.
+#' @param org_sc_data [??? rename to raw_sc_data. Everywhere] A data frame containing the original single-cell Hi-C data in scHiC Table format.
 #'   The data frame should include columns for `region1`, `region2`, `Cell`, `Chr`, and `IF_i` for each of the i single cells.
 #' @param imp_sc_data A data frame containing the imputed single-cell Hi-C data in scHiC Table format.
 #'   The data frame should include columns for `region1`, `region2`, `Cell`, `Chr`, and `IF_i` for each of the i single cells.
 #' @param D An integer specifying the genomic distance for which to plot the density curves of interaction frequencies. Genomic distance refers to the number of base pairs 
-#'   between two regions in the genome (e.g., loci or bins) that is scaled by resolution D = (start2 - start1)/resolution (e.g., D = (16,000,000 - 17,000,000)/1,000,000 -> D = 1).
+#'   between two regions in the genome (e.g., loci or bins) that is scaled by resolution D = (start2 - start1)/resolution (e.g., D = (16,000,000 - 17,000,000)/1,000,000 -> D = 1). [??? Can't you just say 'genomic distance expressed in the units of resolution bins'?]
 #'
 #' @details
 #' The distance D represents how far apart two genomic loci are. The observation that chromatin interaction frequency (IF) in Hi-C data tend to become less frequent as the genomic distance between two loci increases.
-#' ScHi-C interaction frequency in the same distance is assumed to have similar statistical property. To diagnose if the imputed IF values still retain these statistical property in each distance, the   
+#' ScHi-C interaction frequency in the same distance is assumed to have similar statistical properties. To diagnose if the imputed IF values still retain these statistical properties at each distance, the   
 #' `plot_imputed_distance_diagnostic()` function plot the density curves of interaction frequencies  from original and imputed single-cell Hi-C data for a specified genomic distance.
 #' 
 #' @return A ggplot2 object representing the density plot comparing original 
