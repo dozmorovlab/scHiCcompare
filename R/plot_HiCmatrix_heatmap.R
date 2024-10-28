@@ -2,10 +2,10 @@
 #'
 #' This function generates a heatmap of Hi-C interaction frequencies from a given sparse matrix, 
 #' allowing users to visualize either original or imputed Hi-C data.
-#'
+#' [??? Wrap sentences at 80-character border]
 #' @param scHiC.sparse A modified sparse matrix of Hi-C interaction frequencies in format (chr1, start1, chr2, start2, IF).
-#' @param zlim A numeric vector of length 2 specifying the limits of the color scale. If the zlim is not specified, the zlim vector include minimum and maximum values of the matrix.
-#' @param color_low A character specifying the color for the lowest values. Default is "white".
+#' @param zlim A numeric vector of length 2 specifying the limits of the color scale. If the zlim is not specified, the zlim vector include minimum and maximum values of the matrix. [??? Demonstrate possible options.]
+#' @param color_low A character specifying the color for the lowest values. Default is "white". [??? What are other options? Where to find color names?]
 #' @param color_high A character specifying the color for the highest values. Default is "red".
 #' @param main A character string for the main title of the plot. Default is NULL.
 #' @param figure_name A character string for additional figure labeling. Default is NULL.
