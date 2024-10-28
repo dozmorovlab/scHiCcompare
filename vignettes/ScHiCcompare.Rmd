@@ -68,24 +68,26 @@ library(data.table)
 
 ## Overview
 
-`ScHiCcompare()` function conducts a differential analysis workflow, including imputation and normalization, between chromosome-specific chromatin interaction matrices of two conditions (or two cell types groups). 
+`ScHiCcompare()` function conducts a differential analysis workflow, including imputation and normalization, using chromosome-specific chromatin interaction matrices split into two conditions (or two cell types groups). 
 
- - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method on each genomic distance or pooling bands. There are two pooling strategies:
+ - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method on each genomic distance range or pooling bands. There are two pooling strategies:
 
-    1. `Progressive` pooling, in which each subsequent group combines more consecutive distances by gradually increasing the number of distances elements included by one.
+    1. `Progressive` pooling, where each subsequent band combines interaction frequencies (IFs) within linearly increasing range of distances.
     
-    2. `Fibonacci` pooling, where each group includes an increasing number of consecutive distances, with the number of distances in subsequent groups following the Fibonacci sequence.
+    2. `Fibonacci` pooling, where each subsequent band combines IFs within increasing distance ranges, and this increase follows the Fibonacci sequence.
+    
+[??? Need illustration.  It is repetitive comment, don't delete until complete]
   
-    Due to extreme sparsity at higher genomic distance and randomness of long-range interactions, scHiCcompare, by default, workflow focuses on distance 1 to 10MB (`main.Distance`).  If any pool band falls outside this range and has a percentage of missing values exceeding the specified threshold (default missPerc.threshold is 95%), the missing interaction frequencies (IFs) values are imputed using the mean IF values from the available data within that pool band.
+Due to extreme sparsity at higher genomic distance and randomness of long-range interactions, scHiCcompare, by default, workflow focuses on distance range 1 to 10MB (`main.Distance`).  If any pool band falls outside this range and has a percentage of missing values exceeding the specified threshold (default missPerc.threshold is 95%), the missing interaction frequencies (IFs) values are imputed using the mean IF values from the available data within that pool band.
 
- - **Pseudo-bulk scHi-C** - Second, the imputed single-cell Hi-C data in each group are transformed into group-specific `pseudo-bulk` scHi-C matrices by summing all of these single cell Hi-C matrices.
+ - **Pseudo-bulk scHi-C** - Second, imputed single-cell Hi-C data in each group are transformed into group-specific `pseudo-bulk` scHi-C matrices by summing all group-specific single cell Hi-C matrices.
 
- - **Normalization** - After obtaining two group-specific pseudo-bulk matrices, `normalization` removes global and local biases between two pseudo-bulk matrices. The `r BiocStyle::Biocpkg("ScHiCcompare")` workflow applies a LOESS regression model from `r BiocStyle::Biocpkg("HiCcompare")` to jointly normalize two imputed pseudo-bulk matrices. Briefly,
-    + The data is visualized using a mean-difference (MD) plot, where \( M \), **M**ean difference (calculated as \( M = \log_2(IF_2 / IF_1) \), Y-axis) is plotted against \( D \), the **D**istance between interacting regions (X-axis). In this plot, a loess regression curve is fitted to adjust the interaction frequencies of the two condition groups, centering the \( M \) differences around a baseline of \( M = 0 \).
+ - **Normalization** - After obtaining two group-specific pseudo-bulk matrices, `normalization` removes global and local biases between two pseudo-bulk matrices. The `r BiocStyle::Biocpkg("ScHiCcompare")` workflow applies a LOESS [??? Search and replace to have consistent capitalization. It is repetitive comment] regression model from `r BiocStyle::Biocpkg("HiCcompare")` to jointly normalize two imputed pseudo-bulk matrices. Briefly,
+    + The data is visualized using a mean-difference (MD) plot, where \( M \), **M**ean difference (calculated as \( M = \log_2(IF_2 / IF_1) \), Y-axis) is plotted against \( D \), the **D**istance between interacting regions (X-axis). In this plot, a loess [??? Search and replace to have consistent capitalization. It is repetitive comment] regression curve is fitted to adjust the interaction frequencies of the two condition groups, centering the \( M \) differences around a baseline of \( M = 0 \).
 
- - **Differential analysis** - `differential analysis` is performed on the processed pseudo-bulk matrices to identify differential chromatin interactions between the two cell types or conditions. This involves clustering the normalized log fold changes of interaction frequencies into difference and non-difference groups.
-    + The non-difference group is assumed to follow a normal distribution centered around 0, identified using a Gaussian Mixture Model (GMM). The difference group consists of log fold changes belonging to other distributions clusters that deviate from the non-difference group's normal distribution. To improve precision, a control log fold change threshold `fprControl.logfc` is applied to difference cluster, excluding bins with low log fold change.
-    + When the differences are not large enough to form distinct distributions, the differential analysis of `r BiocStyle::Biocpkg("HiCcompare")` is used.
+ - **Differential analysis** - `differential analysis` is performed on the processed pseudo-bulk matrices to identify differential chromatin interactions between the two cell types or conditions. This involves separating the normalized log fold changes of interaction frequencies (the M-values) into difference and non-difference groups. This analysis is performed on per-distance basis.
+    + The non-difference group is assumed to follow a normal distribution centered around 0, identified using a Gaussian Mixture Model (GMM). The difference group consists of log fold changes belonging to other distributions that deviate from the non-difference group's normal distribution. To improve precision, a log fold change threshold `fprControl.logfc` is applied to values in the difference group, excluding low log fold changes.
+    + When the differences are not large enough to form distinct distributions, the default differential analysis of `r BiocStyle::Biocpkg("HiCcompare")` is used.
 
 ## Input 
 
@@ -237,6 +239,7 @@ For the following example sections, we will load samples of 10 single cells Hi-C
 ```{r, eval=FALSE}
 ###################### ODC ######################
 data_dir <- system.file("data", package = "scHiCcompare")
+[??? We need simple .txt files, gzipped. People do not start with .rda files. This has been repeated muptiple times]
 dataset_files <- list.files(data_dir, pattern = "ODC.bandnorm.*\\.rda$", full.names = TRUE)  # Pattern includes 'ODC'
 
 # Create the 'ODCs_example' folder within the current directory.
