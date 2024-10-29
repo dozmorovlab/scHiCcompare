@@ -28,7 +28,7 @@ withoutNorm_hicTable <- function(hic.table){
 #' @param save.output.path Character string specifying the directory to save outputs, including the imputed cells in the form of a sparse upper triangular format,
 #'  normalization result table, and differential analysis result table. If NULL, no files are saved. [??? Default?]
 #' @param Plot Logical. If TRUE, a plot of the differential results will be generated. Default is TRUE.
-#' @param pool.style Character string specifying the pooling style for `imputation`. Options are 'none', 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
+#' @param pool.style Character string specifying the pooling style for `imputation`. Options are 'single', 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
 #'  is skipped as NULL, the `pool.style` also should be NULL.
 #' @param n.imputation Integer specifying the number of imputations for the `imputation` step. Default is 5. [??? What is the justification? If not tested, it must. Is more the better?]
 #' @param maxit Integer specifying the maximum number of iterations for internal refinement process within a single `imputation` cycle. Default is 1. [??? What is the justification? If not tested, it must. Is more the better?]
@@ -135,11 +135,11 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
     impute1_result = scHiC.table_cond1; impute2_result = scHiC.table_cond2
     
     ### Change cell name
-    imp_cell_name1 = sub("\\.txt$", "", basename(file_name1))
-    names(impute1_result)[5:ncol(impute1_result)] <- paste0('imp_', imp_cell_name1)
+    imp_cell_name1 = as.numeric(sub("\\.txt$", "", basename(file_name1)))
+    names(impute1_result)[5:ncol(impute1_result)] <- paste0('imp.IF_', imp_cell_name1)
     
-    imp_cell_name2 = sub("\\.txt$", "", basename(file_name2))
-    names(impute2_result)[5:ncol(impute2_result)] <- paste0('imp_', imp_cell_name2)
+    imp_cell_name2 = as.numeric(sub("\\.txt$", "", basename(file_name2)))
+    names(impute2_result)[5:ncol(impute2_result)] <- paste0('imp.IF_', imp_cell_name2)
     
   } else {
     impute1_result = NULL; impute2_result = NULL

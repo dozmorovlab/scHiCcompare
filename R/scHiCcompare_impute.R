@@ -599,7 +599,7 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
 #' @param outlier.rm A logical value indicating whether to remove outliers during the imputation process. Default is TRUE.
 #' @param main.Distances A vector of integers or 'full' representing the scHiC data in main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins).
 #' Default is from 1 to 10,000,000. 
-#' @param pool.style A string specifying the pooling technique to use. Options are 'none', 'progressive' or 'fibonacci'. If 'none' is specified, the method apply imputation with individual genomic distance (consider a band include 1 Distance)
+#' @param pool.style A string specifying the pooling technique to use. Options are 'single', 'progressive' or 'fibonacci'.
 #' Default is 'progressive'.
 #' @param missPerc.theshold An integer specifying the missing value percentage threshold in each pool band. 
 #' 
@@ -663,7 +663,7 @@ scHiCcompare_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outl
   ############################# Imputation process ##################################################
   
   ## If Pooling styles is applied
-  if(pool.style == 'none'){     # If None pooling is selected  
+  if(pool.style == 'single'){     # If Single pooling is selected  
     new_table = RF_process(scHiC.table = scHiC.table, n_imputation = n.imputation,
                                        outlier.rm = outlier.rm , main_Distances = main.Distances,
                                        missPerc.threshold = missPerc.threshold)
@@ -729,7 +729,7 @@ scHiCcompare_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outl
       ## Now, impute D_set1 to its mean of that distance
       new_table_list = list()
       for (j in 1:length(pool_aboveNA_NOTmainD)){
-        cat(paste(' ,pool bans', pool_aboveNA_NOTmainD[j]))
+        cat(paste(' ,pool bands', pool_aboveNA_NOTmainD[j]))
         data = do.call(rbind, lapply(Dpool.list[[pool_aboveNA_NOTmainD[j]]], function(x) { 
           data <- predictorMatrixNP_sc_D(scHiC.table, distance = x)
           return(data)

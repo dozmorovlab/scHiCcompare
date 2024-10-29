@@ -70,20 +70,23 @@ library(data.table)
 
 `ScHiCcompare()` function conducts a differential analysis workflow, including imputation and normalization, using chromosome-specific chromatin interaction matrices split into two conditions (or two cell types groups). 
 
- - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method on each genomic distance range or pooling bands. There are two pooling strategies:
+ - **Imputation** - First, scHiC data in each group can optionally undergo `imputation` to address data sparsity. As resolution increases, the percentage of '0' values or missing data also rises drastically. To address this, scHiCompare applies the random forest (`RF`) imputation method on pooling bands. There are three pooling strategies:
+ 
+    1. `Single` pooling, where each subsequent band contains a single susequent genomic distance.
 
-    1. `Progressive` pooling, where each subsequent band combines interaction frequencies (IFs) within linearly increasing range of distances.
+    2. `Progressive` pooling, where each subsequent band combines interaction frequencies (IFs) within linearly increasing range of distances.
     
-    2. `Fibonacci` pooling, where each subsequent band combines IFs within increasing distance ranges, and this increase follows the Fibonacci sequence.
+    3. `Fibonacci` pooling, where each subsequent band combines IFs within increasing distance ranges, and this increase follows the Fibonacci sequence.
     
-[??? Need illustration.  It is repetitive comment, don't delete until complete]
+![**Figure 1**. An example of how different pooling style assign genomic distance into each band](Pooling Example.png)
+
   
 Due to extreme sparsity at higher genomic distance and randomness of long-range interactions, scHiCcompare, by default, workflow focuses on distance range 1 to 10MB (`main.Distance`).  If any pool band falls outside this range and has a percentage of missing values exceeding the specified threshold (default missPerc.threshold is 95%), the missing interaction frequencies (IFs) values are imputed using the mean IF values from the available data within that pool band.
 
  - **Pseudo-bulk scHi-C** - Second, imputed single-cell Hi-C data in each group are transformed into group-specific `pseudo-bulk` scHi-C matrices by summing all group-specific single cell Hi-C matrices.
 
- - **Normalization** - After obtaining two group-specific pseudo-bulk matrices, `normalization` removes global and local biases between two pseudo-bulk matrices. The `r BiocStyle::Biocpkg("ScHiCcompare")` workflow applies a LOESS [??? Search and replace to have consistent capitalization. It is repetitive comment] regression model from `r BiocStyle::Biocpkg("HiCcompare")` to jointly normalize two imputed pseudo-bulk matrices. Briefly,
-    + The data is visualized using a mean-difference (MD) plot, where \( M \), **M**ean difference (calculated as \( M = \log_2(IF_2 / IF_1) \), Y-axis) is plotted against \( D \), the **D**istance between interacting regions (X-axis). In this plot, a loess [??? Search and replace to have consistent capitalization. It is repetitive comment] regression curve is fitted to adjust the interaction frequencies of the two condition groups, centering the \( M \) differences around a baseline of \( M = 0 \).
+ - **Normalization** - After obtaining two group-specific pseudo-bulk matrices, `normalization` removes global and local biases between two pseudo-bulk matrices. The `r BiocStyle::Biocpkg("ScHiCcompare")` workflow applies a LOESS  regression model from `r BiocStyle::Biocpkg("HiCcompare")` to jointly normalize two imputed pseudo-bulk matrices. Briefly,
+    + The data is visualized using a mean-difference (MD) plot, where \( M \), **M**ean difference (calculated as \( M = \log_2(IF_2 / IF_1) \), Y-axis) is plotted against \( D \), the **D**istance between interacting regions (X-axis). In this plot, a LOESS regression curve is fitted to adjust the interaction frequencies of the two condition groups, centering the \( M \) differences around a baseline of \( M = 0 \).
 
  - **Differential analysis** - `differential analysis` is performed on the processed pseudo-bulk matrices to identify differential chromatin interactions between the two cell types or conditions. This involves separating the normalized log fold changes of interaction frequencies (the M-values) into difference and non-difference groups. This analysis is performed on per-distance basis.
     + The non-difference group is assumed to follow a normal distribution centered around 0, identified using a Gaussian Mixture Model (GMM). The difference group consists of log fold changes belonging to other distributions that deviate from the non-difference group's normal distribution. To improve precision, a log fold change threshold `fprControl.logfc` is applied to values in the difference group, excluding low log fold changes.
@@ -281,7 +284,6 @@ The function requires three *Input Parameter*: [??? Address comments in ScHiCcom
 
 - `file.path.1, file.path.2` - Character strings specifying paths to folders containing scHi-C data for the first and second cell type or condition groups.
 - `select.chromosome` -  Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chr10'.) 
-- `main.Distances`- Numeric vector indicating the range of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on (eg. 1:100000, Inf, etc), which all genomic ranges selection can be specified by Inf. The `main.Distance` vector needs to be proportional with data's resolution (ex,. for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc). As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting a large distance range at high resolution (e.g., below 200kb) can make the function take longer to run due to extreme sparsity. By default, scHiCcompare detects differences within biologically relevant distance range from 1 to 10MB (`main.Distances` = 1:10000000). [??? It is not required since there is a default.]
 
 
 ```{r, eval=FALSE}
@@ -289,7 +291,7 @@ ScHiCcompare(file.path.1, file.path.2,
              select.chromosome, 
              main.Distances = 1:10000000,
              imputation = 'RF',
-             normalization = 'Loess',
+             normalization = 'LOESS',
              differential.detect = 'MD.cluster',
              pool.style = 'progressive', fprControl.logfc = 0.8,  A.min = NULL, 
              n.imputation = 5, outlier.rm = TRUE, missPerc.threshold = 95,
@@ -298,9 +300,10 @@ ScHiCcompare(file.path.1, file.path.2,
 
 *Optional Workflow Parameter* include:
 
+- - `main.Distances`- Numeric vector indicating the range of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on (eg. 1:100000, Inf, etc), which all genomic ranges selection can be specified by Inf. The `main.Distance` vector needs to be proportional with data's resolution (ex,. for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc). As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting a large distance range at high resolution (e.g., below 200kb) can make the function take longer to run due to extreme sparsity. By default, scHiCcompare detects differences within biologically relevant distance range from 1 to 10MB (`main.Distances` = 1:10000000). 
 - `imputation` - Character string or NULL of indicating the imputation method. If 'NULL' is select, the workflow will skip the `imputation` step. Default is 'RF' for Random Forest imputation.
-- `normalization` - Character string or NULL indicating the normalization method. If 'NULL' is select, the workflow will skip the `normalization` step. Default is 'Loess'.
-- `pool.style` - Character string specifying the pooling style for `imputation`. Options are 'none, 'progressive' or 'Fibonacci'. Default is 'progressive'.
+- `normalization` - Character string or NULL indicating the normalization method. If 'NULL' is select, the workflow will skip the `normalization` step. Default is 'LOESS'.
+- `pool.style` - Character string specifying the pooling style for `imputation`. Options are 'single', 'progressive' or 'Fibonacci'. Default is 'progressive'.
 - `fprControl.logfc` - A numeric value controlling the false positive rate of GMM difference clusters  (`differential.detect`) (eg,. 0.5, 0.8, 1, 1.5, etc) . Default is 1.
 - `A.min` - Numeric value or NULL that sets the A-value quantile cutoff (eg,. 7, 10, etc) for filtering low average interaction frequencies in the outlier detection in differential step of the `hic_compare()` function from `r BiocStyle::Biocpkg("HiCcompare")`.  If not provided (NULL), A is auto-detected.
 - `n.imputation` - Interger values specifying the number of imputations for the `imputation` step. Default is 5.
@@ -311,16 +314,13 @@ ScHiCcompare(file.path.1, file.path.2,
 
 - `save.output.path` - Character string specifying the directory to save outputs, including the imputed cells in the form of a sparse upper triangular format, normalization result table, and differential analysis result table. If `save.output.path` = NULL (the default), no files are saved. 
 - `Plot` -  A logical value indicating whether to plot the `differential.detect` results in an MD plot. Default is TRUE.
-- `Plot.normalize` - A logical value indicating whether to plot the output of MD plot showing before/after loess `normalization`. Default is FALSE.
+- `Plot.normalize` - A logical value indicating whether to plot the output of MD plot showing before/after LOESS `normalization`. Default is FALSE.
 
 
 ### Example of real anlysis
 
 In this following-up example, we will work with scHi-C data from 10 single cells in both ODC and MG cell types in 1MG resolution. We will focus on chromosome 20, applying the full workflow of scHiCcompare (imputation, speudo-bulk normalization, and differential analysis). We focus to detect differences for loci with genomic distances from 1 to 10,000,000 (bp). The progressive pooling style is selected to create pool bands for the random forest imputation. For differential analysis step, we set the log fold change - false positive control threshold as 0.8.
 
-[??? If I execute previous code chunks, this function cannot be run.
-Error in read_files(file.path = file.path, type = "txt", txt.sparse.heads.position = c(1,  : 
-  Error: No .txt files found in the specified directory.]
 
 ```{r, message=FALSE, warning=FALSE}
 ## Imputation with 'progressive' pooling
@@ -329,7 +329,7 @@ result = ScHiCcompare(file.path.1 = 'ODCs_example',
                       select.chromosome = 'chr20', 
                       main.Distances = 1:10000000,
                       imputation = 'RF',
-                      normalization = 'Loess',
+                      normalization = 'LOESS',
                       differential.detect = 'MD.cluster',
                       pool.style = 'progressive', 
                       fprControl.logfc = 0.8, 
@@ -344,7 +344,24 @@ From the visualizations above, normalization effectively reduces the irregular t
 
 ## Output
 
-The `ScHiCcompare()` function will return an object that containes plots, differential results, pseudo-bulk matrices in sparse format, normalized results, and imputation tables. The full differential result are available in in `$Differential_Analysis`. Intermediate results can be accessed with `$Intermediate`, including imputation result table (`$Intermediate$Imputation`), speudo-bulk matrix in sparse format (`$Intermediate$PseudoBulk`), and normalization table (`$Intermediate$Bulk.Normalization`).
+The `ScHiCcompare()` function will return an object that containes plots, differential results, pseudo-bulk matrices in sparse format, normalized results, and imputation tables. The full differential result are available in in `$Differential_Analysis`. Intermediate results can be accessed with `$Intermediate`, including imputation result table (`$Intermediate$Imputation`), speudo-bulk matrix in sparse format (`$Intermediate$PseudoBulk`), and normalization table (`$Intermediate$Bulk.Normalization`). These output tables objects have following structure:
+
+  - `$Intermediate$PseudoBulk` for each condition group (`$condition1` and `$condition2`) has standard sparse upper triangular format with 3 columns of [region1, region2, IF].
+  
+  - `$Intermediate$Imputation`
+
+  - `$Intermediate$Bulk.Normalization` has 15 columns
+    + Interacting bins coordination [chr1, start1, end1, chr2, start2, end2, D (scaled genomic distance)]
+    + Bulk IF values [bulk.IF1, bulk.IF2, M (their log fold change, $log(IF_2/IF_1)$)]
+    + Normalized bulk IF values [adj.bulk.IF1, adj.bulk.IF2, adj.M (their log fold change, $log(adj.IF_2/adj.IF_1)$)]
+    + LOESS correction factor [mc];
+    + Average expression value of bulk IF [A].
+    
+  - `$Differential_Analysis` has same structure as `$Intermediate$Bulk.Normalization` with addition of 2 differential detection results columns
+    + log fold change Z score [Z]
+    + differential result cluster [Difference.cluster]
+    
+
 
 You also can have option to save the results into chosen directory by parameter in `ScHiCcompare()` [function](#ScHiCcompare-function). This will save normalization result table, differential result table, and imputed cell scHi-C data (each group is a sub-folder). The sample of saved output folder structure is:
  
@@ -355,16 +372,11 @@ You also can have option to save the results into chosen directory by parameter 
         + Imputed_{group 2's name} 
           └── + imp_{cell name}.txt 
 
-Normalization result [??? Which slot from the results, `$Differential_Analysis`?] `Bulk_normalization_table.txt` outputs 15 columns with contents:
-- Interacting bins coordination [chr1, start1, end1, chr2, start2, end2, D (scaled genomic distance)];
-- Bulk IF values [bulk.IF1, bulk.IF2, M (their log fold change, $log(IF_2/IF_1)$)];
-- Normalized bulk IF values [adj.bulk.IF1, adj.bulk.IF2, adj.M (their log fold change, $log(adj.IF_2/adj.IF_1)$)];
-- Loess correction factor [mc];
-- Average expression value of bulk IF [A].
+Normalization result `Bulk_normalization_table.txt` has the same format as output object from `ScHiCcompare()` function, `$Intermediate$Bulk.Normalization`, which is shown structure example below. 
   
-Differential result table `Differential_analysis_table.txt` has 17 columns with first 15 columns same as normalization result table and additionally 2 columns of log fold change Z score [Z] and differential result cluster (1 - differential, 0 - non differential) [Difference.cluster]. [??? OK, but why not including those columns in `$Differential_Analysis`? would be simpler to write]
+Differential result table `Differential_analysis_table.txt` also has same format as output object `$Differential_Analysis` from the function.
 
-Imputed cell's scHiC data is saved in folder for each group, which has modified [??? or is it sparse upper triangular?] output of five columns [chr1, start1, chr2, start2, IF].
+Imputed cell's scHiC data is saved in folder for each group, which has modified sparse upper triangular format of five columns [chr1, start1, chr2, start2, IF].
 
 
 ### Example of output
@@ -474,7 +486,7 @@ plot4 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
 grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow =2)
 ```
 
-The diagnostic visualizations show that, with only 10 single cells [??? Describe it somewhere above, stating that small number is for demo purposes only] per group, the imputed values for MG perform well (closest to the original distribution) only at closer genomic distances (e.g., D1, D2). The accuracy of the imputation can be further improved by increasing the number of single cells in each group. We recommends using at least 60 single cells per group for optimal imputation accuracy.
+The diagnostic visualizations show that, with only 10 single cells [??? Describe it somewhere above, stating that small number is for demo purposes only] per group, the imputed values for MG perform well (closest to the original distribution) only at closer genomic distances (e.g., D1, D2). The accuracy of the imputation can be further improved by increasing the number of single cells in each group. We recommends using at least 80 single cells per group for optimal imputation accuracy.
 
 # Session Info
 
