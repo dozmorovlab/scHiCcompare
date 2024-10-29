@@ -135,11 +135,14 @@ ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalizat
     impute1_result = scHiC.table_cond1; impute2_result = scHiC.table_cond2
     
     ### Change cell name
-    imp_cell_name1 = as.numeric(sub("\\.txt$", "", basename(file_name1)))
-    names(impute1_result)[5:ncol(impute1_result)] <- paste0('imp.IF_', imp_cell_name1)
+    library(gtools)
+    imp_cell_name1 = sub("\\.txt$", "", basename(file_name1))
+    sorted_file_names1 <- mixedsort(imp_cell_name1)
+    names(impute1_result)[5:ncol(impute1_result)] <- paste0('imp.IF_', sorted_file_names1)
     
     imp_cell_name2 = as.numeric(sub("\\.txt$", "", basename(file_name2)))
-    names(impute2_result)[5:ncol(impute2_result)] <- paste0('imp.IF_', imp_cell_name2)
+    sorted_file_names2 <- mixedsort(imp_cell_name2)
+    names(impute2_result)[5:ncol(impute2_result)] <- paste0('imp.IF_', sorted_file_names2)
     
   } else {
     impute1_result = NULL; impute2_result = NULL

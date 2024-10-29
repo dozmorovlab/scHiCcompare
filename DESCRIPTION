@@ -17,6 +17,7 @@ Imports:
     data.table,
     dplyr,
     ggplot2,
+    gtools,
     HiCcompare,
     lattice,
     mclust,
