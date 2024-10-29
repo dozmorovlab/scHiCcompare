@@ -233,7 +233,7 @@ cool.file <- read_files("path/to/schic.cool")
 ```
 
 
-### Prepare Input folders
+### Prepare input folders
 
 Here is an example workflow using scHiC human brain datasets (Lee et al., 2019) with ODC and MG cell types at chromosome 20 with a 1MB resolution.
 
@@ -339,7 +339,7 @@ ScHiCcompare(file.path.1, file.path.2,
 
 In this following-up example, we will work with scHi-C data from 10 single cells in both ODC and MG cell types in 1MG resolution. We will focus on chromosome 20, applying the full workflow of scHiCcompare (imputation, speudo-bulk normalization, and differential analysis). We focus to detect differences for loci with genomic distances from 1 to 10,000,000 (bp). The progressive pooling style is selected to create pool bands for the random forest imputation. For differential analysis step, we set the log fold change - false positive control threshold as 0.8.
 
-The input file was 
+The input file path was included in the package and conducted in [Prepare input folders](#Prepare-Input-folders) section.
 
 
 ```{r, message=FALSE, warning=FALSE}
