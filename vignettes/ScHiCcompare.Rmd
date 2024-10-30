@@ -24,7 +24,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Set CRAN mirror
 options(repos = c(CRAN = "https://cran.rstudio.com/"))
 
-#BiocManager::install("BiocStyle")
+# BiocManager::install("BiocStyle")
 library(BiocStyle)
 ```
 
@@ -42,8 +42,9 @@ The package provides two key functionalities:
 # Installation
 
 ```{r, message=FALSE, warning=FALSE, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly=TRUE))
-   install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 
 BiocManager::install("scHiCcompare")
 
@@ -52,7 +53,7 @@ BiocManager::install("scHiCcompare")
 ```
 
 ```{r,  message=FALSE, warning=FALSE, echo=FALSE}
-#devtools::install_github("dozmorovlab/scHiCcompare", force = T)
+# devtools::install_github("dozmorovlab/scHiCcompare", force = T)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
@@ -108,13 +109,15 @@ The '.txt' files needs to be saved in tab-separated columns and no row names, co
 
 
 ```{r, echo=FALSE}
-data("ODC.bandnorm_chr20_1") 
+data("ODC.bandnorm_chr20_1")
 ```
 
 ```{r, echo=FALSE}
-names(ODC.bandnorm_chr20_1) <- c('chr1' , 'start1', 'chr2','start2', 'IF') 
-DT::datatable(head(ODC.bandnorm_chr20_1), options = list(pageLength = 6, dom = 'tip'),
-              rownames = FALSE, width = 700)
+names(ODC.bandnorm_chr20_1) <- c("chr1", "start1", "chr2", "start2", "IF")
+DT::datatable(head(ODC.bandnorm_chr20_1),
+  options = list(pageLength = 6, dom = "tip"),
+  rownames = FALSE, width = 700
+)
 ```
 
 To run `scHiCcompare()`, you need two folders with condition-specific scHiC '.txt' files. The condition-specific groups of cells should be pre-defined based on criteria such as experimental conditions, clustering results, or biological characteristics. 
@@ -132,8 +135,9 @@ Below is examples of steps to download and import scHi-C data into R. Then you c
   You can also download these data by R. Example below show steps to download mouse scHi-C dataset (Flyamer et al.2017) on [GEO](#https://www.ncbi.nlm.nih.gov/geo/).
   
 ```{r, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 
 BiocManager::install("GEOquery")
 ```
@@ -143,7 +147,7 @@ BiocManager::install("GEOquery")
 geo_id <- "GSE80006"
 # Download the information, notation, feature data, etc
 gse <- getGEO(geo_id, GSEMatrix = TRUE)
-# You can read more about this function 
+# You can read more about this function
 ?getGEO()
 
 # Download and extract the supplementary files (processed data)
@@ -160,21 +164,22 @@ getGEOSuppFiles(geo_id, baseDir = "path/to/save")
 
 ```{r, eval=FALSE}
 ### Install Bandnorm
-install.packages(c('ggplot2', 'dplyr', 'data.table', 'Rtsne', 'umap'))
+install.packages(c("ggplot2", "dplyr", "data.table", "Rtsne", "umap"))
 
-if (!requireNamespace("devtools", quietly=TRUE))
-    install.packages("devtools")
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
 
 devtools::install_github("immunogenomics/harmony")
 
-devtools::install_github('sshen82/BandNorm', build_vignettes = FALSE)
+devtools::install_github("sshen82/BandNorm", build_vignettes = FALSE)
 library(BandNorm)
 ```
 
 ```{r, eval=FALSE}
 ### Download scHiC data of ODC and MG
-download_schic("Lee2019", cell_type = 'ODC', cell_path ='ODCs_example')
-download_schic("Lee2019", cell_type = 'MG', cell_path = 'MGs_example')
+download_schic("Lee2019", cell_type = "ODC", cell_path = "ODCs_example")
+download_schic("Lee2019", cell_type = "MG", cell_path = "MGs_example")
 ```
 
 ### Import scHiC data in R
@@ -194,8 +199,9 @@ To access and import `.hic` files into R, you can use tools such as `r BiocStyle
 Example of reading `.hic` by `r BiocStyle::Biocpkg("strawr")` is shown below. By using `straw()`, it reads the `.hic` file of each single-cell Hi-C and outputs as data.frame in sparse upper triangular format. You need to repeat (loop) this step for single-cell Hi-C of a same cell type (condition) group.
     
 ```{r, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 BiocManager::install("strawr")
 ```
 
@@ -206,12 +212,12 @@ library(strawr)
 filepath <- "path/to/your/schic.hic"
 
 contact_matrix <- straw(
-    norm = "NONE",          # Normalization method (KR, VC, or NONE)
-    filepath,               # Path to .hic file
-    chr1loc = "chr1",       # Chromosome 1
-    chr2loc  = "chr1",       # Chromosome 2 (same with chromosome 1 for intra-chromosomal interactions)
-    unit = "BP",            # Base pair (BP) resolution or fragment (FRAG) resolution
-    binsize = 200000        # Bin size (e.g., 200kb)
+  norm = "NONE", # Normalization method (KR, VC, or NONE)
+  filepath, # Path to .hic file
+  chr1loc = "chr1", # Chromosome 1
+  chr2loc = "chr1", # Chromosome 2 (same with chromosome 1 for intra-chromosomal interactions)
+  unit = "BP", # Base pair (BP) resolution or fragment (FRAG) resolution
+  binsize = 200000 # Bin size (e.g., 200kb)
 )
 ```
 
@@ -222,8 +228,9 @@ To access and import `.cool` files into R,  you can use `cooler2bedpe()` functio
 For example, the files can be read directly into R by `cooler2bedpe()` function, which will return a list object in the format of BEDPE, containing two elements: "cis" - Contains the intra-chromosomal contact matrices, one per chromosome; "trans" - Contains the inter-chromosomal contact matrix. You can read about this in more detail by `?cooler2bedpe()`.
   
 ```{r, eval=FALSE}
-if (!requireNamespace("BiocManager", quietly=TRUE))
-    install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 BiocManager::install("HiCcompare")
 library(HiCcompare)
 ```
@@ -259,15 +266,16 @@ The function requires two *Input Parameter*:
 
 ```{r, eval=FALSE}
 scHiCcompare(file.path.1, file.path.2,
-             select.chromosome, 
-             main.Distances = 1:10000000,
-             imputation = 'RF',
-             normalization = 'LOESS',
-             differential.detect = 'MD.cluster',
-             pool.style = 'progressive' , n.imputation = 5,
-             maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
-             A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05,
-             Plot = T, Plot.normalize = F, save.output.path =  NULL)
+  select.chromosome,
+  main.Distances = 1:10000000,
+  imputation = "RF",
+  normalization = "LOESS",
+  differential.detect = "MD.cluster",
+  pool.style = "progressive", n.imputation = 5,
+  maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
+  A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05,
+  Plot = T, Plot.normalize = F, save.output.path = NULL
+)
 ```
 
 *Optional Workflow Parameter* include:
@@ -322,18 +330,19 @@ The input file path was included in the package and conducted in [Prepare input 
 
 ```{r, message=FALSE, warning=FALSE}
 ## Imputation with 'progressive' pooling
-result = scHiCcompare(file.path.1 = ODCs_example_path, 
-                      file.path.2 = MGs_example_path,
-                      select.chromosome = 'chr20', 
-                      main.Distances = 1:10000000,
-                      imputation = 'RF',
-                      normalization = 'LOESS',
-                      differential.detect = 'MD.cluster',
-                      pool.style = 'progressive', 
-                      fprControl.logfc = 0.8, 
-                      Plot = TRUE, 
-                      Plot.normalize = TRUE)
-
+result <- scHiCcompare(
+  file.path.1 = ODCs_example_path,
+  file.path.2 = MGs_example_path,
+  select.chromosome = "chr20",
+  main.Distances = 1:10000000,
+  imputation = "RF",
+  normalization = "LOESS",
+  differential.detect = "MD.cluster",
+  pool.style = "progressive",
+  fprControl.logfc = 0.8,
+  Plot = TRUE,
+  Plot.normalize = TRUE
+)
 ```
 
 From the visualizations above, normalization effectively reduces the irregular trend in the M values between the imputed pseudo-bulk matrices of the two cell types. At a 1MB resolution, the differential analysis reveals that most of the detected differences occur at closer genomic distances, particularly below 5MB.
@@ -388,26 +397,26 @@ Below is continuous example from [Example of real anlysis](#example-of-real-anly
 
 ```{r}
 ### Extract imputed differential result
-diff_result = result$Differential_Analysis
+diff_result <- result$Differential_Analysis
 DT::datatable(head(diff_result), options = list(scrollX = TRUE), width = 700)
 ```
 
 ```{r}
 ### Extract imputed pseudo bulk matrices normalization
-norm_result = result$Intermediate$Bulk.Normalization
+norm_result <- result$Intermediate$Bulk.Normalization
 DT::datatable(head(norm_result), options = list(scrollX = TRUE), width = 700)
 ```
 
 ```{r}
 ### Extract imputed ODC cell type table
-imp_ODC_table = result$Intermediate$Imputation$condition1
+imp_ODC_table <- result$Intermediate$Imputation$condition1
 DT::datatable(head(imp_ODC_table), options = list(scrollX = TRUE), width = 700)
 ```
 
 ```{r}
 ## Extract Pseudo-bulk matrix from imputed scHi-C data
 ## Pseudo bulk matrix in standard sparse format
-psudobulk_result = result$Intermediate$PseudoBulk$condition1
+psudobulk_result <- result$Intermediate$PseudoBulk$condition1
 DT::datatable(head(psudobulk_result), options = list(scrollX = TRUE), width = 700)
 ```
 
@@ -426,7 +435,7 @@ There are several other functions included in `scHiCcompare` package.
 
 ```{r}
 data("ODC.bandnorm_chr20_1")
-plot_HiCmatrix_heatmap(scHiC.sparse = ODC.bandnorm_chr20_1, main = 'scHiC matrix of a ODC cell', zlim = c(0,5))
+plot_HiCmatrix_heatmap(scHiC.sparse = ODC.bandnorm_chr20_1, main = "scHiC matrix of a ODC cell", zlim = c(0, 5))
 ```
 
 
@@ -438,9 +447,9 @@ The output of `$Intermediate$Imputation` of `scHiCcompare()` function is directl
 
 
 ```{r, message=FALSE, warning=FALSE}
-# Extract imputed table result 
-imp_MG_table = result$Intermediate$Imputation$condition2
-imp_ODC_table = result$Intermediate$Imputation$condition1
+# Extract imputed table result
+imp_MG_table <- result$Intermediate$Imputation$condition2
+imp_ODC_table <- result$Intermediate$Imputation$condition1
 ```
 
 ```{r, echo=FALSE}
@@ -451,56 +460,65 @@ We need to create the table input for original IFs values in the same format. Be
 
 ```{r, message=FALSE, warning=FALSE}
 # Create scHiC table object for original ODC interaction frequencies (IF)
-scHiC.table_ODC = imp_ODC_table[c('region1', 'region2', 'cell', 'chr')] 
+scHiC.table_ODC <- imp_ODC_table[c("region1", "region2", "cell", "chr")]
 
 # List all files in the specified directory for original ODC data
-file.names = list.files(path = ODCs_example_path, full.names = TRUE, recursive = TRUE)
+file.names <- list.files(path = ODCs_example_path, full.names = TRUE, recursive = TRUE)
 
 # Loop through each file to read and merge data
-for(i in 1:length(file.names)) {
+for (i in 1:length(file.names)) {
   # Read the current file into a data frame
-  data = read.delim(file.names[[i]])
-  names(data) = c('chr', 'region1', 'chr2', 'region2', paste0('IF_',i))
-  data = data[ ,names(data) %in% 
-                c('chr','region1', 'region2', paste0('IF_',i))]
-  # Merge the newly read data with the existing scHiC.table_ODC 
-  scHiC.table_ODC = merge(scHiC.table_ODC, data,
-                          by = c('region1', 'region2', 'chr'), all = TRUE)
+  data <- read.delim(file.names[[i]])
+  names(data) <- c("chr", "region1", "chr2", "region2", paste0("IF_", i))
+  data <- data[, names(data) %in%
+    c("chr", "region1", "region2", paste0("IF_", i))]
+  # Merge the newly read data with the existing scHiC.table_ODC
+  scHiC.table_ODC <- merge(scHiC.table_ODC, data,
+    by = c("region1", "region2", "chr"), all = TRUE
+  )
 }
 
 
 
 
 # Create scHiC table object for original MG interaction frequencies (IF)
-scHiC.table_MG = imp_MG_table[c('region1', 'region2', 'cell', 'chr')] 
+scHiC.table_MG <- imp_MG_table[c("region1", "region2", "cell", "chr")]
 # List all files in the specified directory for original MG data
-file.names = list.files(path = MGs_example_path, full.names = TRUE, recursive = TRUE)
+file.names <- list.files(path = MGs_example_path, full.names = TRUE, recursive = TRUE)
 
 # Loop through each file to read and merge data
-for(i in 1:length(file.names)) {
+for (i in 1:length(file.names)) {
   # Read the current file into a data frame
-  data = read.delim(file.names[[i]])
-  names(data) = c('chr', 'region1', 'chr2', 'region2', paste0('IF_',i))
-  data = data[ ,names(data) %in% 
-                c('chr','region1', 'region2', paste0('IF_',i))]
-  # Merge the newly read data with the existing scHiC.table_MG 
-  scHiC.table_MG = merge(scHiC.table_MG, data,
-                          by = c('region1', 'region2', 'chr'), all = TRUE)
+  data <- read.delim(file.names[[i]])
+  names(data) <- c("chr", "region1", "chr2", "region2", paste0("IF_", i))
+  data <- data[, names(data) %in%
+    c("chr", "region1", "region2", paste0("IF_", i))]
+  # Merge the newly read data with the existing scHiC.table_MG
+  scHiC.table_MG <- merge(scHiC.table_MG, data,
+    by = c("region1", "region2", "chr"), all = TRUE
+  )
 }
-
 ```
 
 ```{r, message=FALSE, warning=FALSE}
 # plot imputed Distance Diagnostic of MG
-plot1 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
-                                         imp_sc_data = imp_MG_table, D = 1)
-plot2 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
-                                         imp_sc_data = imp_MG_table, D = 2)
-plot3 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
-                                         imp_sc_data = imp_MG_table, D = 3)
-plot4 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
-                                         imp_sc_data = imp_MG_table, D = 4)
-grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow =2)
+plot1 <- plot_imputed_distance_diagnostic(
+  raw_sc_data = scHiC.table_MG,
+  imp_sc_data = imp_MG_table, D = 1
+)
+plot2 <- plot_imputed_distance_diagnostic(
+  raw_sc_data = scHiC.table_MG,
+  imp_sc_data = imp_MG_table, D = 2
+)
+plot3 <- plot_imputed_distance_diagnostic(
+  raw_sc_data = scHiC.table_MG,
+  imp_sc_data = imp_MG_table, D = 3
+)
+plot4 <- plot_imputed_distance_diagnostic(
+  raw_sc_data = scHiC.table_MG,
+  imp_sc_data = imp_MG_table, D = 4
+)
+grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow = 2)
 ```
 
 The diagnostic visualizations demonstrate that with a sample of only 10 single cells per group (note: this small sample size is for demonstration purposes only), the imputed values for MG closely match the original distribution only at shorter genomic distances (e.g., D1, D2). Increasing the number of single cells per group enhances imputation accuracy across distances. We recommend using a minimum of 80 single cells per group for optimal imputation performance.
@@ -509,7 +527,6 @@ The diagnostic visualizations demonstrate that with a sample of only 10 single c
 
 ```{r, echo=FALSE}
 sessionInfo()
-
 ```
 
 
