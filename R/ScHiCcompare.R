@@ -11,51 +11,74 @@ withoutNorm_hicTable <- function(hic.table){
 
 
 
-
 #' ScHiCcompare: Differential Analysis of Single-Cell Hi-C Data
 #'
 #' This function performs a differential analysis between two single-cell Hi-C data groups. It includes the 
 #' steps of imputation, normalization, and detection of differential chromatin interactions (DCIs).
-#' [??? Wrap help sentences by 80-character margin]
-#' @param file.path.1 Character string specifying the directory containing scHi-C data for the first condition (first cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF) [??? Should be 5 column format. We've discussed this ad nauseum.]
-#' @param file.path.2 Character string specifying the directory containing Hi-C data for the second condition (second cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
-#' @param imputation Character string or NULL of indicating the imputation method. Default is 'RF' for Random Forest imputation. [??? Add all available options.]
-#' @param normalization Character string or NULL indicating the normalization method. Default is 'Loess'. [??? Add all available options. If only two options, it should be a TRUE/FALSE switch]
-#' @param differential.detect Character string indicating the differential detection method. Default is 'MD.cluster'. [??? Add all available options. If only two options, it should be a TRUE/FALSE switch]
-#' @param select.chromosome Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chrX'.) [??? Default? Or if it is required, say so]
-#' @param main.Distances Numeric vector or character 'full' indicating the interacting range (or full range) of genomic distances (in bp) for the method to focus.
-#'  Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins). Default is 1 to 10,000,000bp. 
-#' @param save.output.path Character string specifying the directory to save outputs, including the imputed cells in the form of a sparse upper triangular format,
-#'  normalization result table, and differential analysis result table. If NULL, no files are saved. [??? Default?]
-#' @param Plot Logical. If TRUE, a plot of the differential results will be generated. Default is TRUE.
-#' @param pool.style Character string specifying the pooling style for `imputation`. Options are 'single', 'progressive' or 'Fibonacci'. Default is 'progressive'. If the 'imputation
-#'  is skipped as NULL, the `pool.style` also should be NULL.
-#' @param n.imputation Integer specifying the number of imputations for the `imputation` step. Default is 5. [??? What is the justification? If not tested, it must. Is more the better?]
-#' @param maxit Integer specifying the maximum number of iterations for internal refinement process within a single `imputation` cycle. Default is 1. [??? What is the justification? If not tested, it must. Is more the better?]
-#' @param outlier.rm Logical. If TRUE, outliers are removed during `imputation`. Default is TRUE. [??? Was it tested?]
-#' @param missPerc.threshold Numeric value specifying the maximum allowable percentage of missing data in each pool band.
-#'  Only pool bands within the `main.Distances` range and having a missing percentage below this threshold will be imputed
-#'  by the `imputation` method. Default is 95%. [??? Was it tested?]
-#' @param fprControl.logfc A numeric value controlling the false positive rate of `differential.detect` step by setting the threshold for the log fold change in the 'difference' cluster. 
-#'  Detected differences identified by Gaussian Mixed Model (GMM) clusters only include values with log fold change that are larger than this threshold. Default is 0.8.[??? Was it tested?]
-#' @param alpha A numeric value for the significance level of outlier detection of `differential.detect` step by the analysis of `hic_compare()` function from HiCcompare. Default is 0.05. 
-#' @param A.min A numeric value or NULL, specifying the A-value quantile cutoff to filter lower average expression in `differential.detect` step of `hic_compare()` function (from HiCcompare). 
-#'  `hic_compare()` is used to detect outliers, which is assumed to be 'differences' bins in case of its number is too small (or none) to be cluster by GMM method. [??? Default]
-#'  If not provided, an optimized minimum A threshold that maximizes MCC and TPR while minimizing FPR in the simulated Hi-C matrix.
-#' @param Plot A logical value indicating whether to plot the `differential.dect` results in an MD plot. Default is TRUE.
-#' @param Plot.normalize A logical value indicating whether to plot the `normalization` results in an MD plot. Default is FALSE.
+#' 
+#' @param file.path.1 Required character string specifying the directory containing scHi-C
+#'  data for the first condition (first cell-type group). The folder should contain '.txt'
+#'  scHi-C files in modified sparse upper triangular format with 5 columns (chr1, start1, chr2, start2, IF).
+#' @param file.path.2 Required character string specifying the directory containing Hi-C
+#'  data for the second condition (second cell-type group). The folder should contain '.txt'
+#'  scHi-C files in modified sparse upper triangular format with 5 columns (chr1, start1, chr2, start2, IF).
+#' @param select.chromosome Required integer or character indicating the chromosome to be
+#'  analyzed (e.g., 'chr1' or 'chr10').
+#' @param imputation Character string 'RF' or NULL indicating the imputation method.
+#'  Default is 'RF' for Random Forest imputation. 
+#' @param normalization Character string 'LOESS' or NULL indicating the normalization method.
+#'  Default is 'LOESS'. 
+#' @param differential.detect Character string 'MD.cluster' indicating the differential detection
+#'  method. Default is 'MD.cluster'. 
+#' @param main.Distances Numeric vector indicating the range of interacting genomic distances
+#'  (in base pairs) between two regions (e.g., loci or bins) to focus on (e.g., 1:100000, Inf, etc).
+#'  The `main.Distance` vector needs to be proportional to the data's resolution (e.g., for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc).
+#'  Selecting a large distance range at higher resolution (e.g., below 200kb) can make the function
+#'  take longer to run due to extreme sparsity. Default is 1:10000000.
+#' @param pool.style Character string specifying the pooling style for `imputation`. Options are
+#'  'none', 'progressive', or 'Fibonacci'. Default is 'progressive'. If `imputation` is NULL, then `pool.style` should also be NULL.
+#' @param n.imputation Integer specifying the number of multiple imputations for the imputation
+#'  step, with final imputed values computed as the average of these multiple imputation values.
+#'  Increasing the number of imputations enhances the accuracy of imputed values, though
+#'  it may increase the imputation runtime. The default is 5.
+#' @param maxit Integer specifying the maximum number of iterations for the internal refinement process
+#'  within a single `imputation` cycle. Increasing `maxit` can help stabilize imputed values,
+#'  though it may increase the imputation runtime. Default is 1.
+#' @param outlier.rm Logical. If TRUE, outliers are removed during `imputation`. Default is TRUE. 
+#' @param missPerc.threshold Numeric value specifying the maximum allowable percentage of missing data
+#'  in pool bands outside the `main.Distances` to be imputed by the `imputation` method.
+#'  A higher threshold includes more sparse distances for imputation (e.g., above 95 percent), 
+#'  increasing memory and runtime, while a lower threshold (e.g., below 50 percent) might reduce the 
+#'  number of distances imputed. Default is 95.
+#' @param A.min Numeric value or NULL that sets the A-value quantile cutoff (e.g., 7, 10, etc) for filtering
+#'  low average interaction frequencies in outlier detection during the differential step of `hic_compare()`
+#'  from `HiCcompare`. If not provided (NULL), A is auto-detected.
+#' @param fprControl.logfc Numeric value controlling the false positive rate for GMM difference clusters 
+#'  (`differential.detect`) (e.g., 0.5, 0.8, 1, 1.5, etc). Increasing `fprControl.logfc` may reduce 
+#'  the false positive rate but can also reduce the number of chromatin interaction differences detected.
+#'  Default is 0.8, equivalent to a 2-fold change.
+#' @param alpha Numeric value for the significance level of outlier detection during the `differential.detect`
+#'  step by `hic_compare()` from HiCcompare. Default is 0.05. 
+#' @param Plot Logical value indicating whether to plot the `differential.detect` results in
+#'  an MD plot. Default is TRUE.
+#' @param Plot.normalize Logical value indicating whether to plot the `normalization` results
+#'  in an MD plot. Default is FALSE.
+#' @param save.output.path Character string specifying the directory to save outputs, including
+#'  the imputed cells in modified sparse upper triangular format, a normalization result table,
+#'  and a differential analysis result table. If NULL, no files are saved. Default is NULL.
 #' @param BP_param Parameters for `BiocParallel`, to be passed to the `bpparam()` function. See `?bpparam()` for more info.
 #' 
 #' @details
 #' 
 #' This function implements the ScHiCcompare workflow. It first reads sparse Hi-C data from two conditions 
-#' and, by default, imputes missing interaction frequencies using a random forest model (RF) with a 
-#' pooling method (either progressive or Fibonacci). In progressive pooling of interaction frequencies, 
+#' and, by default, imputes missing interaction frequencies using a random forest model (RF) with option of a 
+#' `pool.style` (either progressive or Fibonacci). In progressive pooling of interaction frequencies, 
 #' genomic distance ranges are increasing linearly to form subsequent pooled bands, 
 #' while Fibonacci pooling uses a Fibonacci sequence to increase the size of genomic distance ranges. 
-#' If none of pooling style is selected, each band [??? Is 'band' even relevant here? Can't we say 'the original data is used'?] contains individual genomic distance data.
+#' Then, random forest method is applied on individual genomic distance ('none' pooling) or pooled bands 
+#' (when `pool.style` is selected).
 #' 
-#' Next, pseudo-bulk Hi-C matrices are generated, followed by joint normalization using Loess regression (from HiCcompare) 
+#' Next, pseudo-bulk Hi-C matrices are generated, followed by joint normalization using Loess regression (from `HiCcompare`) 
 #' before detecting differential chromatin interactions via a Gaussian Mixture Model (GMM) clustering approach. 
 #' GMM clusters normalized log fold changes in interaction frequencies between the two cell types 
 #' at each genomic distance into "difference" and "non-difference" groups. The non-difference group is assumed to 
@@ -63,7 +86,6 @@ withoutNorm_hicTable <- function(hic.table){
 #' The difference cluster comprises points that belong to other distributions. If the size of the differences is 
 #' insufficient to form distinct distributions, these differences are 
 #' identified by the `HiCcompare::hic_compare()` function.
-
 #' 
 #'
 #' @return A list containing the differential analysis results and intermediate results (imputation, pseudo-bulk, normalization).
@@ -71,13 +93,16 @@ withoutNorm_hicTable <- function(hic.table){
 #' are also saved if `save.output.path` is provided. See the vignette for more details
 #'
 #' @examples
-#' \dontrun{ [??? Make it run by including actual .txt.gz files]
-#' Load_example_MGFolder()
-#' Load_example_ODCFolder()
-#' result <- ScHiCcompare(
+#' \dontrun{ 
+#' ## Load folder of ODC file path
+#' ODCs_example<- system.file("ODCs_example", package = "scHiCcompare")
+#' ## Load folder of MG file path
+#' MGs_example<- system.file("MGs_example", package = "scHiCcompare")
+#' 
+#' result <- scHiCcompare(
 #'   file.path.1 = "MGs_example", 
 #'   file.path.2 = "ODCs_example", 
-#'   select.chromosome = "chr22", 
+#'   select.chromosome = "chr20", 
 #' )
 #' print(result)
 #' }
@@ -85,10 +110,12 @@ withoutNorm_hicTable <- function(hic.table){
 #' @export
 
 
-ScHiCcompare <- function(file.path.1, file.path.2, imputation = 'RF', normalization = 'Loess', differential.detect = 'MD.cluster',
-                         select.chromosome, main.Distances = 1:10000000, save.output.path =  NULL, Plot = T, Plot.normalize = F,
-                         pool.style = 'progressive' , n.imputation = 5,  maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
-                         A.min = NULL, fprControl.logfc = 1, alpha = 0.05,
+scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
+                         imputation = 'RF', normalization = 'LOESS', differential.detect = 'MD.cluster',
+                         main.Distances = 1:10000000, pool.style = 'progressive' , n.imputation = 5,
+                         maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
+                         A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05,
+                         Plot = T, Plot.normalize = F, save.output.path =  NULL, 
                          BP_param = bpparam()){
   
   # Read file 'txt' from 2 folder path
@@ -363,7 +390,7 @@ print.checkNumbers <- function(obj) {
 }
 
 
- # result <- ScHiCcompare(file.path.1 = "MGs_example", file.path.2 = "ODCs_example",
+ # result <- scHiCcompare(file.path.1 = "MGs_example", file.path.2 = "ODCs_example",
  #                      select.chromosome = "chr22", save.output.path = 'Result')
 
 

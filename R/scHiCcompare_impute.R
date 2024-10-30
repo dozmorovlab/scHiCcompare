@@ -599,7 +599,7 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
 #' @param outlier.rm A logical value indicating whether to remove outliers during the imputation process. Default is TRUE.
 #' @param main.Distances A vector of integers or 'full' representing the scHiC data in main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins).
 #' Default is from 1 to 10,000,000. 
-#' @param pool.style A string specifying the pooling technique to use. Options are 'single', 'progressive' or 'fibonacci'.
+#' @param pool.style A string specifying the pooling technique to use. Options are 'none', 'progressive' or 'Fibonacci'.
 #' Default is 'progressive'.
 #' @param missPerc.theshold An integer specifying the missing value percentage threshold in each pool band. 
 #' 
@@ -623,9 +623,9 @@ RF_process <-  function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit 
 #' 
 #' @examples
 #' # Load MG data folder example
-#' load_example_MGfolder()
+#' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
 #' #Create scHicCompare table to be used in scHicCompare
-#' IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:50, type='txt', select.chromosome = 'chr22')
+#' IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:10, type='txt', select.chromosome = 'chr20')
 #' # Example usage of Pooling_RF_impute
 #' imputed_table <- scHiCcompare_impute(IF_table, n.imputation = 5, outlier.rm = TRUE, 
 #'                                   main.Distances = 1:10000000, pool.style = 'progressive')
@@ -663,7 +663,7 @@ scHiCcompare_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outl
   ############################# Imputation process ##################################################
   
   ## If Pooling styles is applied
-  if(pool.style == 'single'){     # If Single pooling is selected  
+  if(pool.style == 'none'){     # If Single pooling is selected  
     new_table = RF_process(scHiC.table = scHiC.table, n_imputation = n.imputation,
                                        outlier.rm = outlier.rm , main_Distances = main.Distances,
                                        missPerc.threshold = missPerc.threshold)
@@ -674,7 +674,7 @@ scHiCcompare_impute <-  function(scHiC.table, n.imputation = 5,  maxit = 1, outl
     ## List of all Distance Pool
     if(pool.style == 'progressive'){
       Dpool.list <- .all_progressive_pooling(vector_distance = D)
-    } else if ( pool.style == 'fibonancci'){
+    } else if ( pool.style == 'Fibonancci'){
       Dpool.list <- .all_fib_pooling(vector_distance = D)
     }
     length.Dpool.list <- length(Dpool.list)

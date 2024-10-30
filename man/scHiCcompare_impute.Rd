@@ -9,7 +9,7 @@ scHiCcompare_impute(
   n.imputation = 5,
   maxit = 1,
   outlier.rm = TRUE,
-  main.Distances = 1:1e+07,
+  main.Distances = 1:10000000,
   pool.style = "progressive",
   missPerc.threshold = 95
 )
@@ -28,7 +28,7 @@ followed by columns representing interaction frequencies ('IF') for individual c
 \item{main.Distances}{A vector of integers or 'full' representing the scHiC data in main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins).
 Default is from 1 to 10,000,000.}
 
-\item{pool.style}{A string specifying the pooling technique to use. Options are 'none', 'progressive' or 'fibonacci'. If 'none' is specified, the method apply imputation with individual genomic distance (consider a band include 1 Distance)
+\item{pool.style}{A string specifying the pooling technique to use. Options are 'none', 'progressive' or 'Fibonacci'.
 Default is 'progressive'.}
 
 \item{missPerc.theshold}{An integer specifying the missing value percentage threshold in each pool band.}
@@ -49,9 +49,9 @@ method, filling in missing values based on the mean for distances.
 }
 \examples{
 # Load MG data folder example
-load_example_MGfolder()
+MGs_example <- system.file("MGs_example", package = "scHiCcompare")
 #Create scHicCompare table to be used in scHicCompare
-IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:50, type='txt', select.chromosome = 'chr22')
+IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:10, type='txt', select.chromosome = 'chr20')
 # Example usage of Pooling_RF_impute
 imputed_table <- scHiCcompare_impute(IF_table, n.imputation = 5, outlier.rm = TRUE, 
                                   main.Distances = 1:10000000, pool.style = 'progressive')
