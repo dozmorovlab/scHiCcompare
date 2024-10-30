@@ -78,7 +78,6 @@ library(data.table)
     
 ![**Figure 1**. An example of how different pooling style assign genomic distance into each band](Pooling Example.png)
 
-  
 Due to extreme sparsity at higher genomic distance and randomness of long-range interactions, scHiCcompare, by default, workflow focuses on distance range 1 to 10MB (`main.Distance`).  If any pool band falls outside this range and has a percentage of missing values exceeding the specified threshold (default missPerc.threshold is 95%), the missing interaction frequencies (IFs) values are imputed using the mean IF values from the available data within that pool band.
 
  - **Pseudo-bulk scHi-C** - Second, imputed single-cell Hi-C data in each group are transformed into group-specific `pseudo-bulk` scHi-C matrices by summing all group-specific single-cell Hi-C matrices.
@@ -249,7 +248,7 @@ Since the data downloaded by `r BiocStyle::Biocpkg("Bandnorm")` has the required
 
 ## scHiCcompare function
 
-The function requires two *Input Parameter*: [??? Address comments in scHiCcompare.R first, then adjust this section]
+The function requires two *Input Parameter*: 
 
 - `file.path.1, file.path.2` - Character strings specifying paths to folders containing scHi-C data for the first and second cell type or condition groups.
 - `select.chromosome` -  Integer or character indicating the chromosome to be analyzed (e.g., 'chr1' or 'chr10'.) 
@@ -262,33 +261,57 @@ scHiCcompare(file.path.1, file.path.2,
              imputation = 'RF',
              normalization = 'LOESS',
              differential.detect = 'MD.cluster',
-             pool.style = 'progressive', fprControl.logfc = 0.8,  A.min = NULL, 
-             n.imputation = 5, outlier.rm = TRUE, missPerc.threshold = 95,
-             save.output.path =  NULL, Plot = TRUE, Plot.normalize = FALSE)
+             pool.style = 'progressive' , n.imputation = 5,
+             maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
+             A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05,
+             Plot = T, Plot.normalize = F, save.output.path =  NULL)
 ```
 
 *Optional Workflow Parameter* include:
 
-- `main.Distances`- Numeric vector indicating the range of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on (eg. 1:100000, Inf, etc), which all genomic ranges selection can be specified by Inf. The `main.Distance` vector needs to be proportional with data's resolution (ex,. for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc). As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting a large distance range at high resolution (e.g., below 200kb) can make the function take longer to run due to extreme sparsity. By default, `main.Distances` = 1:10000000. 
-- `imputation` - Character string or NULL of indicating the imputation method. If 'NULL' is select, the workflow will skip the `imputation` step. Default is 'RF' for Random Forest imputation.
-- `normalization` - Character string or NULL indicating the normalization method. If 'NULL' is select, the workflow will skip the `normalization` step. Default is 'LOESS'.
-- `pool.style` - Character string specifying the pooling style for `imputation`. Options are 'none', 'progressive' or 'Fibonacci'. Default is 'progressive'.
-- `fprControl.logfc` - A numeric value controlling the false positive rate of GMM difference clusters  (`differential.detect`) (eg,. 0.5, 0.8, 1, 1.5, etc) . Default is 08.
+- `main.Distances` - A numeric vector indicating the range of interacting genomic distances (in base pairs) between two regions (e.g., loci or bins) to focus on (e.g., `1:100000`, `Inf`). All genomic range selections can be specified using `Inf`. The `main.Distances` vector should be proportional to the data’s resolution (e.g., for 10kb resolution: `1:10000`, `1:50000`, `1:100000`, `Inf`). As the distance range and resolution increase, the percentage of '0' or missing values also increases. Selecting a large distance range at high resolution (e.g., below 200kb) may increase runtime due to extreme sparsity. By default, `main.Distances` = `1:10000000`.
+
+- `imputation` - A character string, either `'RF'` or `NULL`, indicating the imputation method. If `NULL` is selected, the workflow will skip the `imputation` step. The default is `'RF'` for Random Forest imputation.
+
+- `normalization` - A character string, either `'LOESS'` or `NULL`, indicating the normalization method. If `NULL` is selected, the workflow will skip the `normalization` step. The default is `'LOESS'`.
+
+
+*Optional Imputation Parameter* include:
+
+- `pool.style` - A character string specifying the pooling style for `imputation`. Options are `'none'`, `'progressive'`, or `'Fibonacci'`. The default is `'progressive'`.
+
+- `n.imputation` - An integer specifying the number of multiple imputations for the imputation step. Because the final imputed values are calculated as the average of multiple imputations, increasing the number of imputations improves the accuracy of imputed values; however, it may also extend the imputation runtime. The default is `5`.
+
+- `maxit` - An integer specifying the maximum number of iterations for the internal refinement process within a single `imputation` cycle. Increasing `maxit` can help stabilize imputed values, although it may increase the imputation runtime. The default is `1`.
+
+- `outlier.rm` - Logical. If `TRUE`, outliers are removed during `imputation`. The default is `TRUE`.
+
+- `missPerc.threshold` - A numeric value specifying the maximum allowable percentage of missing data in pool bands outside the `main.Distances` to be imputed by the `imputation` method. A higher threshold includes more extreme sparse distances for imputation (e.g., above 95 percent), which increases memory and runtime, while a lower threshold (e.g., below 50 percent) might reduce the number of distances imputed. The default is `95`.
+
+
+*Optional Normalization Parameter* include:
+
 - `A.min` - Numeric value or NULL that sets the A-value quantile cutoff (eg,. 7, 10, etc) for filtering low average interaction frequencies in the outlier detection in differential step of the `hic_compare()` function from `r BiocStyle::Biocpkg("HiCcompare")`.  If not provided (NULL), A is auto-detected.
-- `n.imputation` - Interger values specifying the number of imputations for the `imputation` step. Default is 5.
-- `outlier.rm` -  A logical value indicating whether outlier values (which values are 1.5 times the interquartile range (IQR)) should be removed during `imputation`. Default is TRUE.
-- `missPerc.threshold` -  Numeric value specifying the maximum allowable percentage of missing data in each pool band (eg,. 90, 95, 98, etc) to identify `main.Distances`'s pool bands that are imputed by the `imputation` method. Default is 95%.
+
+*Optional Differential Test Parameter* include:
+- `fprControl.logfc` - Numeric value to control the false positive rate for GMM difference clusters (`differential.detect`) (e.g., 0.5, 0.8, 1, 1.5, etc.). Increasing `fprControl.logfc` may lower the false positive rate but may also reduce the number of detected chromatin interaction differences. The default is 0.8, equivalent to a 2-fold change.
+
+- `alpha` - Numeric value specifying the significance level for outlier detection during the `differential.detect` step with the `hic_compare()` function from HiCcompare. Default is 0.05.
+
 
 *Optional Output Parameter* :
 
 - `save.output.path` - Character string specifying the directory to save outputs, including the imputed cells in the form of a sparse upper triangular format, normalization result table, and differential analysis result table. If `save.output.path` = NULL (the default), no files are saved. 
+
 - `Plot` -  A logical value indicating whether to plot the `differential.detect` results in an MD plot. Default is TRUE.
+
 - `Plot.normalize` - A logical value indicating whether to plot the output of MD plot showing before/after LOESS `normalization`. Default is FALSE.
 
 
 ### Example of real anlysis
 
-In this following-up example, we will work with scHi-C data from 10 single-cells in both ODC and MG cell types in 1MG resolution. We will focus on chromosome 20, applying the full workflow of scHiCcompare (imputation, speudo-bulk normalization, and differential analysis). We focus to detect differences for loci with genomic distances from 1 to 10,000,000 (bp). The progressive pooling style is selected to create pool bands for the random forest imputation. For differential analysis step, we set the log fold change - false positive control threshold as 0.8.
+In this following example, we will work with scHi-C data from 10 single cells in both ODC and MG cell types at a 1 MG resolution. We will focus on chromosome 20, applying the full workflow of scHiCcompare, which includes imputation, pseudo-bulk normalization, and differential analysis. Our goal is to detect differences for loci with genomic distances ranging from 1 to 10,000,000 bp. The progressive pooling style will be selected to create pool bands for the random forest imputation. For the differential analysis step, we will set the log fold change - false positive control threshold to 0.8.
+
 
 The input file path was included in the package and conducted in [Prepare input folders](#Prepare-Input-folders) section.
 
@@ -319,6 +342,7 @@ The `scHiCcompare()` function will return an object that contains plots, differe
   - `$Intermediate$PseudoBulk` for each condition group (`$condition1` and `$condition2`) has standard sparse upper triangular format with 3 columns of [region1, region2, IF].
   
   - `$Intermediate$Imputation`  for each condition group (`$condition1` and `$condition2`) has modified sparse upper triangular format:
+  
     + Interacting bins coordination [region1, region2, cell (condition 1 or condition2), chr]
     + Imputed interaction frequency of each single-cell [imp.IF_{cell name 1}, imp.IF_{cell name 2}, imp.IF_{cell name 3}, ...,etc]
 
@@ -380,8 +404,6 @@ psudobulk_result = result$Intermediate$PseudoBulk$condition1
 DT::datatable(head(psudobulk_result), options = list(scrollX = TRUE), width = 700)
 ```
 
-
-
 Furthermore, you also have some parameter options in the function to indicate which plots to output and option to save the results in given directory.
 
 
@@ -421,36 +443,51 @@ DT::datatable(imp_ODC_table, options = list(scrollX = TRUE), width = 700)
 We need to create the table input for original IFs values in the same format. Below is continuous example from [Example of real anlysis](#Example-of-real-anlysis) above, showing how you can construct scHiC table for original IF values and compare them with the output of imputed IF values.
 
 ```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+
 # Create scHiC table object for original ODC IF
 scHiC.table_ODC = imp_ODC_table[c('region1', 'region2', 'cell', 'chr')]
-file.names = list.files(path = 'mod_ODCs_example', full.names = TRUE, recursive = TRUE)
-for(i in 1:length(file.names)){
+file.names = list.files(path = ODCs_example_path, full.names = TRUE, recursive = TRUE)
+
+# Preallocate a list to store data frames
+data_list_ODC <- vector("list", length(file.names))
+# Read all data files into the list
+for(i in seq_along(file.names)) {
   data = read.delim(file.names[[i]])
-  names(data) = c('chr', 'region1', 'region2', paste0('IF_',i))
-  scHiC.table_ODC = merge(scHiC.table_ODC, data ,
-                          by = c('region1', 'region2', 'chr'), all = T)
+  names(data) = c('chr', 'region1', 'region2', paste0('IF_', i))
+  data_list_ODC[[i]] <- data
 }
+# Use Reduce to merge all data frames in the list
+scHiC.table_ODC = Reduce(function(x, y) full_join(x, y, by = c("region1", "region2", "chr")), data_list_ODC, init = scHiC.table_ODC)
+
+
 
 # Create scHiC table object for original MG IF
 scHiC.table_MG = imp_MG_table[c('region1', 'region2', 'cell', 'chr')]
-file.names = list.files(path = 'mod_MGs_example', full.names = TRUE, recursive = TRUE)
-for(i in 1:length(file.names)){
+file.names = list.files(path = MGs_example_path, full.names = TRUE, recursive = TRUE)
+
+# Preallocate a list to store data frames
+data_list_MG <- vector("list", length(file.names))
+# Read all data files into the list
+for(i in seq_along(file.names)) {
   data = read.delim(file.names[[i]])
-  names(data) = c('chr', 'region1', 'region2', paste0('IF_',i))
-  scHiC.table_MG = merge(scHiC.table_MG, data ,
-                          by = c('region1', 'region2', 'chr'), all = T)
+  names(data) = c('chr', 'region1', 'region2', paste0('IF_', i))
+  data_list_MG[[i]] <- data
 }
+# Use Reduce to merge all data frames in the list
+scHiC.table_MG = Reduce(function(x, y) full_join(x, y, by = c("region1", "region2", "chr")), data_list_MG, init = scHiC.table_MG)
+
 ```
 
 ```{r, message=FALSE, warning=FALSE}
 # plot imputed Distance Diagnostic of MG
-plot1 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
+plot1 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
                                          imp_sc_data = imp_MG_table, D = 1)
-plot2 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
+plot2 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
                                          imp_sc_data = imp_MG_table, D = 2)
-plot3 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
+plot3 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
                                          imp_sc_data = imp_MG_table, D = 3)
-plot4 = plot_imputed_distance_diagnostic(org_sc_data = scHiC.table_MG,
+plot4 = plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG,
                                          imp_sc_data = imp_MG_table, D = 4)
 grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow =2)
 ```

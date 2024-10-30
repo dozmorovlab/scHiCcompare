@@ -167,7 +167,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
     sorted_file_names1 <- mixedsort(imp_cell_name1)
     names(impute1_result)[5:ncol(impute1_result)] <- paste0('imp.IF_', sorted_file_names1)
     
-    imp_cell_name2 = as.numeric(sub("\\.txt$", "", basename(file_name2)))
+    imp_cell_name2 = sub("\\.txt$", "", basename(file_name2))
     sorted_file_names2 <- mixedsort(imp_cell_name2)
     names(impute2_result)[5:ncol(impute2_result)] <- paste0('imp.IF_', sorted_file_names2)
     

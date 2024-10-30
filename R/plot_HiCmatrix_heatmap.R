@@ -2,16 +2,18 @@
 #'
 #' This function generates a heatmap of Hi-C interaction frequencies from a given sparse matrix,
 #' allowing users to visualize either original or imputed Hi-C data.
-#' [??? Wrap sentences at 80-character border]
+#' 
 #' @param scHiC.sparse A modified sparse matrix of Hi-C interaction frequencies 
-#' in format (chr1, start1, chr2, start2, IF).
+#' in the format (chr1, start1, chr2, start2, IF).
 #' @param zlim A numeric vector of length 2 specifying the limits of the color 
-#' scale. If the zlim is not specified, the zlim vector include minimum and maximum 
-#' values of the matrix. [??? Demonstrate possible options.]
-#' @param color_low A character specifying the color for the lowest values. Default
-#'  is "white". [??? What are other options? Where to find color names?]
-#' @param color_high A character specifying the color for the highest values. 
-#' Default is "red".
+#' scale. If `zlim` is not specified, it will include the minimum and maximum 
+#' values of the matrix. For example, `zlim = c(0, 10)` limits the color scale to values between 0 and 10.
+#' @param color_low A character string specifying the color for the lowest values. Default
+#' is "white". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
+#'  Users can refer to the R color names documentation by running `colors()` in R.
+#' @param color_high A character string specifying the color for the highest values. 
+#' Default is "red". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
+#'  Users can refer to the R color names documentation by running `colors()` in R.
 #' @param main A character string for the main title of the plot. Default is NULL.
 #' @param figure_name A character string for additional figure labeling. Default is NULL.
 #'
@@ -22,7 +24,7 @@
 #' matrix_36x36 <- matrix(sample(0:9, 36 * 36, replace = TRUE), nrow = 36, ncol = 36)
 #' diag(matrix_36x36) <- diag(matrix_36x36) * 6
 #'
-#' # Transform full matrix into sparse
+#' # Transform the full matrix into sparse format
 #' library(HiCcompare)
 #' sparse <- full2sparse(matrix_36x36)
 #'
@@ -37,6 +39,7 @@
 #' )
 #'
 #' @export
+
 
 plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white", 
                                    color_high = "red", main = NULL, figure_name = NULL) {

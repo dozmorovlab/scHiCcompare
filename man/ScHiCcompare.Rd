@@ -11,7 +11,7 @@ scHiCcompare(
   imputation = "RF",
   normalization = "LOESS",
   differential.detect = "MD.cluster",
-  main.Distances = 1:10000000,
+  main.Distances = 1:1e+07,
   pool.style = "progressive",
   n.imputation = 5,
   maxit = 1,

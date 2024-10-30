@@ -15,17 +15,19 @@ plot_HiCmatrix_heatmap(
 }
 \arguments{
 \item{scHiC.sparse}{A modified sparse matrix of Hi-C interaction frequencies
-in format (chr1, start1, chr2, start2, IF).}
+in the format (chr1, start1, chr2, start2, IF).}
 
 \item{zlim}{A numeric vector of length 2 specifying the limits of the color
-scale. If the zlim is not specified, the zlim vector include minimum and maximum
-values of the matrix. \link{??? Demonstrate possible options.}}
+scale. If \code{zlim} is not specified, it will include the minimum and maximum
+values of the matrix. For example, \code{zlim = c(0, 10)} limits the color scale to values between 0 and 10.}
 
-\item{color_low}{A character specifying the color for the lowest values. Default
-is "white". \link{??? What are other options? Where to find color names?}}
+\item{color_low}{A character string specifying the color for the lowest values. Default
+is "white". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
+Users can refer to the R color names documentation by running \code{colors()} in R.}
 
-\item{color_high}{A character specifying the color for the highest values.
-Default is "red".}
+\item{color_high}{A character string specifying the color for the highest values.
+Default is "red". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
+Users can refer to the R color names documentation by running \code{colors()} in R.}
 
 \item{main}{A character string for the main title of the plot. Default is NULL.}
 
@@ -37,14 +39,13 @@ A heatmap plot visualizing the Hi-C interaction matrix.
 \description{
 This function generates a heatmap of Hi-C interaction frequencies from a given sparse matrix,
 allowing users to visualize either original or imputed Hi-C data.
-\link{??? Wrap sentences at 80-character border}
 }
 \examples{
 # Create a 36x36 matrix with random integer values between 0 and 9
 matrix_36x36 <- matrix(sample(0:9, 36 * 36, replace = TRUE), nrow = 36, ncol = 36)
 diag(matrix_36x36) <- diag(matrix_36x36) * 6
 
-# Transform full matrix into sparse
+# Transform the full matrix into sparse format
 library(HiCcompare)
 sparse <- full2sparse(matrix_36x36)
 
