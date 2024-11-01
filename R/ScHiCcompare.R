@@ -29,14 +29,14 @@ withoutNorm_hicTable <- function(hic.table) {
 #' @param normalization Character string 'LOESS' or NULL indicating the normalization method.
 #'  Default is 'LOESS'.
 #' @param differential.detect Character string 'MD.cluster' indicating the differential detection
-#'  method. Default is 'MD.cluster'.
+#'  method. The default is 'MD.cluster'.
 #' @param main.Distances Numeric vector indicating the range of interacting genomic distances
 #'  (in base pairs) between two regions (e.g., loci or bins) to focus on (e.g., 1:100000, Inf, etc).
 #'  The `main.Distance` vector needs to be proportional to the data's resolution (e.g., for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc).
 #'  Selecting a large distance range at higher resolution (e.g., below 200kb) can make the function
-#'  take longer to run due to extreme sparsity. Default is 1:10000000.
+#'  take longer to run due to extreme sparsity. The default is 1:10000000.
 #' @param pool.style Character string specifying the pooling style for `imputation`. Options are
-#'  'none', 'progressive', or 'Fibonacci'. Default is 'progressive'. If `imputation` is NULL, then `pool.style` should also be NULL.
+#'  'none', 'progressive', or 'Fibonacci'. The default is 'progressive'. If `imputation` is NULL, then `pool.style` should also be NULL.
 #' @param n.imputation Integer specifying the number of multiple imputations for the imputation
 #'  step, with final imputed values computed as the average of these multiple imputation values.
 #'  Increasing the number of imputations enhances the accuracy of imputed values, though
@@ -44,12 +44,12 @@ withoutNorm_hicTable <- function(hic.table) {
 #' @param maxit Integer specifying the maximum number of iterations for the internal refinement process
 #'  within a single `imputation` cycle. Increasing `maxit` can help stabilize imputed values,
 #'  though it may increase the imputation runtime. Default is 1.
-#' @param outlier.rm Logical. If TRUE, outliers are removed during `imputation`. Default is TRUE.
+#' @param outlier.rm Logical. If TRUE, outliers are removed during `imputation`. The default is TRUE.
 #' @param missPerc.threshold Numeric value specifying the maximum allowable percentage of missing data
 #'  in pool bands outside the `main.Distances` to be imputed by the `imputation` method.
 #'  A higher threshold includes more sparse distances for imputation (e.g., above 95 percent),
 #'  increasing memory and runtime, while a lower threshold (e.g., below 50 percent) might reduce the
-#'  number of distances imputed. Default is 95.
+#'  number of distances imputed. The default is 95.
 #' @param A.min Numeric value or NULL that sets the A-value quantile cutoff (e.g., 7, 10, etc) for filtering
 #'  low average interaction frequencies in outlier detection during the differential step of `hic_compare()`
 #'  from `HiCcompare`. If not provided (NULL), A is auto-detected.
@@ -58,24 +58,24 @@ withoutNorm_hicTable <- function(hic.table) {
 #'  the false positive rate but can also reduce the number of chromatin interaction differences detected.
 #'  Default is 0.8, equivalent to a 2-fold change.
 #' @param alpha Numeric value for the significance level of outlier detection during the `differential.detect`
-#'  step by `hic_compare()` from HiCcompare. Default is 0.05.
+#'  step by `hic_compare()` from HiCcompare. The default is 0.05.
 #' @param Plot Logical value indicating whether to plot the `differential.detect` results in
-#'  an MD plot. Default is TRUE.
+#'  an MD plot. The default is TRUE.
 #' @param Plot.normalize Logical value indicating whether to plot the `normalization` results
-#'  in an MD plot. Default is FALSE.
+#'  in an MD plot. The default is FALSE.
 #' @param save.output.path Character string specifying the directory to save outputs, including
-#'  the imputed cells in modified sparse upper triangular format, a normalization result table,
-#'  and a differential analysis result table. If NULL, no files are saved. Default is NULL.
+#'  the imputed cells in a modified sparse upper triangular format, a normalization result table,
+#'  and a differential analysis result table. If NULL, no files are saved. The default is NULL.
 #' @param BP_param Parameters for `BiocParallel`, to be passed to the `bpparam()` function. See `?bpparam()` for more info.
 #'
 #' @details
 #'
 #' This function implements the ScHiCcompare workflow. It first reads sparse Hi-C data from two conditions
-#' and, by default, imputes missing interaction frequencies using a random forest model (RF) with option of a
-#' `pool.style` (either progressive or Fibonacci). In progressive pooling of interaction frequencies,
-#' genomic distance ranges are increasing linearly to form subsequent pooled bands,
-#' while Fibonacci pooling uses a Fibonacci sequence to increase the size of genomic distance ranges.
-#' Then, random forest method is applied on individual genomic distance ('none' pooling) or pooled bands
+#' and, by default, imputes missing interaction frequencies using a random forest model (RF) with the choice of
+#' `pool.style` (either progressive or Fibonacci). With the progressive pooling of interaction frequencies,
+#' genomic distance ranges increase linearly to form subsequent pooled bands,
+#' while Fibonacci pooling uses the Fibonacci sequence to increase the size of genomic distance ranges.
+#' Then, the random forest method is applied to individual genomic distance ('none' pooling) or pooled bands
 #' (when `pool.style` is selected).
 #'
 #' Next, pseudo-bulk Hi-C matrices are generated, followed by joint normalization using Loess regression (from `HiCcompare`)
@@ -89,8 +89,8 @@ withoutNorm_hicTable <- function(hic.table) {
 #'
 #'
 #' @return A list containing the differential analysis results and intermediate results (imputation, pseudo-bulk, normalization).
-#' If `save.output.path` is provided , the imputed results for both conditions are saved in sparse format in the given firectory. Normalization and differential analysis results
-#' are also saved if `save.output.path` is provided. See the vignette for more details
+#' If `save.output.path` is provided, the imputed results for both conditions are saved in a sparse format in the given directory. Normalization and differential analysis results
+#' are also saved if `save.output.path` is provided. See the vignette for more details.
 #'
 #' @examples
 #' \dontrun{
