@@ -14,8 +14,8 @@
 #' @param color_high A character string specifying the color for the highest values.
 #' Default is "red". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
 #'  Users can refer to the R color names documentation by running `colors()` in R.
-#' @param main A character string for the main title of the plot. Default is NULL.
-#' @param figure_name A character string for additional figure labeling. Default is NULL.
+#' @param main A character string for the main title of the plot. The default is NULL.
+#' @param figure_name A character string for additional figure labeling. The default is NULL.
 #'
 #' @return A heatmap plot visualizing the Hi-C interaction matrix.
 #'

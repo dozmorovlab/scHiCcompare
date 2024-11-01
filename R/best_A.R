@@ -26,12 +26,12 @@
 #'
 #' @param hic.table A hic.table object
 #' @param SD Numeric. The standard deviation of the fuzzing used to produce a Hi-C matrix from your data with few true differences.
-#' @param numChanges Integer. The number of changes to add into the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 30 changes, 100KB resolution - 3000 changes, etc.
+#' @param numChanges Integer. The number of changes to add to the Hi-C matrix created. This should be proportional to the resolution of the data. High resolution data should use more changes i.e. 1MB resolution - 30 changes, 100KB resolution - 3000 changes, etc.
 #' @param FC Numeric. The fold change of the changes added to the Hi-C matrix.
 #' @param alpha Numeric. Significance level for adjusting p-values (default is 0.05).
 #' @param Plot Logical. If TRUE, plots will be generated during processing.
 #'
-#' @return The best A value that optimize performance metrics (MCC, TPR, FPR).
+#' @return The best A value that optimizes performance metrics (MCC, TPR, FPR).
 #'
 #' @details This function randomizes interaction frequencies, calculates mean interaction
 #' frequencies, and performs a series of evaluations to determine the best quantile.

@@ -1,7 +1,7 @@
 #' Load MG Datasets Folder Example
 #'
-#' This function loads example of MG datasets and saves them in a newly created folder named 'MGs_example'
-#' within the specified directory. This is the example data folder to be used as example for `scHiC_table` function. If no directory is specified, it defaults to
+#' This function loads examples of MG datasets and saves them in a newly created folder named 'MGs_example'
+#' within the specified directory. This is the example data folder to be used as an example for the `scHiC_table` function. If no directory is specified, it defaults to
 #' the current working directory.
 #'
 #' @param save_dir A character string specifying the directory where the 'MGs_example'
@@ -11,7 +11,7 @@
 #'
 #' @examples
 #' load_example_MGfolder() # Saves in 'MGs_example' in the current working directory
-#' load_example_MGfolder("/path/to/save/directory") # Saves in specified directory
+#' load_example_MGfolder("/path/to/save/directory") # Saves to the specified directory
 #'
 #' @export
 #'

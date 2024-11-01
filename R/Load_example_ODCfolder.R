@@ -1,7 +1,7 @@
 #' Load ODC Datasets Folder Example
 #'
-#' This function loads example of ODC datasets and saves them in a newly created folder named 'ODCs_example'
-#' within the specified directory. This is the example data folder to be used as example for `scHiC_table` function. If no directory is specified, it defaults to
+#' This function loads examples of ODC datasets and saves them in a newly created folder named 'ODCs_example'
+#' within the specified directory. This is the example data folder to be used as an example for the `scHiC_table` function. If no directory is specified, it defaults to
 #' the current working directory.
 #'
 #' @param save_dir A character string specifying the directory where the 'ODCs_example'
@@ -11,7 +11,7 @@
 #'
 #' @examples
 #' load_example_ODCfolder() # Saves in 'ODCs_example' in the current working directory
-#' load_example_ODCfolder("/path/to/save/directory") # Saves in specified directory
+#' load_example_ODCfolder("/path/to/save/directory") # Saves to the specified directory
 #'
 #' @export
 #'

@@ -2,7 +2,7 @@
 #'
 #' This function generates a single-cell Hi-C interaction frequency (IF) table for all single cells for a selected chromosome. The resulting table is usable for the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions. It reads the input files, extracts the relevant data, and outputs a table of interaction frequencies between genomic regions for each single cell dataset.
 #'
-#' @param file.path Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
+#' @param file.path Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in a modified sparse upper triangular format (chr1, start1, chr2, start2, IF)
 #' @param cell.type The cell type name used in the analysis (e.g., 'NSN', 'SN').
 #' @param select.chromosome The chromosome name to be studied (e.g., 'chr1' or 'chrX').
 #' @return A data frame containing the interaction frequency table with genomic loci (cell, chromosome, start1, end1) and interaction frequencies (IF) of each single cell. This table can be used with the \code{Pooling_RF_impute()} and \code{pseudo_bulkHic()} functions.

@@ -6,10 +6,10 @@
 #' For 'cool', it uses the `HiCcompare` package to transform cooler files to BEDPE format.
 #'
 #' @param file.path The directory path where the data files are stored.
-#' @param position.dataset A vector of indices specifying the file positions to read from the directory. These indices help select specific files, determining which files will be included and the sequence in which they are processed. If all single cell data should be include, choose NULL.
-#' @param type The file type, either 'txt'. Default is 'txt'. Each 'txt' file should be in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction frequency value (IFs) of two interacting regions.
+#' @param position.dataset A vector of indices specifying the file positions to read from the directory. These indices help select specific files, determining which files will be included and the sequence in which they are processed. If all single cell data should be included, choose NULL.
+#' @param type The file type, either 'txt'. The default is 'txt'. Each 'txt' file should be in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction frequency value (IFs) of two interacting regions.
 #' @param txt.sparse.heads.position A vector of four integers specifying the column positions of chromosome, start1, start2, and IF in the 'txt' file.
-#' @return A list of datasets, where each element corresponds to a dataset from the selected files. If `out` is 'sparse', each dataset element is transformed into sparse matrix format (chr, start1, start2, IF).
+#' @return A list of datasets, where each element corresponds to a dataset from the selected files. If `out` is 'sparse', each dataset element is transformed into a sparse matrix format (chr, start1, start2, IF).
 #' If `out` is 'original', the original structure of each single-cell Hi-C dataset is preserved.
 #'
 #' @details
