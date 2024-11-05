@@ -130,7 +130,7 @@ Below are examples of steps to download and import scHi-C data into R.
   
   - **[GEO](#https://www.ncbi.nlm.nih.gov/geo/) (Gene Expression Omnibus)**:
   
- You can search data on [GEO](#https://www.ncbi.nlm.nih.gov/geo/) using queries such as `single-cell Hi-C`, `scHi-C`, or a GEO (GSE) series numbers (e.g., [GSE80006](#https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80006)), etc. Once you select a dataset, processed data  (.txt, .csv, .bed, .hic, etc.)  can be found under the "Supplementary files" section and downloaded via the `FTP` links at the bottom of the page. Additionally, [GEO](#https://www.ncbi.nlm.nih.gov/geo/) offers various download formats using different mechanisms. For more details about downloading data in different formats, visit the GEO download guide: <https://www.ncbi.nlm.nih.gov/geo/info/download.html>.
+  You can search data on [GEO](#https://www.ncbi.nlm.nih.gov/geo/) using queries such as `single-cell Hi-C`, `scHi-C`, or a GEO (GSE) series numbers (e.g., [GSE80006](#https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE80006)), etc. Once you select a dataset, processed data  (.txt, .csv, .bed, .hic, etc.)  can be found under the "Supplementary files" section and downloaded via the `FTP` links at the bottom of the page. Additionally, [GEO](#https://www.ncbi.nlm.nih.gov/geo/) offers various download formats using different mechanisms. For more details about downloading data in different formats, visit the GEO download guide: <https://www.ncbi.nlm.nih.gov/geo/info/download.html>.
   
  You can also download these data by R. The example below shows steps to download the mouse scHi-C dataset (Flyamer et al.2017) on [GEO](#https://www.ncbi.nlm.nih.gov/geo/).
   

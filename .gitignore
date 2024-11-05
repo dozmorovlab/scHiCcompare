@@ -10,5 +10,7 @@ Result
 .git
 *.Rproj
 *.so
+^.git$
+
 
 
