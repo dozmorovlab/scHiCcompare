@@ -20,61 +20,63 @@
 #' @return A heatmap plot visualizing the Hi-C interaction matrix.
 #'
 #' @examples
-#' # Create a 36x36 matrix with random integer values between 0 and 9
-#' matrix_36x36 <- matrix(sample(0:9, 36 * 36, replace = TRUE), nrow = 36, ncol = 36)
-#' diag(matrix_36x36) <- diag(matrix_36x36) * 6
-#'
-#' # Transform the full matrix into sparse format
-#' library(HiCcompare)
-#' sparse <- full2sparse(matrix_36x36)
+#' data("ODC.bandnorm_chr20_1")
 #'
 #' # Call the function with this sparse matrix to generate the heatmap
-#' plot_imputation_heatmap(
-#'   scHiC.sparse = sparse,
+#' plot_HiCmatrix_heatmap(
+#'   scHiC.sparse = ODC.bandnorm_chr20_1,
 #'   zlim = c(0, 7), # Log scale color limits
 #'   color_low = "white", # Color for low values
 #'   color_high = "red", # Color for high values
 #'   main = "Single-Cell Hi-C Heatmap", # Title of the plot
 #'   figure_name = "Example Heatmap" # Subtitle for the plot
 #' )
-#'
+#' @import HiCcompare
+#' @import lattice
+#' 
 #' @export
 
 
-plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white",
+plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white", 
                                    color_high = "red", main = NULL, figure_name = NULL) {
-  library(lattice)
-
-  # Transform sparse matrices to full matrices
+  if (!requireNamespace("lattice", quietly = TRUE)) {
+    stop("Package 'lattice' is required for this function. Please install it.")
+  }
+  
+  # Transform sparse matrix to a full matrix with only required columns
   scHiC.sparse <- scHiC.sparse[, c(2, 4, 5)]
-  org_sc_full <- sparse2full(scHiC.sparse)
-
+  org_sc_full <- HiCcompare::sparse2full(scHiC.sparse)
+  
+  # Validate if sparse2full returned a matrix
+  if (!is.matrix(org_sc_full)) {
+    stop("Conversion to full matrix failed. Please check 'sparse2full' function.")
+  }
+  
+  # Define zlim if not provided
   if (is.null(zlim)) {
-    z.max <- max(org_sc_full)
-    z.min <- min(org_sc_full)
+    z.max <- max(org_sc_full, na.rm = TRUE)
+    z.min <- min(org_sc_full, na.rm = TRUE)
     zlim <- c(z.min, z.max)
   }
-
-  # Define the color palette from low to high
+  
+  # Define the color palette
   color_scale <- colorRampPalette(c(color_low, color_high))
-  # Generate 16 colors for the scale (corresponding to values 0 to 12)
   colors <- color_scale(16)
-
-  # Rotate the original matrix for correct plotting orientation
+  
+  # Rotate matrix for correct plotting orientation
   rotated_org_sc_full <- t(apply(org_sc_full, 2, rev))
-
-  # Plot single-cell matrix heatmap with specified aspect ratio
-
-  levelplot(
-    log(rotated_org_sc_full),
+  
+  # Plot with log transformation, adding a small constant to avoid log(0)
+  lattice::levelplot(
+    log(rotated_org_sc_full + 1e-6),  # Adding small constant to avoid log(0)
     pretty = TRUE,
     xlab = "",
     ylab = "",
     scales = list(x = list(at = NULL), y = list(at = NULL)),
     col.regions = colors,
-    at = seq(zlim[1], zlim[2], length.out = length(colors) + 1),
+    at = seq(log(zlim[1] + 1e-6), log(zlim[2] + 1e-6), length.out = length(colors) + 1),
     main = main,
     sub = figure_name,
-    aspect = 1 # This controls the plot's height/width ratio
+    aspect = 1  # Controls the plot's height/width ratio
   )
 }

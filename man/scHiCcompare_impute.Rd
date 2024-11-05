@@ -9,7 +9,7 @@ scHiCcompare_impute(
   n.imputation = 5,
   maxit = 1,
   outlier.rm = TRUE,
-  main.Distances = 1:1e+07,
+  main.Distances = 1:10000000,
   pool.style = "progressive",
   missPerc.threshold = 95
 )
@@ -19,42 +19,45 @@ scHiCcompare_impute(
 The first four columns should represent 'cell', 'chr', 'region1', and 'region2',
 followed by columns representing interaction frequencies ('IF') for individual cells.}
 
-\item{n.imputation}{An integer specifying the number of imputations to be performed. Default is 5.}
+\item{n.imputation}{An integer specifying the number of imputations to be performed. The default is 5.}
 
-\item{maxit}{An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. Default is 1.}
+\item{maxit}{An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. The default is 1.}
 
-\item{outlier.rm}{A logical value indicating whether to remove outliers during the imputation process. Default is TRUE.}
+\item{outlier.rm}{A logical value indicating whether to remove outliers during the imputation process. The default is TRUE.}
 
-\item{main.Distances}{A vector of integers or 'full' representing the scHiC data in main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) is the number of base pairs between two regions in the genome (e.g., loci or bins).
-Default is from 1 to 10,000,000.}
+\item{main.Distances}{A vector of integers or 'full' representing the scHiC data in the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) are the number of base pairs between two regions in the genome (e.g., loci or bins).
+The default is from 1 to 10,000,000.}
 
-\item{pool.style}{A string specifying the pooling technique to use. Options are 'none', 'progressive' or 'Fibonacci'.
+\item{pool.style}{A string specifying the pooling technique to use. Options are 'none', 'progressive', or 'Fibonacci'.
 Default is 'progressive'.}
 
-\item{missPerc.theshold}{An integer specifying the missing value percentage threshold in each pool band.}
+\item{missPerc.threshold}{An integer specifying the missing value percentage threshold in each pool band.}
 }
 \value{
-A table in the format of an scHiC table (same structure as the output of the \code{scHiC_table} function) with imputed interaction frequencies (IF) across all single cells. The output table is formatted with regions and single cells
+A table in the format of a scHiC table (same structure as the output of the \code{scHiC_table} function) with imputed interaction frequencies (IF) across all single cells. The output table is formatted with regions and single cells
 in wide format, with one column per single cell containing imputed IF values.
 }
 \description{
-This function performs imputation of single-cell Hi-C (scHi-C) interaction frequencies (IF) using Random Forest imputation methods with option of distance-based pooling strategies.
+This function performs imputation of single-cell Hi-C (scHi-C) interaction frequencies (IF) using Random Forest imputation methods with different options for distance-based pooling strategies.
 }
 \details{
 The function first identifies important pools based on the given scHi-C genomic distance effect by
 pooling distance data according to the chosen method. For progressive pooling, pools of distances are consecutively combined
-to form larger sets, while Fibonacci pooling uses a Fibonacci sequence to combine distances. If \code{none} pooling style is selected, the band contain individual 1 genomic distance.
-During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range, if any pool contains more than \code{missPerc.theshold} missing values, it triggers an alternative imputation
+to form larger sets, while Fibonacci pooling uses a Fibonacci sequence to combine distances. If the pooling style \code{none} is selected, the band contains individual 1 genomic distance.
+During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range, if any pool contains more than \code{missPerc.threshold} missing values, it triggers an alternative imputation
 method, filling in missing values based on the mean for distances.
 }
 \examples{
 # Load MG data folder example
 MGs_example <- system.file("MGs_example", package = "scHiCcompare")
-#Create scHicCompare table to be used in scHicCompare
-IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset =  1:10, type='txt', select.chromosome = 'chr20')
+# Create scHicCompare table to be used in scHicCompare
+IF_table <- scHiC_table(file.path = MGs_example, cell.type = "MG", select.chromosome = "chr20")
 # Example usage of Pooling_RF_impute
-imputed_table <- scHiCcompare_impute(IF_table, n.imputation = 5, outlier.rm = TRUE, 
-                                  main.Distances = 1:10000000, pool.style = 'progressive')
+library(tidyr)
+imputed_table <- scHiCcompare_impute(IF_table,
+  n.imputation = 5, outlier.rm = TRUE,
+  main.Distances = 1:10000000, pool.style = "progressive"
+)
 
 }
 \references{

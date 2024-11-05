@@ -18,6 +18,16 @@
 #'
 #' Stansfield JC, Cresswell KG, Vladimirov VI  et al (2018). Hiccompare: an R-package for joint normalization and comparison of HI-C datasets. BMC Bioinformatics  2018;19:279.
 #'
+#' @examples
+#' data("scHiC.table_MG_chr22")
+#' data("scHiC.table_ODC_chr22")
+#' pseudo_bulk_MG = pseudo_bulkHic(scHiC.table_MG_chr22)
+#' pseudo_bulk_ODC = pseudo_bulkHic(scHiC.table_ODC_chr22)
+#' head(pseudo_bulk_MG)
+#' head(pseudo_bulk_ODC)
+#' 
+#' @import HiCcompare
+#' 
 #' @export
 
 ## Create PseudoBulk Sparse ----

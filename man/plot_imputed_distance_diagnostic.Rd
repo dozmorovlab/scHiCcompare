@@ -8,10 +8,10 @@ plot_imputed_distance_diagnostic(raw_sc_data, imp_sc_data, D)
 }
 \arguments{
 \item{raw_sc_data}{A data frame containing the original single-cell Hi-C data in scHiC Table format.
-The data frame should include columns for \code{region1}, \code{region2}, \code{Cell}, \code{Chr}, and \code{IF_i} for each of the i single cells.}
+The data frame should include columns for \code{region1}, \code{region2}, \code{Cell}, \code{Chr}, and \code{IF_i} for each of the "i" cells.}
 
 \item{imp_sc_data}{A data frame containing the imputed single-cell Hi-C data in scHiC Table format.
-The data frame should include columns for \code{region1}, \code{region2}, \code{Cell}, \code{Chr}, and \code{IF_i} for each of the i single cells.}
+The data frame should include columns for \code{region1}, \code{region2}, \code{Cell}, \code{Chr}, and \code{IF_i} for each of the "i" cells.}
 
 \item{D}{An integer specifying the genomic distance for which to plot the density curves of interaction frequencies.
 Genomic distance refers to the distance between two regions in the genome, expressed in units of resolution bins
@@ -19,7 +19,7 @@ Genomic distance refers to the distance between two regions in the genome, expre
 with a resolution of 1,000,000, then D = (17,000,000 - 16,000,000)/1,000,000 = 1.}
 }
 \value{
-A ggplot2 object representing the density plot comparing original
+A ggplot2 object representing the density plot comparing the original
 and imputed interaction frequencies.
 }
 \description{
@@ -31,22 +31,12 @@ The distance D represents how far apart two genomic loci are. Observations indic
 \code{plot_imputed_distance_diagnostic()} function plots the density curves of interaction frequencies from original and imputed single-cell Hi-C data for a specified genomic distance.
 }
 \examples{
-
-# Create a 36x36 matrix with random integer values between 0 and 9
-set.seed(123)
-imp_36x36 <- matrix(sample(0:5, 36*36, replace = TRUE), nrow = 36, ncol = 36)
-diag(imp_36x36) <- diag(imp_36x36) * 6
-
-org_36x36 <- matrix(sample(0:5, 36*36, replace = TRUE), nrow = 36, ncol = 36)
-diag(org_36x36) <- diag(org_36x36) * 6
-org_36x36[sample(seq_len(length(org_36x36)), 500)] <- 0
-
-# Transform full matrix into sparse
-library(HiCcompare)
-sparse.org = full2sparse(org_36x36)
-sparse.imp = full2sparse(imp_36x36)
+data("scHiC.table_MG_chr22")
+## Impute data above
+scHiC.table_MG_imp = scHiCcompare_impute(scHiC.table = scHiC.table_MG_chr22)
 
 # Call the function with this sparse matrix to generate the plot
-plot_imputed_distance_diagnostic(raw_sc_data = sparse.org, imp_sc_data = sparse.imp, D = 1)
+plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG_chr22,
+ imp_sc_data = scHiC.table_MG_imp, D = 1)
 
 }

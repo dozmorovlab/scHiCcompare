@@ -31,8 +31,9 @@
 #' @examples
 #' # Load MG data folder example
 #' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
-#' datasets <- read_files(file.path = MGs_example, cell = "MG", position.dataset =  c(1, 2, 3, 4, 5),
-#'  type = "txt", txt.sparse.heads.position = c(1, 2, 3, 4, 5)
+#' datasets <- read_files(file.path = MGs_example, position.dataset =  c(1, 2, 3, 4, 5),
+#'  txt.sparse.heads.position = c(1, 2, 3, 4, 5)
+#'  )
 #' @import HiCcompare
 #' @export
 

@@ -7,7 +7,7 @@
 scHiC_table(file.path, cell.type, select.chromosome)
 }
 \arguments{
-\item{file.path}{Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in modified sparse upper triangular format (chr1, start1, chr2, start2, IF)}
+\item{file.path}{Character string specifying the directory containing scHi-C data for condition (a cell-type group). The folder should contain '.txt' scHi-C files in a modified sparse upper triangular format (chr1, start1, chr2, start2, IF)}
 
 \item{cell.type}{The cell type name used in the analysis (e.g., 'NSN', 'SN').}
 
@@ -23,11 +23,10 @@ This function generates a single-cell Hi-C interaction frequency (IF) table for 
 This function processes single-cell Hi-C data in a folder directory, then transforms them into a single 'scHiC table' data frame. Each element in the list should be in the form of a sparse upper triangular Hi-C matrix with five tab-separated columns (chr1, start1, chr2, start2, IF) with no row or column names and no quotes around character strings.
 }
 \examples{
-\dontrun{
 # Load MG data folder example
-load_example_MGfolder()
+MGs_example <- system.file("MGs_example", package = "scHiCcompare")
 
 # Create scHiC table to be used in scHiCcompare
-IF_table <- scHiC_table(file.path = "MGs_example", cell.type = 'MG', position.dataset = 1:3, select.chromosome = 'chr22')
-}
+IF_table <- scHiC_table(file.path = MGs_example, cell.type ='MG', select.chromosome = "chr20")
+
 }

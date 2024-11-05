@@ -1,3 +1,96 @@
+#### Automatic find A quantile for HiCcompare function
+# Randomize_IFs - function to add noise to IFs of one matrix to create a similar 2 matrix
+.randomize_IFs <- function(hic.table, SD) {
+  # copy first IF vector
+  newIF2 <- hic.table$IF1
+  # add constant offset
+  newIF2 <- newIF2 + 5
+  # add random noise
+  newIF2 <- newIF2 + rnorm(length(newIF2), 0, SD)
+  # check for 0's and negatives
+  newIF2[newIF2 <= 0] <- 1
+  # create new hic.table with new IF vectors
+  sparse1 <- cbind(hic.table$start1, hic.table$start2, hic.table$IF1)
+  sparse2 <- cbind(hic.table$start1, hic.table$start2, newIF2)
+  temp.table <- create.hic.table(sparse1, sparse2, chr = hic.table$chr1[1])
+  return(temp.table)
+}
+
+# Best A finding
+best_A <- function(hic.table, SD = 2, numChanges = 35, FC = 3, alpha = 0.05,
+                   Plot = FALSE) {
+  if (is(hic.table, "list")) {
+    stop("Enter a single hic.table object, not a list of hic.tables")
+  }
+  new.table <- .randomize_IFs(hic.table, SD)
+  new.table <- data.frame(new.table) # Ensure it's a data frame
+  new.table <- new.table[abs(new.table$M) < 2, ] # Filter based on M column
+  sample_space <- 1:nrow(new.table)
+  tmp_A <- (new.table$IF1 + new.table$IF2) / 2
+  low_A <- which(tmp_A < quantile(tmp_A, 0.1))
+  changes <- sample(sample_space[-low_A], numChanges)
+  
+  # Calculate meanIF
+  meanIF <- round(((new.table[changes, "IF1"] + new.table[changes, "IF2"]) / 2))
+  new.table[changes, "IF1"] <- meanIF # Update IF1
+  new.table[changes, "IF2"] <- meanIF # Update IF2
+  
+  # Calculate new IFs for the changes
+  midpoint <- floor(numChanges / 2)
+  newIF1 <- as.integer(new.table[changes[1:midpoint], "IF1"] * FC)
+  newIF2 <- as.integer(new.table[changes[(midpoint + 1):numChanges], "IF2"] * FC)
+  
+  # Update IF1 and IF2 with new values
+  new.table[changes[1:midpoint], "IF1"] <- newIF1
+  new.table[changes[(midpoint + 1):numChanges], "IF2"] <- newIF2
+  
+  # Update M column with the new log2 ratio
+  new.table$M <- log2(new.table$IF2 / new.table$IF1)
+  
+  # Create a truth vector to identify changes
+  truth <- rep(0, nrow(new.table))
+  truth[changes] <- 1
+  new.table$truth <- truth # Add truth column to the data frame
+  
+  new.table <- data.table::as.data.table(new.table)
+  new.table <- HiCcompare::hic_loess(new.table, Plot = Plot)
+  new.table <- suppressMessages(HiCcompare::hic_compare(new.table, Plot = Plot))
+  TP <- vector(length = 50)
+  FP <- vector(length = 50)
+  FN <- vector(length = 50)
+  TN <- vector(length = 50)
+  A_seq <- seq(1, 50, by = 1)
+  for (i in seq_along(A_seq)) {
+    tmp.table <- suppressMessages(hic_compare(new.table,
+                                              A.min = A_seq[i], adjust.dist = TRUE, p.method = "fdr",
+                                              Plot = FALSE
+    ))
+    TP[i] <- sum(tmp.table$p.adj < alpha & tmp.table$truth ==
+                   1)
+    FP[i] <- sum(tmp.table$p.adj < alpha & tmp.table$truth ==
+                   0)
+    FN[i] <- sum(tmp.table$p.adj >= alpha & tmp.table$truth ==
+                   1)
+    TN[i] <- sum(tmp.table$p.adj >= alpha & tmp.table$truth ==
+                   0)
+  }
+  MCC <- ((TP * TN) - (FP * FN)) / (sqrt((TP + FP)) * sqrt((TP +
+                                                              FN)) * sqrt((TN + FP)) * sqrt((TN + FN)))
+  FPR <- FP / (FP + TP)
+  FNR <- FN / (FN + TN)
+  TPR <- TP / (TP + FP)
+  
+  # Best A in term of MCC, TPR, FPR
+  MCC.A <- which(MCC == max(MCC))
+  TPR.A <- which(TPR == max(TPR))
+  FPR.A <- which(FPR == min(FPR))
+  intersect.MCC_TPR.A <- intersect(MCC.A, TPR.A)
+  best_A <- intersect(intersect.MCC_TPR.A, FPR.A)[1]
+  return(best_A)
+}
+
+
+
 #### GMM cluster layer
 GMM_layer <- function(hic_table, D.interval = 1:10, threshold = 0.8) {
   hic_result <- NULL
@@ -7,7 +100,6 @@ GMM_layer <- function(hic_table, D.interval = 1:10, threshold = 0.8) {
     D.interval <- D.interval[!D.interval == 0]
   }
 
-  library(mclust)
   for (d in D.interval) {
     # Subset the table for the current distance 'd'
     hic_d <- hic_table[hic_table$D == d, ]
@@ -20,19 +112,19 @@ GMM_layer <- function(hic_table, D.interval = 1:10, threshold = 0.8) {
 
     # Pre-existing significant values (p < 0.05)
     hiccompare_sig <- hic_d$adj.M[hic_d$p.value < 0.05]
-
+    
     # Perform Shapiro-Wilk normality test
-    if (length(x) > 2) {
+    if (length(x)<3 || is.null(mclust::Mclust(x, G = 3))) {
+      p_norm.test <- 1
+    } else {
       norm_test <- shapiro.test(x)
       p_norm.test <- norm_test$p.value
-    } else {
-      p_norm.test <- 1
     }
 
     # If data is not normally distributed, fit GMM
     if (p_norm.test < 0.05) {
       # Fit a Gaussian Mixture Model with three components
-      gmm_model <- Mclust(x, G = 3)
+      gmm_model <- mclust::Mclust(x, G = 3)
 
       # Extract the means of the components and rank them
       means <- gmm_model$parameters$mean
@@ -74,15 +166,15 @@ GMM_layer <- function(hic_table, D.interval = 1:10, threshold = 0.8) {
 
 
 #### Differential plot
-require(ggplot2)
 differential_result_plot <- function(hic.table.result) {
-  ggplot(hic.table.result, aes(y = adj.M, x = D, fill = factor(Difference.cluster))) +
-    geom_point(shape = 21, size = 1.5) + # Shape 21 allows fill color
-    geom_hline(yintercept = 0, linetype = "dashed", color = "black") + # Horizontal line at 0
-    scale_fill_manual(values = c("red", "black")) + # Set custom fill colors for clusters
-    theme_classic() +
-    theme(legend.position = "none") +
-    ggtitle("MD Plot of Differential Analysis Result") # Use ggtitle() for plot title
+  plot <- ggplot2::ggplot(hic.table.result, ggplot2::aes(y = adj.M, x = D, fill = factor(Difference.cluster))) +
+    ggplot2::geom_point(shape = 21, size = 1.5) + # Shape 21 allows fill color
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "black") + # Horizontal line at 0
+    ggplot2::scale_fill_manual(values = c("red", "black")) + # Set custom fill colors for clusters
+    ggplot2::theme_classic() +
+    ggplot2::theme(legend.position = "none") +
+    ggplot2::ggtitle("MD Plot of Differential Analysis Result") # Use ggtitle() for plot title
+  print(plot)
 }
 
 
@@ -164,32 +256,36 @@ differential_result_plot <- function(hic.table.result) {
 #' # Input single-cell Hi-C in sparse format (.txt) from a path
 #' scHiC.table_ODC <- scHiC_table(
 #'   file.path = ODCs_example,
-#'   cell.type = "ODC", position.dataset = 1:50, type = "txt",
-#'   select.chromosome = "chr22"
+#'   cell.type = "ODC",
+#'   select.chromosome = "chr20"
 #' )
 #' scHiC.table_MG <- scHiC_table(
 #'   file.path = MGs_example,
-#'   cell.type = "MG", position.dataset = 1:50, type = "txt",
-#'   select.chromosome = "chr22"
+#'   cell.type = "MG",
+#'   select.chromosome = "chr20"
 #' )
 #' # Bulk matrix in sparse format
 #' bulk.sparse.1 <- na.omit(pseudo_bulkHic(scHiC.table = scHiC.table_ODC, out = "sparse"))
 #' bulk.sparse.2 <- na.omit(pseudo_bulkHic(scHiC.table = scHiC.table_MG, out = "sparse"))
 #' # Create the `hic.table` object
-#' bulk.hic.table <- create.hic.table(bulk.sparse.1, bulk.sparse.2, chr = "chr22", scale = FALSE)
+#' library(HiCcompare)
+#' bulk.hic.table <- create.hic.table(bulk.sparse.1, bulk.sparse.2, chr = "chr20", scale = FALSE)
 #' # Jointly normalize data for a single chromosome
 #' hic.table_normalize <- hic_loess(bulk.hic.table, Plot = TRUE, Plot.smooth = FALSE)
 #' # Example usage of the BulkHiC_compare function
-#' result <- BulkHiC_compare(hic.table_normalize, D.interval = c(1, 100), fprControl.logfc = 0.8)
+#' result <- scHiC_bulk_compare(hic.table_normalize, D.interval = c(1:10), fprControl.logfc = 0.8)
 #'
+#' @import HiCcompare
+#' @import mclust
+#' @import ggplot2
+#' 
 #' @export
 
 
 scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.8, alpha = 0.05,
                                SD = 2, numChanges = NULL, FC = 3, A.min = NULL,
-                               Plot = T, BP_param = bpparam()) {
-  library(data.table)
-  library(HiCcompare)
+                               Plot = TRUE, BP_param = bpparam()) {
+  
   if (is.null(numChanges)) {
     res <- min(abs(diff(unique(norm.hic.table$start1))))
     numChanges <- 30 * (1000000 / res)
@@ -198,15 +294,15 @@ scHiC_bulk_compare <- function(norm.hic.table, D.interval, fprControl.logfc = 0.
     A.min <- best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
   }
 
-  hic.table_result <- hic_compare(norm.hic.table,
-    A.min = A.min, Plot = F, Plot.smooth = F,
+  hic.table_result <- HiCcompare::hic_compare(norm.hic.table,
+    A.min = A.min, Plot = FALSE, Plot.smooth = FALSE,
     BP_param = BP_param
   )
   hic.table.GMM_result <- GMM_layer(hic_table = hic.table_result, D.interval = D.interval, threshold = fprControl.logfc)
   hic.table.GMM_result <- hic.table.GMM_result[, -c(17, 18)]
   names(hic.table.GMM_result)[ncol(hic.table.GMM_result)] <- "Difference.cluster"
 
-  if (Plot == T) {
+  if (Plot == TRUE) {
     plot <- differential_result_plot(hic.table.GMM_result)
     print(plot)
   }

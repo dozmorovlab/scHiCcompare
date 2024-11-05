@@ -7,7 +7,7 @@
 pseudo_bulkHic(scHiC.table, out = "sparse")
 }
 \arguments{
-\item{scHiC.table}{A data frame containing interaction frequencies across single cells that is created by the \code{scHiC_table()} function.
+\item{scHiC.table}{A data frame containing interaction frequencies across cells that are created by the \code{scHiC_table()} function.
 The first four columns should represent 'cell', 'chr', 'region1', and 'region2',
 followed by columns representing interaction frequencies ('IF') for individual cells.}
 
@@ -15,26 +15,22 @@ followed by columns representing interaction frequencies ('IF') for individual c
 Default is 'sparse'.}
 }
 \value{
-A data frame representing the pseudo-bulk Hi-C data. If \code{out} is 'sparse',
-it returns a data frame with pseudo-bulk matrix in the format of a sparse upper triangular Hi-C matrix with five columns:
-chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).  If \code{out} is 'full',
-it returns a full matrix representation of the pseudo-bulk data.
+A data frame representing the pseudo-bulk Hi-C data. If \code{out} is 'sparse';
+returns a data frame containing a pseudo-bulk matrix in the sparse upper triangular Hi-C matrix format with five columns:
+chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).  If \code{out} is 'full';
+returns a full matrix representation of the pseudo-bulk data.
 }
 \description{
 This function generates pseudo-bulk Hi-C data from a single-cell Hi-C interaction frequency table.
 It returns the data in either sparse or full matrix format.
 }
 \examples{
-\dontrun{
-# Load MG datasets folder example
-load_example_MGfolder()
-# Generate scHiC table for single cell Hi-C data of MG cell type
-scHiC.table <- scHiC_table(file.path = "MGs_example",  cell.type = "MG", position.dataset = 1:50, type= "txt", select.chromosome = 22)
-
-# Transform into the pseudo bulk HiC
-pseudo_bulk_data <- pseudo_bulkHic(scHiC.table, out = 'sparse')
-full_matrix_data <- pseudo_bulkHic(scHiC.table, out = 'full')
-}
+data("scHiC.table_MG_chr22")
+data("scHiC.table_ODC_chr22")
+pseudo_bulk_MG = pseudo_bulkHic(scHiC.table_MG_chr22)
+pseudo_bulk_ODC = pseudo_bulkHic(scHiC.table_ODC_chr22)
+head(pseudo_bulk_MG)
+head(pseudo_bulk_ODC)
 
 }
 \references{

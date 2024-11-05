@@ -104,6 +104,9 @@ withoutNorm_hicTable <- function(hic.table) {
 #' )
 #' print(result)
 #' 
+#' @import HiCcompare
+#' @import gtools
+#' 
 #' @export
 
 scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
@@ -111,7 +114,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
                          main.Distances = 1:10000000, pool.style = "progressive", n.imputation = 5,
                          maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
                          A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05,
-                         Plot = T, Plot.normalize = F, save.output.path = NULL,
+                         Plot = TRUE, Plot.normalize = FALSE, save.output.path = NULL,
                          BP_param = bpparam()) {
   # Read file 'txt' from 2 folder path
   # cond1_list <- read_files(file.path = file.path.1, type='txt',
@@ -166,13 +169,12 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
     impute2_result <- scHiC.table_cond2
 
     ### Change cell name
-    library(gtools)
     imp_cell_name1 <- sub("\\.txt$", "", basename(file_name1))
-    sorted_file_names1 <- mixedsort(imp_cell_name1)
+    sorted_file_names1 <- gtools::mixedsort(imp_cell_name1)
     names(impute1_result)[5:ncol(impute1_result)] <- paste0("imp.IF_", sorted_file_names1)
 
     imp_cell_name2 <- sub("\\.txt$", "", basename(file_name2))
-    sorted_file_names2 <- mixedsort(imp_cell_name2)
+    sorted_file_names2 <- gtools::mixedsort(imp_cell_name2)
     names(impute2_result)[5:ncol(impute2_result)] <- paste0("imp.IF_", sorted_file_names2)
   } else {
     impute1_result <- NULL
@@ -188,23 +190,20 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
 
   # Step 2: Normalization
   if (is.null(normalization)) {
-    library(HiCcompare)
-    bulk.hic.table <- create.hic.table(bulk_sparse_cond1, bulk_sparse_cond2, chr = select.chromosome, scale = F)
+    bulk.hic.table <- HiCcompare::create.hic.table(bulk_sparse_cond1, bulk_sparse_cond2, chr = select.chromosome, scale = FALSE)
     # jointly normalize data for a single chromosome
     norm.hic.table <- withoutNorm_hicTable(hic.table = bulk.hic.table)
     norm.result <- NULL
   } else {
-    bulk.hic.table <- create.hic.table(bulk_sparse_cond1, bulk_sparse_cond2, chr = select.chromosome, scale = F)
+    bulk.hic.table <- HiCcompare::create.hic.table(bulk_sparse_cond1, bulk_sparse_cond2, chr = select.chromosome, scale = FALSE)
     # jointly normalize data for a single chromosome
     cat("\nJointly normalizing pseudo bulk matrices ")
-    norm.hic.table <- suppressWarnings(hic_loess(bulk.hic.table, Plot = Plot.normalize, Plot.smooth = F))
+    norm.hic.table <- suppressWarnings(HiCcompare::hic_loess(bulk.hic.table, Plot = Plot.normalize, Plot.smooth = FALSE))
     norm.result <- norm.hic.table
     names(norm.result)[c(7, 8, 11, 12)] <- c("bulk.IF1", "bulk.IF2", "adj.bulk.IF1", "bulk.adj.IF2")
   }
 
 
-
-  library(HiCcompare)
   cat("\nProcessing detect differential chromotin interaction ")
   if (is.null(A.min)) {
     SD <- 2
@@ -214,8 +213,8 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
     A.min <- suppressWarnings(best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha))
   }
   # HiCcompare
-  hic.table_result <- suppressWarnings(hic_compare(norm.hic.table,
-    A.min = A.min, Plot = F, Plot.smooth = F,
+  hic.table_result <- suppressWarnings(HiCcompare::hic_compare(norm.hic.table,
+    A.min = A.min, Plot = FALSE, Plot.smooth = FALSE,
     BP_param = BP_param
   ))
 
@@ -230,39 +229,35 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
   ## Save output option
   if (!is.null(save.output.path)) {
     ##### Imputed cell #####
-    library(tidyverse)
-    library(data.table)
-
-
+    
     if (!is.null(impute1_result)) {
       ##### Group 1 #####
       df <- scHiC.table_cond1
       folder_name <- paste0("imp_", basename(file.path.1))
       full_output_path <- file.path(save.output.path, folder_name)
       dir.create(full_output_path, recursive = TRUE)
-      cat("\nImputed cells in condition1 saved", "to:", full_output_path, "\n")
-
+      cat("\nImputed cells in condition1 saved to:", full_output_path, "\n")
+      
       # Transform to long format, rename cells, and select necessary columns in one step
-      sparse_df <- df %>%
-        pivot_longer(
-          cols = starts_with("IF_"),
-          names_to = "cell_id",
-          values_to = "IF"
-        ) %>%
-        mutate(cell_id = sub("IF_", "cell", cell_id)) %>% # Change IF_1, IF_2 to cell1, cell2, etc.
-        select(cell_id, chr, region1, region2, IF) # Changed 'IF' to 'IF_value'
-
-
+      sparse_df <- tidyr::pivot_longer(
+        df,
+        cols = starts_with("IF_"),
+        names_to = "cell_id",
+        values_to = "IF"
+      ) %>%
+        dplyr::mutate(cell_id = sub("IF_", "cell", cell_id)) %>% # Change IF_1, IF_2 to cell1, cell2, etc.
+        dplyr::select(cell_id, chr, region1, region2, IF) # Changed 'IF' to 'IF_value'
+      
       # Split the data into a list of data frames by cell
       cell_data_list <- split(sparse_df, sparse_df$cell_id)
-
-      # Loop through each cell data frame and save to individual .txt files using fwrite
+      
+      # Loop through each cell data frame and save to individual .txt files
       lapply(names(cell_data_list), function(cell) {
         cell_index <- as.numeric(gsub("[^0-9]", "", cell))
         org_name <- file_name1[cell_index]
         # Define the output file path for the current cell
         output_file_path <- file.path(full_output_path, paste0("imp_", org_name))
-        save.data.fotmat <- data.frame(
+        save.data.format <- data.frame(
           chr1 = cell_data_list[[cell]]$chr,
           start1 = cell_data_list[[cell]]$region1,
           chr2 = cell_data_list[[cell]]$chr,
@@ -270,38 +265,37 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
           IF = cell_data_list[[cell]]$IF
         )
         # Save the data frame to a .txt file
-        write.table(save.data.fotmat, output_file_path, row.names = FALSE, quote = FALSE)
+        write.table(save.data.format, output_file_path, row.names = FALSE, quote = FALSE)
       })
     }
-
+    
     ##### Group 2 #####
     df <- scHiC.table_cond2
     folder_name <- paste0("imp_", basename(file.path.2))
     full_output_path <- file.path(save.output.path, folder_name)
     dir.create(full_output_path, recursive = TRUE)
-    cat("\nImputed cells in condition2 saved", "to:", full_output_path, "\n")
-
+    cat("\nImputed cells in condition2 saved to:", full_output_path, "\n")
+    
     # Transform to long format, rename cells, and select necessary columns in one step
-    sparse_df <- df %>%
-      pivot_longer(
-        cols = starts_with("IF_"),
-        names_to = "cell_id",
-        values_to = "IF"
-      ) %>%
-      mutate(cell_id = sub("IF_", "cell", cell_id)) %>% # Change IF_1, IF_2 to cell1, cell2, etc.
-      select(cell_id, chr, region1, region2, IF) # Changed 'IF' to 'IF_value'
-
+    sparse_df <- tidyr::pivot_longer(
+      df,
+      cols = starts_with("IF_"),
+      names_to = "cell_id",
+      values_to = "IF"
+    ) %>%
+      dplyr::mutate(cell_id = sub("IF_", "cell", cell_id)) %>% # Change IF_1, IF_2 to cell1, cell2, etc.
+      dplyr::select(cell_id, chr, region1, region2, IF) # Changed 'IF' to 'IF_value'
+    
     # Split the data into a list of data frames by cell
     cell_data_list <- split(sparse_df, sparse_df$cell_id)
-
-    # Loop through each cell data frame and save to individual .txt files using fwrite
-
+    
+    # Loop through each cell data frame and save to individual .txt files
     lapply(names(cell_data_list), function(cell) {
       cell_index <- as.numeric(gsub("[^0-9]", "", cell))
       org_name <- file_name2[cell_index]
       # Define the output file path for the current cell
       output_file_path <- file.path(full_output_path, paste0("imp_", org_name))
-      save.data.fotmat <- data.frame(
+      save.data.format <- data.frame(
         chr1 = cell_data_list[[cell]]$chr,
         start1 = cell_data_list[[cell]]$region1,
         chr2 = cell_data_list[[cell]]$chr,
@@ -309,36 +303,30 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
         IF = cell_data_list[[cell]]$IF
       )
       # Save the data frame to a .txt file
-      write.table(save.data.fotmat, output_file_path, row.names = FALSE, quote = FALSE)
+      write.table(save.data.format, output_file_path, row.names = FALSE, quote = FALSE)
     })
-
+    
     ##### Normalized result #####
     df <- norm.result
-    cat("\nNormalization result table saved", "to:", save.output.path, "\n")
-    # Define the output file path for the current cell
-    output_file_path <- file.path(save.output.path, paste0("Bulk_normalization_table.txt"))
-    # Save the data frame to a .txt file
+    cat("\nNormalization result table saved to:", save.output.path, "\n")
+    # Define the output file path for the normalization table
+    output_file_path <- file.path(save.output.path, "Bulk_normalization_table.txt")
     write.table(df, output_file_path, quote = FALSE)
-
+    
     ##### Differential result #####
     df <- hic.table.GMM_result
-    cat("\nDifferential analysis result table saved", "to:", save.output.path, "\n")
-    # Define the output file path for the current cell
-    output_file_path <- file.path(save.output.path, paste0("Differential_analysis_table.txt"))
-    # Save the data frame to a .txt file
+    cat("\nDifferential analysis result table saved to:", save.output.path, "\n")
+    # Define the output file path for the differential analysis table
+    output_file_path <- file.path(save.output.path, "Differential_analysis_table.txt")
     write.table(df, output_file_path, quote = FALSE)
   }
-
-
-
-
-
+  
   # Print result
-  if (Plot == T) {
+  if (Plot == TRUE) {
     plot <- differential_result_plot(hic.table.GMM_result)
     print(plot)
   }
-
+  
   result <- list(
     Differential_Analysis = hic.table.GMM_result,
     Intermediate = list(
@@ -347,7 +335,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
       Bulk.Normalization = norm.result
     )
   )
-
+  
   # Assign a custom class to the result
   class(result) <- "checkNumbers"
 

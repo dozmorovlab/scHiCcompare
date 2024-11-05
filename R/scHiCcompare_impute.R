@@ -47,11 +47,11 @@ find.collinear <- function(x, threshold = 0.999, ...) {
 
   # if any pool D contain NA, replace these NA with backward D
   checkNA.pool <- sapply(poolings_list, function(x) any(is.na(x)))
-  if (T %in% checkNA.pool) {
-    which.pool.NA <- which(checkNA.pool == T)
+  if (TRUE %in% checkNA.pool) {
+    which.pool.NA <- which(checkNA.pool == TRUE)
     pool.contain.NA <- poolings_list[[which.pool.NA]]
     n_NA <- length(which(is.na(pool.contain.NA)))
-    backforward_Ds <- seq(min(pool.contain.NA, na.rm = T) - n_NA, min(pool.contain.NA, na.rm = T) - 1)
+    backforward_Ds <- seq(min(pool.contain.NA, na.rm = TRUE) - n_NA, min(pool.contain.NA, na.rm = TRUE) - 1)
     pool.contain.NA[is.na(pool.contain.NA)] <- backforward_Ds
     poolings_list[[which.pool.NA]] <- pool.contain.NA
   }
@@ -67,7 +67,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
   if (x < 2) {
     out <- x
   } else {
-    out <- fibonacciR(x - 1) + fibonacciR(x - 2)
+    out <- .fibonacciR(x - 1) + .fibonacciR(x - 2)
   }
   return(out)
 }
@@ -83,7 +83,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
   poolings_list <- list()
   for (i in 1:l) { # set a list of trial iteration -> set large
     # extract number of D will be pool for each iteration
-    nElement_apool <- fibonacciR(i)
+    nElement_apool <- .fibonacciR(i)
     # identify which D will be pool in iteration i
     left.D.i <- vector_distance[!vector_distance %in% allD_pooled]
     whichD_apool <- left.D.i[1:nElement_apool]
@@ -99,11 +99,11 @@ find.collinear <- function(x, threshold = 0.999, ...) {
 
   # if any pool D contain NA, replace these NA with backward D
   checkNA.pool <- sapply(poolings_list, function(x) any(is.na(x)))
-  if (T %in% checkNA.pool) {
-    which.pool.NA <- which(checkNA.pool == T)
+  if (TRUE %in% checkNA.pool) {
+    which.pool.NA <- which(checkNA.pool == TRUE)
     pool.contain.NA <- poolings_list[[which.pool.NA]]
     n_NA <- length(which(is.na(pool.contain.NA)))
-    backforward_Ds <- seq(min(pool.contain.NA, na.rm = T) - n_NA, min(pool.contain.NA, na.rm = T) - 1)
+    backforward_Ds <- seq(min(pool.contain.NA, na.rm = TRUE) - n_NA, min(pool.contain.NA, na.rm = TRUE) - 1)
     pool.contain.NA[is.na(pool.contain.NA)] <- backforward_Ds
     poolings_list[[which.pool.NA]] <- pool.contain.NA
   }
@@ -158,13 +158,9 @@ predictorMatrixNP_sc_D <- function(scHiC.table, distance) {
 
 ######## Function to set up RF imputation
 mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm = TRUE, seed = 123) {
-  require(rstatix)
-  require(mice)
-  require(lattice)
-  library(miceadds)
   # Temporally remove outlier
   if (outlier.rm == TRUE) {
-    outlier.threshold <- quantile(data_input$IF, 0.85, na.rm = T) + 3 * IQR(data_input$IF, na.rm = T) ## extreme value [??? The outlier.threshold with a 0.85 quantile seems to be a pretty important assumption. Perhaps describe this and pass this as a parameter further upstream?]
+    outlier.threshold <- quantile(data_input$IF, 0.85, na.rm = TRUE) + 3 * IQR(data_input$IF, na.rm = TRUE) ## extreme value [??? The outlier.threshold with a 0.85 quantile seems to be a pretty important assumption. Perhaps describe this and pass this as a parameter further upstream?]
     outlier.threshold <- max(2, outlier.threshold)
     outlier <- unique(na.omit(data_input$IF)[na.omit(data_input$IF) > outlier.threshold])
     outlier.pos <- which(data_input$IF %in% na.omit(outlier))
@@ -178,8 +174,7 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm =
 
   ## Classify method and predictor matrix
   # get initial default imputation setting
-  set.seed(123)
-  ini <- suppressWarnings(mice(data_input, maxit = 0))
+  ini <- suppressWarnings(mice::mice(data_input, maxit = 0))
   # set up method
   meth <- ini$meth
   meth["IF"] <- "rf"
@@ -189,9 +184,10 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm =
 
   ## Imputation
   # simulate for n time of multiple imputations, with 5 iteration
-  imp <- suppressWarnings(mice(data_input, method = meth, predictorMatrix = pred, print = FALSE, maxit = maxit, seed = seed, m = n.imputation))
+  imp <- suppressWarnings(mice::mice(data_input, method = meth, predictorMatrix = pred, 
+                                     print = FALSE, maxit = maxit, seed = seed, m = n.imputation))
   # returns the long format of all multiple imputation
-  imp_data <- complete(imp, action = "long", include = F)
+  imp_data <- mice::complete(imp, action = "long", include = FALSE)
   # if the vector has all if>1, aggregate mean of all imputed complete data
   agg_new_if2 <- round(aggregate(imp_data[, 4], by = list(imp_data$.id), FUN = mean))
   agg_new_if2 <- agg_new_if2$x
@@ -219,8 +215,8 @@ pools_impute <- function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
   ## List of all Distance Pool
   if (pool.style == "progressive") {
     Dpool.list.full <- .all_progressive_pooling(vector_distance = c(min(D):max(D)))
-  } else if (pool.style == "fibonancci") {
-    Dpool.list.full <- all_fib_pooling(vector_distance = c(min(D):max(D)))
+  } else if (pool.style == "Fibonancci") {
+    Dpool.list.full <- .all_fib_pooling(vector_distance = c(min(D):max(D)))
   }
 
   ## only pool list from the input in correct original order
@@ -236,7 +232,6 @@ pools_impute <- function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
   process_pool <- function(i) {
     cat(paste0(" pooled band ", Dpool.list.pos[i], ", "))
 
-    require(tidyr)
     ## Pooling data
     data.pool <- do.call(rbind, lapply(Dpool.list[[i]], function(x) {
       data <- predictorMatrixNP_sc_D(scHiC.table, distance = x)
@@ -259,7 +254,8 @@ pools_impute <- function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
       agg_new_if2 <- data_input$IF
       agg_new_if2[is.na(agg_new_if2)] <- rep(0, nrow(data_input))
     } else {
-      agg_new_if2 <- mice.rf_impute(data_input = data_input, n.imputation = n.imputation, outlier.rm = outlier.rm, maxit = maxit)
+      agg_new_if2 <- mice.rf_impute(data_input = data_input, n.imputation = n.imputation,
+                                    outlier.rm = outlier.rm, maxit = maxit)
     }
 
     # Create new scHicTable
@@ -270,7 +266,7 @@ pools_impute <- function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
     new_data <- unique(new_data)
 
     ## Transform new_data into wide format and Re-format to scHicTable
-    update_new_table <- pivot_wider(new_data,
+    update_new_table <- tidyr::pivot_wider(new_data,
       names_from = c(Single_cell),
       values_from = IF
     )
@@ -281,7 +277,8 @@ pools_impute <- function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
       chr = rep(unique(scHiC.table$chr), nrow(update_new_table)),
       update_new_table[, -c(1:2)]
     )
-    colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 1:(ncol(update_new_table) - 4))
+    colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 
+                                                        1:(ncol(update_new_table) - 4))
 
     return(update_new_table)
   }
@@ -300,7 +297,8 @@ pools_impute <- function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
     backward_D <- lastPool[(lastD.poolPosition + 1):length(lastPool)]
     # identify backward D location in new_table_list of last pool
     new_table_lastPool <- new_table_list[[length.Dpool.list]]
-    backward_D_position <- which(abs((new_table_lastPool$region1 - new_table_lastPool$region2) / res) %in% backward_D)
+    backward_D_position <- which(abs((new_table_lastPool$region1 - new_table_lastPool$region2) / res) %in% 
+                                   backward_D)
     new_table_list[[length.Dpool.list]] <- new_table_lastPool[-backward_D_position, ]
   }
   ## Merge all elements of new_table_list into 1 data frame
@@ -376,10 +374,6 @@ RF_impute.outrm.schic <- function(scHiC.table, n_imputation = 5, outlier.rm = TR
       data_input$IF[outlier.pos] <- NA # replace outlier with NA for now
     }
 
-    require(mice)
-    require(lattice)
-    library(miceadds)
-
     ## Classify variable class
     data_input$Single_cell <- as.character(data_input$Single_cell)
     # data_input$Cell_type= as.numeric(as.factor(data_input$Cell_type))
@@ -387,17 +381,18 @@ RF_impute.outrm.schic <- function(scHiC.table, n_imputation = 5, outlier.rm = TR
     ## Classify method and predictor matrix
     rm.na.data <- na.omit(data)
     rm.na.data.input <- na.omit(data_input)
-    if (all(rm.na.data.input$IF == rm.na.data.input$IF[1]) || anyDuplicated(rm.na.data.input$Single_cell) == 0 || all(data.frame(table(rm.na.data$bin))$Freq == 1) || length(find.collinear(data_input)) > 0) { # if all vector only have IF = 1 or if there is only 1 value per bin_single cell or if there is collinearity happening in IF
+    if (all(rm.na.data.input$IF == rm.na.data.input$IF[1]) ||
+        anyDuplicated(rm.na.data.input$Single_cell) == 0 || all(data.frame(table(rm.na.data$bin))$Freq == 1) || 
+        length(find.collinear(data_input)) > 0) { # if all vector only have IF = 1 or if there is only 1 value per bin_single cell or if there is collinearity happening in IF
       agg_new_if2 <- data_input$IF
-      agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = T))
+      agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = TRUE))
     } else if (nrow(rm.na.data.input) == 0) { # if the distance is entirely missing, we input 0 for now
       agg_new_if2 <- data_input$IF
       agg_new_if2[is.na(agg_new_if2)] <- rep(1, nrow(data_input))
     } else {
       # get initial default imputation setting
-      set.seed(123)
 
-      ini <- suppressWarnings(mice(data_input, maxit = 0))
+      ini <- suppressWarnings(mice::mice(data_input, maxit = 0))
       # set up method
       meth <- ini$meth
       meth["IF"] <- "rf"
@@ -407,11 +402,14 @@ RF_impute.outrm.schic <- function(scHiC.table, n_imputation = 5, outlier.rm = TR
 
       ## Imputation
       # simulate for n time of multiple imputations, with 5 iteration
-      imp <- suppressWarnings(mice(data_input, method = meth, predictorMatrix = pred, print = FALSE, maxit = maxit, set.seed(123), m = n_imputation))
+      imp <- suppressWarnings(mice::mice(data_input, method = meth, predictorMatrix = pred,
+                                         print = FALSE, maxit = maxit,
+                                         m = n_imputation))
       # returns the long format of all multiple imputation
-      imp_data <- complete(imp, action = "long", include = F)
+      imp_data <- mice::complete(imp, action = "long", include = FALSE)
       # if the vector has all if>1, aggregate mean of all imputed complete data
-      agg_new_if2 <- round(aggregate(imp_data[, 4], by = list(imp_data$.id), FUN = mean))
+      agg_new_if2 <- round(aggregate(imp_data[, 4], by = list(imp_data$.id),
+                                           FUN = mean))
       agg_new_if2 <- agg_new_if2$x
     }
 
@@ -426,8 +424,8 @@ RF_impute.outrm.schic <- function(scHiC.table, n_imputation = 5, outlier.rm = TR
       region2 = data$region2, IF = agg_new_if2
     )
     ## Transform new_data into wide format and Re-format to new scHicTable
-    library(tidyr)
-    update_new_table <- pivot_wider(new_data, names_from = Single_cell, values_from = IF)
+    update_new_table <- tidyr::pivot_wider(new_data, names_from = Single_cell,
+                                           values_from = IF)
     update_new_table <- data.frame(
       region1 = update_new_table$region1,
       region2 = update_new_table$region2,
@@ -435,7 +433,8 @@ RF_impute.outrm.schic <- function(scHiC.table, n_imputation = 5, outlier.rm = TR
       chr = rep(unique(scHiC.table$chr), nrow(update_new_table)),
       update_new_table[, -c(1:2)]
     )
-    colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 1:(ncol(update_new_table) - 4))
+    colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_",
+                                                  1:(ncol(update_new_table) - 4))
 
     new_table <- rbind(new_table, update_new_table)
   }
@@ -491,7 +490,6 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
     D_outside.mainD_obove.t <- D_outside.mainD[D_outside.mainD %in% D_above.t]
 
     ## Impute
-    require(tidyr)
     l <- n_distance - 1
     new_table <- NULL
     # only impute on distance data have single cell>1
@@ -510,10 +508,6 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
         data_input$IF[outlier.pos] <- NA # replace outlier with NA for now
       }
 
-      require(mice)
-      require(lattice)
-      library(miceadds)
-
       ## Classify variable class
       data_input$Single_cell <- as.character(data_input$Single_cell)
       # data_input$Cell_type= as.numeric(as.factor(data_input$Cell_type))
@@ -531,13 +525,12 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
           agg_new_if2[is.na(agg_new_if2)] <- rep(1, nrow(data_input))
         } else {
           agg_new_if2 <- data_input$IF
-          agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = T))
+          agg_new_if2[is.na(agg_new_if2)] <- round(mean(rm.na.data.input$IF, na.rm = TRUE))
         }
       } else {
         # get initial default imputation setting
-        set.seed(123)
 
-        ini <- suppressWarnings(mice(data_input, maxit = 0))
+        ini <- suppressWarnings(mice::mice(data_input, maxit = 0))
         # set up method
         meth <- ini$meth
         meth["IF"] <- "rf"
@@ -547,9 +540,9 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
 
         ## Imputation
         # simulate for n time of multiple imputations, with 5 iteration
-        imp <- suppressWarnings(mice(data_input, method = meth, predictorMatrix = pred, print = FALSE, maxit = maxit, set.seed(123), m = n_imputation))
+        imp <- suppressWarnings(mice::mice(data_input, method = meth, predictorMatrix = pred, print = FALSE, maxit = maxit, m = n_imputation))
         # returns the long format of all multiple imputation
-        imp_data <- complete(imp, action = "long", include = F)
+        imp_data <- mice::complete(imp, action = "long", include = FALSE)
         # if the vector has all if>1, aggregate mean of all imputed complete data
         agg_new_if2 <- round(aggregate(imp_data[, 4], by = list(imp_data$.id), FUN = mean))
         agg_new_if2 <- agg_new_if2$x
@@ -566,8 +559,8 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
         region2 = data$region2, IF = agg_new_if2
       )
       ## Transform new_data into wide format and Re-format to new scHicTable
-      library(tidyr)
-      update_new_table <- pivot_wider(new_data, names_from = Single_cell, values_from = IF)
+      update_new_table <- tidyr::pivot_wider(new_data, names_from = Single_cell, 
+                                             values_from = IF)
       update_new_table <- data.frame(
         region1 = update_new_table$region1,
         region2 = update_new_table$region2,
@@ -575,7 +568,8 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
         chr = rep(unique(scHiC.table$chr), nrow(update_new_table)),
         update_new_table[, -c(1:2)]
       )
-      colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 1:(ncol(update_new_table) - 4))
+      colnames(update_new_table)[5:ncol(update_new_table)] <- paste0("IF_", 
+                                                1:(ncol(update_new_table) - 4))
 
       new_table <- rbind(new_table, update_new_table)
     }
@@ -630,13 +624,20 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
 #' # Load MG data folder example
 #' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
 #' # Create scHicCompare table to be used in scHicCompare
-#' IF_table <- scHiC_table(file.path = MGs_example, cell.type = "MG", position.dataset = 1:10, type = "txt", select.chromosome = "chr20")
+#' IF_table <- scHiC_table(file.path = MGs_example, cell.type = "MG", select.chromosome = "chr20")
 #' # Example usage of Pooling_RF_impute
+#' library(tidyr)
 #' imputed_table <- scHiCcompare_impute(IF_table,
 #'   n.imputation = 5, outlier.rm = TRUE,
 #'   main.Distances = 1:10000000, pool.style = "progressive"
 #' )
 #'
+#' @import tidyr
+#' @import mice
+#' @import lattice
+#' @import miceadds
+#' @import rstatix
+#' 
 #' @export
 
 
@@ -737,7 +738,6 @@ scHiCcompare_impute <- function(scHiC.table, n.imputation = 5, maxit = 1, outlie
       temp.table <- scHiC.table
       temp.table <- temp.table[((temp.table$region2 - temp.table$region1) / res) %in% D_mainP_imp, ]
       ## Impute
-      library(tidyr)
       temp.table_imp <- pools_impute(
         scHiC.table = temp.table, n.imputation = n.imputation,
         outlier.rm = outlier.rm, pool.style = pool.style
@@ -754,10 +754,10 @@ scHiCcompare_impute <- function(scHiC.table, n.imputation = 5, maxit = 1, outlie
         }))
         data <- data[order(data$region1), ] # sort data
         data_input <- data[, -c(2, 3, 4)]
-        extreme.value_pos <- data_input$IF %in% boxplot(data_input$IF, plot = F)$out # remove any extreme value
-        extreme.value <- data_input$IF[data_input$IF %in% boxplot(data_input$IF, plot = F)$out]
+        extreme.value_pos <- data_input$IF %in% boxplot(data_input$IF, plot = FALSE)$out # remove any extreme value
+        extreme.value <- data_input$IF[data_input$IF %in% boxplot(data_input$IF, plot = FALSE)$out]
         data_input$IF[extreme.value_pos] <- NA
-        data_input$IF[is.na(data_input$IF)] <- round(mean(data_input$IF, na.rm = T))
+        data_input$IF[is.na(data_input$IF)] <- round(mean(data_input$IF, na.rm = TRUE))
         agg_new_if2 <- data_input$IF
         agg_new_if2[extreme.value_pos] <- extreme.value
 
@@ -767,8 +767,9 @@ scHiCcompare_impute <- function(scHiC.table, n.imputation = 5, maxit = 1, outlie
           region2 = data$region2, IF = agg_new_if2
         )
         ## Transform new_data into wide format and Re-format to scHicTable
-        library(tidyr)
-        update_new_table <- pivot_wider(new_data, names_from = Single_cell, values_from = IF)
+
+        update_new_table <- tidyr::pivot_wider(new_data, names_from = Single_cell,
+                                               values_from = IF)
         update_new_table <- data.frame(
           region1 = update_new_table$region1,
           region2 = update_new_table$region2,

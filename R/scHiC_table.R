@@ -13,7 +13,7 @@
 #' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
 #'
 #' # Create scHiC table to be used in scHiCcompare
-#' IF_table <- scHiC_table(file.path = MGs_example, cell.type = "MG", position.dataset = 1:3, select.chromosome = "chr22")
+#' IF_table <- scHiC_table(file.path = MGs_example, cell.type ='MG', select.chromosome = "chr20")
 #' 
 #' @import dplyr
 #' @export
@@ -24,8 +24,6 @@ scHiC_table <- function(file.path, cell.type, select.chromosome) {
   if (missing(cell.type) || missing(select.chromosome)) {
     stop("Error: Missing one or more required arguments.")
   }
-
-  library(scHiCcompare)
 
   # Read data
   datasets <- read_files(

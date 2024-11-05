@@ -1,6 +1,6 @@
 Package: scHiCcompare
 Title: Differential Analysis of Single-cell Hi-C Data
-Version:  0.99.0
+Version: 0.99.0
 Authors@R: 
     person("My", "Nguyen", , "nguyenm21@vcu.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0003-1118-7085"))
@@ -13,7 +13,6 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports: 
-    BiocManager,
     data.table,
     dplyr,
     ggplot2,

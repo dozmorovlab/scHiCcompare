@@ -29,9 +29,9 @@ Users can refer to the R color names documentation by running \code{colors()} in
 Default is "red". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
 Users can refer to the R color names documentation by running \code{colors()} in R.}
 
-\item{main}{A character string for the main title of the plot. Default is NULL.}
+\item{main}{A character string for the main title of the plot. The default is NULL.}
 
-\item{figure_name}{A character string for additional figure labeling. Default is NULL.}
+\item{figure_name}{A character string for additional figure labeling. The default is NULL.}
 }
 \value{
 A heatmap plot visualizing the Hi-C interaction matrix.
@@ -41,22 +41,15 @@ This function generates a heatmap of Hi-C interaction frequencies from a given s
 allowing users to visualize either original or imputed Hi-C data.
 }
 \examples{
-# Create a 36x36 matrix with random integer values between 0 and 9
-matrix_36x36 <- matrix(sample(0:9, 36 * 36, replace = TRUE), nrow = 36, ncol = 36)
-diag(matrix_36x36) <- diag(matrix_36x36) * 6
-
-# Transform the full matrix into sparse format
-library(HiCcompare)
-sparse <- full2sparse(matrix_36x36)
+data("ODC.bandnorm_chr20_1")
 
 # Call the function with this sparse matrix to generate the heatmap
-plot_imputation_heatmap(
-  scHiC.sparse = sparse,
+plot_HiCmatrix_heatmap(
+  scHiC.sparse = ODC.bandnorm_chr20_1,
   zlim = c(0, 7), # Log scale color limits
   color_low = "white", # Color for low values
   color_high = "red", # Color for high values
   main = "Single-Cell Hi-C Heatmap", # Title of the plot
   figure_name = "Example Heatmap" # Subtitle for the plot
 )
-
 }
