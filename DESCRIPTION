@@ -1,6 +1,6 @@
 Package: scHiCcompare
 Title: Differential Analysis of Single-cell Hi-C Data
-Version: 0.0.0.9000
+Version:  0.99.0
 Authors@R: 
     person("My", "Nguyen", , "nguyenm21@vcu.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0003-1118-7085"))
@@ -25,14 +25,14 @@ Imports:
     miceadds,
     rstatix,
     tidyr
-Depends: 
-    R (>= 2.10)
+Depends: R (>= 4.2.0)
 LazyData: true
 Suggests: knitr,
     rmarkdown,
     testthat,
     BiocStyle
 VignetteBuilder: knitr
+biocViews: Software, SingleCell, HiC, Sequencing, Normalization
 BugReports: https://github.com/dozmorovlab/ScHiCcompare/issues
 URL: https://github.com/dozmorovlab/ScHiCcompare
 Config/testthat/edition: 3

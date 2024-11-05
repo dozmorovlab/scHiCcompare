@@ -5,3 +5,10 @@
 /doc/
 /Meta/
 Result
+.DS_Store
+.project
+.git
+*.Rproj
+*.so
+
+
