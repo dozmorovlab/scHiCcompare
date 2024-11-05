@@ -10,7 +10,6 @@ withoutNorm_hicTable <- function(hic.table) {
 }
 
 
-
 #' ScHiCcompare: Differential Analysis of Single-Cell Hi-C Data
 #'
 #' This function performs a differential analysis between two single-cell Hi-C data groups. It includes the
@@ -93,22 +92,19 @@ withoutNorm_hicTable <- function(hic.table) {
 #' are also saved if `save.output.path` is provided. See the vignette for more details.
 #'
 #' @examples
-#' \dontrun{
-#' ## Load folder of ODC file path
+#' ## Load example data for ODC and MG file paths
 #' ODCs_example <- system.file("ODCs_example", package = "scHiCcompare")
-#' ## Load folder of MG file path
 #' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
-#'
+#' 
+#' ## Run scHiCcompare on example data
 #' result <- scHiCcompare(
-#'   file.path.1 = "MGs_example",
-#'   file.path.2 = "ODCs_example",
-#'   select.chromosome = "chr20",
+#'   file.path.1 = MGs_example,
+#'   file.path.2 = ODCs_example,
+#'   select.chromosome = "chr20"
 #' )
 #' print(result)
-#' }
-#'
+#' 
 #' @export
-
 
 scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
                          imputation = "RF", normalization = "LOESS", differential.detect = "MD.cluster",

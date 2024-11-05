@@ -630,7 +630,7 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
 #' # Load MG data folder example
 #' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
 #' # Create scHicCompare table to be used in scHicCompare
-#' IF_table <- scHiC_table(file.path = "MGs_example", cell.type = "MG", position.dataset = 1:10, type = "txt", select.chromosome = "chr20")
+#' IF_table <- scHiC_table(file.path = MGs_example, cell.type = "MG", position.dataset = 1:10, type = "txt", select.chromosome = "chr20")
 #' # Example usage of Pooling_RF_impute
 #' imputed_table <- scHiCcompare_impute(IF_table,
 #'   n.imputation = 5, outlier.rm = TRUE,

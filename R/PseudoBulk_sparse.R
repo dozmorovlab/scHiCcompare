@@ -18,18 +18,6 @@
 #'
 #' Stansfield JC, Cresswell KG, Vladimirov VI  et al (2018). Hiccompare: an R-package for joint normalization and comparison of HI-C datasets. BMC Bioinformatics  2018;19:279.
 #'
-#' @examples
-#' \dontrun{
-#' # Load MG datasets folder example
-#' load_example_MGfolder()
-#' # Generate a scHiC table for single cell Hi-C data of MG cell type
-#' scHiC.table <- scHiC_table(file.path = "MGs_example", cell.type = "MG", position.dataset = 1:50, type = "txt", select.chromosome = 22)
-#'
-#' # Transform into the pseudo bulk HiC
-#' pseudo_bulk_data <- pseudo_bulkHic(scHiC.table, out = "sparse")
-#' full_matrix_data <- pseudo_bulkHic(scHiC.table, out = "full")
-#' }
-#'
 #' @export
 
 ## Create PseudoBulk Sparse ----
