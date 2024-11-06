@@ -1,9 +1,16 @@
 Package: scHiCcompare
 Title: Differential Analysis of Single-cell Hi-C Data
 Version: 0.99.0
-Authors@R: 
-    person("My", "Nguyen", , "nguyenm21@vcu.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "0009-0003-1118-7085"))
+Authors@R: c(
+    person(given = "My", family = "Nguyen",
+           email = "nguyenm21@vcu.edu",
+           role = c("aut"),
+           comment = c(ORCID = "0009-0003-1118-7085")),
+    person(given = "Mikhail",
+           family = "Dozmorov",
+           role = c("aut", "cre"),
+           email = "mikhail.dozmorov@gmail.com",
+           comment = c(ORCID = "0000-0002-0086-8358")))
 Description: This package provides functions for differential chromatin interaction analysis 
     between two single-cell Hi-C data groups. It includes tools for imputation, normalization, 
     and differential analysis of chromatin interactions. The package implements pooling techniques 
@@ -11,7 +18,6 @@ Description: This package provides functions for differential chromatin interact
     single-cell Hi-C datasets.
 Imports: 
     DT,
-    gridExtra,
     data.table,
     dplyr,
     ggplot2,
