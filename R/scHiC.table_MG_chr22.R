@@ -1,7 +1,7 @@
 #' scHi-C table from microglia (MG) cell type - chromosome 22 at 1 MB resolution
 #'
-#' A table that gathers 10 single-cell Hi-C data modified into a sparse upper triangular matrix. 
-#' It contains each cell's interacting region coordinates (cell, chr, start1, start2) 
+#' A table that gathers 10 single-cell Hi-C data modified into a sparse upper triangular matrix.
+#' It contains each cell's interacting region coordinates (cell, chr, start1, start2)
 #' and the corresponding Interaction Frequencies (IF) for each single cell (IF_1, IF_2, ..., IF_10).
 #'
 #' @format A data frame with 335 rows and 5 columns:
@@ -22,7 +22,7 @@
 #'   \item{IF_10}{Interaction frequency values for single cell 10}
 #' }
 #'
-#' @source Single-cell data of MG cell type downloaded using `download_schic()` from `Bandnorm`. 
+#' @source Single-cell data of MG cell type downloaded using `download_schic()` from `Bandnorm`.
 #' See their website at \url{https://sshen82.github.io/BandNorm/articles/BandNorm-tutorial.html#download-existing-single-cell-hi-c-data}.
 #'
 #' @return A data frame

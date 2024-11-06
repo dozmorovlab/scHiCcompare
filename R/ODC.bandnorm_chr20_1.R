@@ -17,7 +17,7 @@
 #' @source Data downloaded by download_schic() by `Bandnorm`. See their website at
 #'     \url{https://sshen82.github.io/BandNorm/articles/BandNorm-tutorial.html#download-existing-single-cell-hi-c-data}
 #'     The data is a single-cell Hi-C of ODC cell type of Lee et al. public dataset. The GEO link to download the data
-#'     \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE130711} 
+#'     \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE130711}
 #'
 #' @return A data frame
 

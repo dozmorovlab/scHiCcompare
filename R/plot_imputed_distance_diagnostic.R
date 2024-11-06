@@ -21,11 +21,13 @@
 #' @examples
 #' data("scHiC.table_MG_chr22")
 #' ## Impute data above
-#' scHiC.table_MG_imp = scHiCcompare_impute(scHiC.table = scHiC.table_MG_chr22)
+#' scHiC.table_MG_imp <- scHiCcompare_impute(scHiC.table = scHiC.table_MG_chr22)
 #'
 #' # Call the function with this sparse matrix to generate the plot
-#' plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG_chr22,
-#'  imp_sc_data = scHiC.table_MG_imp, D = 1)
+#' plot_imputed_distance_diagnostic(
+#'   raw_sc_data = scHiC.table_MG_chr22,
+#'   imp_sc_data = scHiC.table_MG_imp, D = 1
+#' )
 #'
 #' @import ggplot2
 #'
@@ -33,30 +35,30 @@
 plot_imputed_distance_diagnostic <- function(raw_sc_data, imp_sc_data, D) {
   # Calculate the resolution
   res <- min(abs(diff(unique(raw_sc_data$region1))))
-  
+
   # Process original single-cell data
   raw_sc_data$D <- (raw_sc_data$region2 - raw_sc_data$region1) / res
   org_D_data <- raw_sc_data[raw_sc_data$D == D, -c(1:4)]
   org_D_data <- unlist(org_D_data)
   org_D_data[org_D_data == 0] <- NA # Replace 0 with NA
-  
+
   # Process imputed single-cell data
   imp_sc_data$D <- (imp_sc_data$region2 - imp_sc_data$region1) / res
   imp_D_data <- imp_sc_data[imp_sc_data$D == D, -c(1:4)]
   imp_D_data <- unlist(imp_D_data)
-  
+
   # Create a data frame for plotting
   df <- data.frame(
     IF = c(org_D_data, imp_D_data), # Interaction Frequencies (IF)
     Group = factor(rep(c("Original", "Imputed"), c(length(org_D_data), length(imp_D_data))))
   )
-  
+
   # Plot density curves
-  plot = ggplot2::ggplot(df, aes(x = IF, fill = Group)) +
+  plot <- ggplot2::ggplot(df, aes(x = IF, fill = Group)) +
     geom_density(alpha = 0.5) + # Use alpha for transparency to overlap the curves
-    labs(title = paste("Diagnostic Density for imputed D =", D), x = "Interaction Frequency", y = "Density") +
+    labs(title = paste0("Diagnostic Density for imputed D = ", D), x = " Interaction Frequency", y = " Density") +
     scale_fill_manual(values = c("Original" = "blue", "Imputed" = "red")) + # Customize colors
     theme_classic() # Apply a clean theme
-  
+
   return(plot)
 }

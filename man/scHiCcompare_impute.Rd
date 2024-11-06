@@ -23,7 +23,7 @@ followed by columns representing interaction frequencies ('IF') for individual c
 
 \item{maxit}{An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. The default is 1.}
 
-\item{outlier.rm}{A logical value indicating whether to remove outliers during the imputation process. The default is TRUE.}
+\item{outlier.rm}{A logical value indimessageing whether to remove outliers during the imputation process. The default is TRUE.}
 
 \item{main.Distances}{A vector of integers or 'full' representing the scHiC data in the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) are the number of base pairs between two regions in the genome (e.g., loci or bins).
 The default is from 1 to 10,000,000.}

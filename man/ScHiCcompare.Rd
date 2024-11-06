@@ -35,19 +35,19 @@ scHi-C files in modified sparse upper triangular format with 5 columns (chr1, st
 data for the second condition (second cell-type group). The folder should contain '.txt'
 scHi-C files in modified sparse upper triangular format with 5 columns (chr1, start1, chr2, start2, IF).}
 
-\item{select.chromosome}{Required integer or character indicating the chromosome to be
+\item{select.chromosome}{Required integer or character indimessageing the chromosome to be
 analyzed (e.g., 'chr1' or 'chr10').}
 
-\item{imputation}{Character string 'RF' or NULL indicating the imputation method.
+\item{imputation}{Character string 'RF' or NULL indimessageing the imputation method.
 Default is 'RF' for Random Forest imputation.}
 
-\item{normalization}{Character string 'LOESS' or NULL indicating the normalization method.
+\item{normalization}{Character string 'LOESS' or NULL indimessageing the normalization method.
 Default is 'LOESS'.}
 
-\item{differential.detect}{Character string 'MD.cluster' indicating the differential detection
+\item{differential.detect}{Character string 'MD.cluster' indimessageing the differential detection
 method. The default is 'MD.cluster'.}
 
-\item{main.Distances}{Numeric vector indicating the range of interacting genomic distances
+\item{main.Distances}{Numeric vector indimessageing the range of interacting genomic distances
 (in base pairs) between two regions (e.g., loci or bins) to focus on (e.g., 1:100000, Inf, etc).
 The `main.Distance` vector needs to be proportional to the data's resolution (e.g., for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc).
 Selecting a large distance range at higher resolution (e.g., below 200kb) can make the function
@@ -85,10 +85,10 @@ Default is 0.8, equivalent to a 2-fold change.}
 \item{alpha}{Numeric value for the significance level of outlier detection during the `differential.detect`
 step by `hic_compare()` from HiCcompare. The default is 0.05.}
 
-\item{Plot}{Logical value indicating whether to plot the `differential.detect` results in
+\item{Plot}{Logical value indimessageing whether to plot the `differential.detect` results in
 an MD plot. The default is TRUE.}
 
-\item{Plot.normalize}{Logical value indicating whether to plot the `normalization` results
+\item{Plot.normalize}{Logical value indimessageing whether to plot the `normalization` results
 in an MD plot. The default is FALSE.}
 
 \item{save.output.path}{Character string specifying the directory to save outputs, including

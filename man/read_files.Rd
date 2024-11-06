@@ -16,22 +16,22 @@ read_files(
 \item{file.path}{The directory path where the data files are stored.}
 
 \item{position.dataset}{A vector of indices specifying the file positions to read from
-the directory. These indices help select specific files, determining which files will 
-be included and the sequence in which they are processed. If all single cell data should 
+the directory. These indices help select specific files, determining which files will
+be included and the sequence in which they are processed. If all single cell data should
 be included, set this to NULL.}
 
-\item{type}{The file type, either 'txt'. The default is 'txt'. Each 'txt' file should be 
-in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction 
+\item{type}{The file type, either 'txt'. The default is 'txt'. Each 'txt' file should be
+in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction
 frequency value (IFs) of two interacting regions.}
 
-\item{txt.sparse.heads.position}{A vector of four integers specifying the column positions 
+\item{txt.sparse.heads.position}{A vector of four integers specifying the column positions
 of chromosome, start1, start2, and IF in the 'txt' file.}
 
 \item{out}{Character string specifying the output format. Options are "sparse" (for a sparse matrix format)
 or "original" (to retain the original structure of each single-cell Hi-C dataset). Default is "sparse".}
 }
 \value{
-A list of datasets, where each element corresponds to a dataset from the selected files. 
+A list of datasets, where each element corresponds to a dataset from the selected files.
 If `out` is "sparse", each dataset element is transformed into a sparse matrix format (chr, start1, start2, IF).
 If `out` is "original", the original structure of each single-cell Hi-C dataset is preserved.
 }
@@ -43,16 +43,17 @@ chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).
 For 'cool', it uses the `HiCcompare` package to transform cooler files to BEDPE format.
 }
 \details{
-This function reads single-cell Hi-C data in 'txt', with output options of 'sparse' and 'original'. 
+This function reads single-cell Hi-C data in 'txt', with output options of 'sparse' and 'original'.
 Each input 'txt' file should be in the form of a sparse upper triangular Hi-C matrix,
-storing pair-wise interaction frequencies of loci pairs. The 'txt' dataset should have one column 
-indicating the interaction frequency (IF) of each pair of interacting regions, with tab-separated 
+storing pair-wise interaction frequencies of loci pairs. The 'txt' dataset should have one column
+indicating the interaction frequency (IF) of each pair of interacting regions, with tab-separated
 columns and no row names, column names, or quotes around character strings.
 }
 \examples{
 # Load MG data folder example
 MGs_example <- system.file("MGs_example", package = "scHiCcompare")
-datasets <- read_files(file.path = MGs_example, position.dataset =  c(1, 2, 3, 4, 5),
- txt.sparse.heads.position = c(1, 2, 3, 4, 5)
- )
+datasets <- read_files(
+  file.path = MGs_example, position.dataset = c(1, 2, 3, 4, 5),
+  txt.sparse.heads.position = c(1, 2, 3, 4, 5)
+)
 }

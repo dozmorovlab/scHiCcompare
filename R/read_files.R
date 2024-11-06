@@ -8,36 +8,36 @@
 #'
 #' @param file.path The directory path where the data files are stored.
 #' @param position.dataset A vector of indices specifying the file positions to read from
-#' the directory. These indices help select specific files, determining which files will 
-#' be included and the sequence in which they are processed. If all single cell data should 
+#' the directory. These indices help select specific files, determining which files will
+#' be included and the sequence in which they are processed. If all single cell data should
 #' be included, set this to NULL.
-#' @param type The file type, either 'txt'. The default is 'txt'. Each 'txt' file should be 
-#' in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction 
+#' @param type The file type, either 'txt'. The default is 'txt'. Each 'txt' file should be
+#' in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction
 #' frequency value (IFs) of two interacting regions.
-#' @param txt.sparse.heads.position A vector of four integers specifying the column positions 
+#' @param txt.sparse.heads.position A vector of four integers specifying the column positions
 #' of chromosome, start1, start2, and IF in the 'txt' file.
 #' @param out Character string specifying the output format. Options are "sparse" (for a sparse matrix format)
 #' or "original" (to retain the original structure of each single-cell Hi-C dataset). Default is "sparse".
-#' @return A list of datasets, where each element corresponds to a dataset from the selected files. 
+#' @return A list of datasets, where each element corresponds to a dataset from the selected files.
 #' If `out` is "sparse", each dataset element is transformed into a sparse matrix format (chr, start1, start2, IF).
 #' If `out` is "original", the original structure of each single-cell Hi-C dataset is preserved.
 #'
 #' @details
-#' This function reads single-cell Hi-C data in 'txt', with output options of 'sparse' and 'original'. 
+#' This function reads single-cell Hi-C data in 'txt', with output options of 'sparse' and 'original'.
 #' Each input 'txt' file should be in the form of a sparse upper triangular Hi-C matrix,
-#' storing pair-wise interaction frequencies of loci pairs. The 'txt' dataset should have one column 
-#' indicating the interaction frequency (IF) of each pair of interacting regions, with tab-separated 
+#' storing pair-wise interaction frequencies of loci pairs. The 'txt' dataset should have one column
+#' indicating the interaction frequency (IF) of each pair of interacting regions, with tab-separated
 #' columns and no row names, column names, or quotes around character strings.
 #'
 #' @examples
 #' # Load MG data folder example
 #' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
-#' datasets <- read_files(file.path = MGs_example, position.dataset =  c(1, 2, 3, 4, 5),
-#'  txt.sparse.heads.position = c(1, 2, 3, 4, 5)
-#'  )
+#' datasets <- read_files(
+#'   file.path = MGs_example, position.dataset = c(1, 2, 3, 4, 5),
+#'   txt.sparse.heads.position = c(1, 2, 3, 4, 5)
+#' )
 #' @import HiCcompare
 #' @export
-
 
 
 read_files <- function(file.path, position.dataset = NULL, type = "txt",
@@ -60,7 +60,7 @@ read_files <- function(file.path, position.dataset = NULL, type = "txt",
 
   # If position.dataset is NULL, use all files
   if (is.null(position.dataset)) {
-    position.dataset <- 1:length(txt_files)
+    position.dataset <- seq_along(txt_files)
   }
 
   # Ensure the selected indices are valid
@@ -77,10 +77,8 @@ read_files <- function(file.path, position.dataset = NULL, type = "txt",
   # Read the files if type is 'txt'
   for (i in seq_along(txt_files)) {
     dataset <- tryCatch(
-      {
-        read.delim(txt_files[i])
-      },
-      error = function(e) stop(paste("Error reading file:", txt_files[i]))
+      read.delim(txt_files[i]),
+      error = function(e) stop(paste0("Error reading file: ", txt_files[i], ". ", e$message))
     )
 
     # Process the data for sparse matrix format if 'out' is 'sparse'

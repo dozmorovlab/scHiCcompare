@@ -31,17 +31,13 @@
 #'   main = "Single-Cell Hi-C Heatmap", # Title of the plot
 #'   figure_name = "Example Heatmap" # Subtitle for the plot
 #' )
-#' @import HiCcompare
-#' @import lattice
-#' 
+#' @importFrom HiCcompare sparse2full
+#' @importFrom lattice levelplot
+#'
 #' @export
 
-
-plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white", 
+plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white",
                                    color_high = "red", main = NULL, figure_name = NULL) {
-  if (!requireNamespace("lattice", quietly = TRUE)) {
-    stop("Package 'lattice' is required for this function. Please install it.")
-  }
   
   # Transform sparse matrix to a full matrix with only required columns
   scHiC.sparse <- scHiC.sparse[, c(2, 4, 5)]
@@ -54,9 +50,7 @@ plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white
   
   # Define zlim if not provided
   if (is.null(zlim)) {
-    z.max <- max(org_sc_full, na.rm = TRUE)
-    z.min <- min(org_sc_full, na.rm = TRUE)
-    zlim <- c(z.min, z.max)
+    zlim <- range(org_sc_full, na.rm = TRUE)
   }
   
   # Define the color palette
@@ -68,7 +62,7 @@ plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white
   
   # Plot with log transformation, adding a small constant to avoid log(0)
   lattice::levelplot(
-    log(rotated_org_sc_full + 1e-6),  # Adding small constant to avoid log(0)
+    log(rotated_org_sc_full + 1e-6), # Adding small constant to avoid log(0)
     pretty = TRUE,
     xlab = "",
     ylab = "",
@@ -77,6 +71,6 @@ plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white
     at = seq(log(zlim[1] + 1e-6), log(zlim[2] + 1e-6), length.out = length(colors) + 1),
     main = main,
     sub = figure_name,
-    aspect = 1  # Controls the plot's height/width ratio
+    aspect = 1 # Controls the plot's height/width ratio
   )
 }

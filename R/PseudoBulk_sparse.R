@@ -21,13 +21,13 @@
 #' @examples
 #' data("scHiC.table_MG_chr22")
 #' data("scHiC.table_ODC_chr22")
-#' pseudo_bulk_MG = pseudo_bulkHic(scHiC.table_MG_chr22)
-#' pseudo_bulk_ODC = pseudo_bulkHic(scHiC.table_ODC_chr22)
+#' pseudo_bulk_MG <- pseudo_bulkHic(scHiC.table_MG_chr22)
+#' pseudo_bulk_ODC <- pseudo_bulkHic(scHiC.table_ODC_chr22)
 #' head(pseudo_bulk_MG)
 #' head(pseudo_bulk_ODC)
-#' 
+#'
 #' @import HiCcompare
-#' 
+#'
 #' @export
 
 ## Create PseudoBulk Sparse ----
@@ -55,10 +55,10 @@ pseudo_bulkHic <- function(scHiC.table, out = "sparse") {
 
   # Return either sparse or full matrix
   if (out == "sparse") {
-    cat("\nTransfering into pseudo-bulk sparse matrix.")
+    message("\nTransfering into pseudo-bulk sparse matrix.")
     output.table <- bulk.table
   } else {
-    cat("\nTransfering pseudo-bulk full matrix.")
+    message("\nTransfering pseudo-bulk full matrix.")
     output.table <- HiCcompare::sparse2full(sparse.mat = bulk.table)
   }
 

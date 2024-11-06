@@ -27,6 +27,6 @@ This function processes single-cell Hi-C data in a folder directory, then transf
 MGs_example <- system.file("MGs_example", package = "scHiCcompare")
 
 # Create scHiC table to be used in scHiCcompare
-IF_table <- scHiC_table(file.path = MGs_example, cell.type ='MG', select.chromosome = "chr20")
+IF_table <- scHiC_table(file.path = MGs_example, cell.type = "MG", select.chromosome = "chr20")
 
 }

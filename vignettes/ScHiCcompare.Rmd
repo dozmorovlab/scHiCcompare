@@ -475,7 +475,7 @@ for (i in 1:length(file.names)) {
   # Merge the newly read data with the existing scHiC.table_ODC
   scHiC.table_ODC <- merge(scHiC.table_ODC, data,
     by = c("region1", "region2", "chr"), all = TRUE
- )
+  )
 }
 
 
@@ -496,7 +496,7 @@ for (i in 1:length(file.names)) {
   # Merge the newly read data with the existing scHiC.table_MG
   scHiC.table_MG <- merge(scHiC.table_MG, data,
     by = c("region1", "region2", "chr"), all = TRUE
- )
+  )
 }
 ```
 

@@ -18,8 +18,8 @@ scHiC.table_ODC_chr22
 A data frame
 }
 \description{
-A table gather 10 single cells Hi-C data modified in sparse upper triangular matrix containing 
-the cell's interacting regions cordination (cell, chr, start1, start2) 
+A table gather 10 single cells Hi-C data modified in sparse upper triangular matrix containing
+the cell's interacting regions cordination (cell, chr, start1, start2)
 and the corresponding Interaction Frequencies for each single cell (IF_1, IF2,... IF10).
 }
 \details{

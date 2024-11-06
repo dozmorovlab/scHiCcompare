@@ -21,15 +21,15 @@ withoutNorm_hicTable <- function(hic.table) {
 #' @param file.path.2 Required character string specifying the directory containing Hi-C
 #'  data for the second condition (second cell-type group). The folder should contain '.txt'
 #'  scHi-C files in modified sparse upper triangular format with 5 columns (chr1, start1, chr2, start2, IF).
-#' @param select.chromosome Required integer or character indicating the chromosome to be
+#' @param select.chromosome Required integer or character indimessageing the chromosome to be
 #'  analyzed (e.g., 'chr1' or 'chr10').
-#' @param imputation Character string 'RF' or NULL indicating the imputation method.
+#' @param imputation Character string 'RF' or NULL indimessageing the imputation method.
 #'  Default is 'RF' for Random Forest imputation.
-#' @param normalization Character string 'LOESS' or NULL indicating the normalization method.
+#' @param normalization Character string 'LOESS' or NULL indimessageing the normalization method.
 #'  Default is 'LOESS'.
-#' @param differential.detect Character string 'MD.cluster' indicating the differential detection
+#' @param differential.detect Character string 'MD.cluster' indimessageing the differential detection
 #'  method. The default is 'MD.cluster'.
-#' @param main.Distances Numeric vector indicating the range of interacting genomic distances
+#' @param main.Distances Numeric vector indimessageing the range of interacting genomic distances
 #'  (in base pairs) between two regions (e.g., loci or bins) to focus on (e.g., 1:100000, Inf, etc).
 #'  The `main.Distance` vector needs to be proportional to the data's resolution (e.g., for 10kb - 1:10000, 1:50000, 1:100000, Inf, etc).
 #'  Selecting a large distance range at higher resolution (e.g., below 200kb) can make the function
@@ -58,9 +58,9 @@ withoutNorm_hicTable <- function(hic.table) {
 #'  Default is 0.8, equivalent to a 2-fold change.
 #' @param alpha Numeric value for the significance level of outlier detection during the `differential.detect`
 #'  step by `hic_compare()` from HiCcompare. The default is 0.05.
-#' @param Plot Logical value indicating whether to plot the `differential.detect` results in
+#' @param Plot Logical value indimessageing whether to plot the `differential.detect` results in
 #'  an MD plot. The default is TRUE.
-#' @param Plot.normalize Logical value indicating whether to plot the `normalization` results
+#' @param Plot.normalize Logical value indimessageing whether to plot the `normalization` results
 #'  in an MD plot. The default is FALSE.
 #' @param save.output.path Character string specifying the directory to save outputs, including
 #'  the imputed cells in a modified sparse upper triangular format, a normalization result table,
@@ -95,7 +95,7 @@ withoutNorm_hicTable <- function(hic.table) {
 #' ## Load example data for ODC and MG file paths
 #' ODCs_example <- system.file("ODCs_example", package = "scHiCcompare")
 #' MGs_example <- system.file("MGs_example", package = "scHiCcompare")
-#' 
+#'
 #' ## Run scHiCcompare on example data
 #' result <- scHiCcompare(
 #'   file.path.1 = MGs_example,
@@ -103,10 +103,10 @@ withoutNorm_hicTable <- function(hic.table) {
 #'   select.chromosome = "chr20"
 #' )
 #' print(result)
-#' 
+#'
 #' @import HiCcompare
 #' @import gtools
-#' 
+#'
 #' @export
 
 scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
@@ -155,12 +155,12 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
 
   # Step 1: Imputation
   if (!is.null(imputation)) {
-    cat("Imputing Condition 1 group cells in: ")
+    message("Imputing Condition 1 group cells in: ")
     scHiC.table_cond1 <- scHiCcompare_impute(
       scHiC.table = scHiC.table_cond1, n.imputation = n.imputation, maxit = maxit, outlier.rm = outlier.rm,
       main.Distances = main.Distances, pool.style = pool.style, missPerc.threshold = missPerc.threshold
     )
-    cat("\nImputing Condition 2 group cells in: ")
+    message("\nImputing Condition 2 group cells in: ")
     scHiC.table_cond2 <- scHiCcompare_impute(
       scHiC.table = scHiC.table_cond2, n.imputation = n.imputation, maxit = maxit, outlier.rm = outlier.rm,
       main.Distances = main.Distances, pool.style = pool.style, missPerc.threshold = missPerc.threshold
@@ -197,14 +197,14 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
   } else {
     bulk.hic.table <- HiCcompare::create.hic.table(bulk_sparse_cond1, bulk_sparse_cond2, chr = select.chromosome, scale = FALSE)
     # jointly normalize data for a single chromosome
-    cat("\nJointly normalizing pseudo bulk matrices ")
+    message("\nJointly normalizing pseudo bulk matrices ")
     norm.hic.table <- suppressWarnings(HiCcompare::hic_loess(bulk.hic.table, Plot = Plot.normalize, Plot.smooth = FALSE))
     norm.result <- norm.hic.table
     names(norm.result)[c(7, 8, 11, 12)] <- c("bulk.IF1", "bulk.IF2", "adj.bulk.IF1", "bulk.adj.IF2")
   }
 
 
-  cat("\nProcessing detect differential chromotin interaction ")
+  message("\nProcessing detect differential chromotin interaction ")
   if (is.null(A.min)) {
     SD <- 2
     FC <- 3
@@ -214,7 +214,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
   }
   # HiCcompare
   hic.table_result <- suppressWarnings(HiCcompare::hic_compare(norm.hic.table,
-    A.min = A.min, Plot = FALSE, Plot.smooth = FALSE,
+    A.min = A.min, Plot = Plot.normalize, Plot.smooth = FALSE,
     BP_param = BP_param
   ))
 
@@ -229,15 +229,15 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
   ## Save output option
   if (!is.null(save.output.path)) {
     ##### Imputed cell #####
-    
+
     if (!is.null(impute1_result)) {
       ##### Group 1 #####
       df <- scHiC.table_cond1
       folder_name <- paste0("imp_", basename(file.path.1))
       full_output_path <- file.path(save.output.path, folder_name)
       dir.create(full_output_path, recursive = TRUE)
-      cat("\nImputed cells in condition1 saved to:", full_output_path, "\n")
-      
+      message("\nImputed cells in condition1 saved to:", full_output_path, "\n")
+
       # Transform to long format, rename cells, and select necessary columns in one step
       sparse_df <- tidyr::pivot_longer(
         df,
@@ -247,10 +247,10 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
       ) %>%
         dplyr::mutate(cell_id = sub("IF_", "cell", cell_id)) %>% # Change IF_1, IF_2 to cell1, cell2, etc.
         dplyr::select(cell_id, chr, region1, region2, IF) # Changed 'IF' to 'IF_value'
-      
+
       # Split the data into a list of data frames by cell
       cell_data_list <- split(sparse_df, sparse_df$cell_id)
-      
+
       # Loop through each cell data frame and save to individual .txt files
       lapply(names(cell_data_list), function(cell) {
         cell_index <- as.numeric(gsub("[^0-9]", "", cell))
@@ -268,14 +268,14 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
         write.table(save.data.format, output_file_path, row.names = FALSE, quote = FALSE)
       })
     }
-    
+
     ##### Group 2 #####
     df <- scHiC.table_cond2
     folder_name <- paste0("imp_", basename(file.path.2))
     full_output_path <- file.path(save.output.path, folder_name)
     dir.create(full_output_path, recursive = TRUE)
-    cat("\nImputed cells in condition2 saved to:", full_output_path, "\n")
-    
+    message("\nImputed cells in condition2 saved to:", full_output_path, "\n")
+
     # Transform to long format, rename cells, and select necessary columns in one step
     sparse_df <- tidyr::pivot_longer(
       df,
@@ -285,10 +285,10 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
     ) %>%
       dplyr::mutate(cell_id = sub("IF_", "cell", cell_id)) %>% # Change IF_1, IF_2 to cell1, cell2, etc.
       dplyr::select(cell_id, chr, region1, region2, IF) # Changed 'IF' to 'IF_value'
-    
+
     # Split the data into a list of data frames by cell
     cell_data_list <- split(sparse_df, sparse_df$cell_id)
-    
+
     # Loop through each cell data frame and save to individual .txt files
     lapply(names(cell_data_list), function(cell) {
       cell_index <- as.numeric(gsub("[^0-9]", "", cell))
@@ -305,28 +305,28 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
       # Save the data frame to a .txt file
       write.table(save.data.format, output_file_path, row.names = FALSE, quote = FALSE)
     })
-    
+
     ##### Normalized result #####
     df <- norm.result
-    cat("\nNormalization result table saved to:", save.output.path, "\n")
+    message("\nNormalization result table saved to:", save.output.path, "\n")
     # Define the output file path for the normalization table
     output_file_path <- file.path(save.output.path, "Bulk_normalization_table.txt")
     write.table(df, output_file_path, quote = FALSE)
-    
+
     ##### Differential result #####
     df <- hic.table.GMM_result
-    cat("\nDifferential analysis result table saved to:", save.output.path, "\n")
+    message("\nDifferential analysis result table saved to:", save.output.path, "\n")
     # Define the output file path for the differential analysis table
     output_file_path <- file.path(save.output.path, "Differential_analysis_table.txt")
     write.table(df, output_file_path, quote = FALSE)
   }
-  
+
   # Print result
   if (Plot == TRUE) {
     plot <- differential_result_plot(hic.table.GMM_result)
     print(plot)
   }
-  
+
   result <- list(
     Differential_Analysis = hic.table.GMM_result,
     Intermediate = list(
@@ -335,7 +335,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
       Bulk.Normalization = norm.result
     )
   )
-  
+
   # Assign a custom class to the result
   class(result) <- "checkNumbers"
 
@@ -346,9 +346,9 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
 
 print.checkNumbers <- function(obj) {
   # Print a header for the output
-  cat("---------------------------------------------------------------------------------\n")
-  cat("           ScHiCcompare - Differential Analysis for single cell Hi-C\n")
-  cat("---------------------------------------------------------------------------------\n")
+  message("---------------------------------------------------------------------------------\n")
+  message("           ScHiCcompare - Differential Analysis for single cell Hi-C\n")
+  message("---------------------------------------------------------------------------------\n")
 
   # Access the necessary information from the object
   cond1_cells <- ncol(obj$Intermediate$Imputation$condition1) - 4 # Adjust if necessary
@@ -373,22 +373,22 @@ print.checkNumbers <- function(obj) {
   processes <- na.omit(c(impute, norm))
 
   # Print the summary message
-  cat(paste(
-    "ScHiCcompare analyzes", cond1_cells, "cells of condition 1 group and",
-    cond2_cells, "cells of condition 2 group at chromosome", selected_chromosome, "\n"
+  message(paste0(
+    "ScHiCcompare analyzes ", cond1_cells, " cells of condition 1 group and",
+    cond2_cells, " cells of condition 2 group at chromosome", selected_chromosome
   ))
 
   # Check if there are any processes to print
   if (length(processes) > 0) {
-    cat("\nThe process includes:\n")
-    cat(paste(processes, collapse = ", "), "Differential Analysis\n")
+    message("\nThe process includes:\n")
+    message(paste0(processes, collapse = ", "), " Differential Analysis\n")
   } else {
-    cat("\nNo processes available for analysis.\n")
+    message("\nNo processes available for analysis.\n")
   }
 
 
   # Note about accessing intermediate results
-  cat("\nNote: See full differential result in $Differential_Analysis. Intermediate results can be accessed with $Intermediate\n")
+  message("\nNote: See full differential result in $Differential_Analysis. Intermediate results can be accessed with $Intermediate\n")
 }
 
 

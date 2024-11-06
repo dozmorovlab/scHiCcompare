@@ -27,8 +27,8 @@ It returns the data in either sparse or full matrix format.
 \examples{
 data("scHiC.table_MG_chr22")
 data("scHiC.table_ODC_chr22")
-pseudo_bulk_MG = pseudo_bulkHic(scHiC.table_MG_chr22)
-pseudo_bulk_ODC = pseudo_bulkHic(scHiC.table_ODC_chr22)
+pseudo_bulk_MG <- pseudo_bulkHic(scHiC.table_MG_chr22)
+pseudo_bulk_ODC <- pseudo_bulkHic(scHiC.table_ODC_chr22)
 head(pseudo_bulk_MG)
 head(pseudo_bulk_ODC)
 

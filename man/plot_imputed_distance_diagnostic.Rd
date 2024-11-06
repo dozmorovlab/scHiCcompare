@@ -33,10 +33,12 @@ The distance D represents how far apart two genomic loci are. Observations indic
 \examples{
 data("scHiC.table_MG_chr22")
 ## Impute data above
-scHiC.table_MG_imp = scHiCcompare_impute(scHiC.table = scHiC.table_MG_chr22)
+scHiC.table_MG_imp <- scHiCcompare_impute(scHiC.table = scHiC.table_MG_chr22)
 
 # Call the function with this sparse matrix to generate the plot
-plot_imputed_distance_diagnostic(raw_sc_data = scHiC.table_MG_chr22,
- imp_sc_data = scHiC.table_MG_imp, D = 1)
+plot_imputed_distance_diagnostic(
+  raw_sc_data = scHiC.table_MG_chr22,
+  imp_sc_data = scHiC.table_MG_imp, D = 1
+)
 
 }
