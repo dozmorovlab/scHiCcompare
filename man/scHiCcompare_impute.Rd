@@ -15,7 +15,7 @@ scHiCcompare_impute(
 )
 }
 \arguments{
-\item{scHiC.table}{A data frame containing interaction frequencies across single cells, created by the \code{scHiC_table} function.
+\item{scHiC.table}{A data frame containing interaction frequencies across single cells, created by the `scHiC_table` function.
 The first four columns should represent 'cell', 'chr', 'region1', and 'region2',
 followed by columns representing interaction frequencies ('IF') for individual cells.}
 
@@ -34,7 +34,7 @@ Default is 'progressive'.}
 \item{missPerc.threshold}{An integer specifying the missing value percentage threshold in each pool band.}
 }
 \value{
-A table in the format of a scHiC table (same structure as the output of the \code{scHiC_table} function) with imputed interaction frequencies (IF) across all single cells. The output table is formatted with regions and single cells
+A table in the format of a scHiC table (same structure as the output of the `scHiC_table` function) with imputed interaction frequencies (IF) across all single cells. The output table is formatted with regions and single cells
 in wide format, with one column per single cell containing imputed IF values.
 }
 \description{
@@ -43,8 +43,8 @@ This function performs imputation of single-cell Hi-C (scHi-C) interaction frequ
 \details{
 The function first identifies important pools based on the given scHi-C genomic distance effect by
 pooling distance data according to the chosen method. For progressive pooling, pools of distances are consecutively combined
-to form larger sets, while Fibonacci pooling uses a Fibonacci sequence to combine distances. If the pooling style \code{none} is selected, the band contains individual 1 genomic distance.
-During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range, if any pool contains more than \code{missPerc.threshold} missing values, it triggers an alternative imputation
+to form larger sets, while Fibonacci pooling uses a Fibonacci sequence to combine distances. If the pooling style `none` is selected, the band contains individual 1 genomic distance.
+During the imputation process, the function imputes all missing values (NAs) within each pool within the main distance range. For distances outside this main focus range, if any pool contains more than `missPerc.threshold` missing values, it triggers an alternative imputation
 method, filling in missing values based on the mean for distances.
 }
 \examples{
