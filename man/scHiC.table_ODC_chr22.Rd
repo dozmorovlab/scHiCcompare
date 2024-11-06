@@ -26,8 +26,8 @@ and the corresponding Interaction Frequencies for each single cell (IF_1, IF2,..
 \describe{
   \item{cell}{Name of the target cell type}
   \item{chr}{The chromosome of the interacting region's starting coordinate}
-  \item{start1}{The starting coordinate of the first interacting region}
-  \item{start2}{The starting coordinate of the second interacting region}
+  \item{region1}{The starting coordinate of the first interacting region}
+  \item{region2}{The starting coordinate of the second interacting region}
   \item{IF_1}{Interaction frequency values for single cell 1}
   \item{IF_2}{Interaction frequency values for single cell 2}
   \item{IF_3}{Interaction frequency values for single cell 3}

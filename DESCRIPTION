@@ -10,6 +10,8 @@ Description: This package provides functions for differential chromatin interact
     for imputation and offers methods to normalize and test for differential interactions across 
     single-cell Hi-C datasets.
 Imports: 
+    DT,
+    gridExtra,
     data.table,
     dplyr,
     ggplot2,
