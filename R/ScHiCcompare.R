@@ -198,7 +198,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
     bulk.hic.table <- HiCcompare::create.hic.table(bulk_sparse_cond1, bulk_sparse_cond2, chr = select.chromosome, scale = FALSE)
     # jointly normalize data for a single chromosome
     message("\nJointly normalizing pseudo bulk matrices ")
-    norm.hic.table <- suppressWarnings(HiCcompare::hic_loess(bulk.hic.table, Plot = Plot.normalize, Plot.smooth = FALSE))
+    norm.hic.table <- HiCcompare::hic_loess(bulk.hic.table, Plot = Plot.normalize, Plot.smooth = FALSE)
     norm.result <- norm.hic.table
     names(norm.result)[c(7, 8, 11, 12)] <- c("bulk.IF1", "bulk.IF2", "adj.bulk.IF1", "bulk.adj.IF2")
   }
@@ -210,16 +210,16 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
     FC <- 3
     # numChanges proprtion with 30
     numChanges <- (1000000 / res) * 30
-    A.min <- suppressWarnings(best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha))
+    A.min <- best_A(hic.table = norm.hic.table, SD = SD, numChanges = numChanges, FC = FC, alpha = alpha)
   }
   # HiCcompare
-  hic.table_result <- suppressWarnings(HiCcompare::hic_compare(norm.hic.table,
+  hic.table_result <- HiCcompare::hic_compare(norm.hic.table,
     A.min = A.min, Plot = Plot.normalize, Plot.smooth = FALSE,
     BP_param = BP_param
-  ))
+  )
 
   ## add GMM layer
-  hic.table.GMM_result <- suppressWarnings(GMM_layer(hic_table = hic.table_result, D.interval = D.interval, threshold = fprControl.logfc))
+  hic.table.GMM_result <- GMM_layer(hic_table = hic.table_result, D.interval = D.interval, threshold = fprControl.logfc)
   hic.table.GMM_result <- hic.table.GMM_result[, -c(17, 18)]
   names(hic.table.GMM_result)[ncol(hic.table.GMM_result)] <- "Difference.cluster"
   names(hic.table.GMM_result)[c(7, 8, 11, 12)] <- c("bulk.IF1", "bulk.IF2", "adj.bulk.IF1", "bulk.adj.IF2")

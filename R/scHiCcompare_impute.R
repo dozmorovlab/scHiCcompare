@@ -7,7 +7,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
   ord <- order(nr, decreasing = TRUE)
   xo <- x[, ord, drop = FALSE] ## SvB 24mar2011
   varnames <- dimnames(xo)[[2]]
-  z <- suppressWarnings(cor(xo, use = "pairwise.complete.obs"))
+  z <- cor(xo, use = "pairwise.complete.obs")
   hit <- outer(seq_len(nvar), seq_len(nvar), "<") & (abs(z) >= threshold)
   out <- apply(hit, 2, any, na.rm = TRUE)
   return(varnames[out])
@@ -21,55 +21,47 @@ find.collinear <- function(x, threshold = 0.999, ...) {
 
 ################# progressive pooling ########################
 .all_progressive_pooling <- function(vector_distance) {
-  ## input:
-  ##    + vector_distance = vector of distance D (can include D=0)
-  ## output: all poolings list
-
   # Exclude distance 0
   vector_distance <- vector_distance[-1]
-  # Length of distance vector
-  l <- length(vector_distance)
-  # Total of all possible pooling groups
-  all.pooling.group <- ceiling((sqrt(8 * (l - 1) + 1) - 1) / 2)
-  # Extract number members of all pooling groups
-  all.group.n <- seq_len(all.pooling.group)
-  # Initialize pooled_distance as an empty vector
-  pooled_distance <- c()
-  # Use lapply to create the poolings_list
-  poolings_list <- lapply(all.group.n, function(i) {
-    D_pooling_n <- vector_distance[i]
-    # Exclude elements in pooled_distance
-    poolings_elements <- vector_distance[!(vector_distance %in% pooled_distance)][seq_len(D_pooling_n)]
-    # Update pooled_distance with the new elements
-    pooled_distance <<- c(poolings_elements, pooled_distance)
-    return(poolings_elements)
-  })
 
-  # Check if last pool contains last Distance -> for case where it missed the last D in last pool
-  if (!max(vector_distance) %in% poolings_list[[all.pooling.group]]) {
-    add_pool_n <- all.pooling.group + 1
-    which_D_left <- seq(max(poolings_list[[all.pooling.group]]) + 1, max(vector_distance))
-    add_pool <- c(which_D_left, rep(NA, add_pool_n - length(which_D_left)))
-    poolings_list[[add_pool_n]] <- add_pool
+  # Calculate the number of elements required for each pool
+  pool_sizes <- seq_len(ceiling((sqrt(8 * length(vector_distance) + 1) - 1) / 2))
+
+  # Initialize list to store each pool
+  poolings_list <- list()
+
+  # Track the current index in vector_distance
+  current_index <- 1
+
+  for (size in pool_sizes) {
+    # Determine the end index for the current pool
+    end_index <- min(current_index + size - 1, length(vector_distance))
+    current_pool <- vector_distance[current_index:end_index]
+
+    # Store the current pool
+    poolings_list[[length(poolings_list) + 1]] <- current_pool
+
+    # Update current_index to move to the next position in vector_distance
+    current_index <- end_index + 1
   }
 
-  # If any pool D contains NA, replace these NA with backward D
-  checkNA.pool <- vapply(poolings_list, function(x) any(is.na(x)), logical(1))
-  if (any(checkNA.pool)) {
-    which.pool.NA <- which(checkNA.pool)
-    pool.contain.NA <- poolings_list[[which.pool.NA]]
-    n_NA <- sum(is.na(pool.contain.NA))
-    backforward_Ds <- seq(min(pool.contain.NA, na.rm = TRUE) - n_NA, min(pool.contain.NA, na.rm = TRUE) - 1)
-    pool.contain.NA[is.na(pool.contain.NA)] <- backforward_Ds
-    poolings_list[[which.pool.NA]] <- pool.contain.NA
+  # Check if the last pool needs additional elements to meet its target size
+  last_pool <- tail(poolings_list, 1)[[1]]
+  last_pool_size <- length(last_pool)
+  required_size <- tail(pool_sizes, 1)
+
+  # If the last pool is too small, add backward elements to complete it
+  if (last_pool_size < required_size) {
+    last_element <- max(unlist(poolings_list))
+    additional_elements <- seq(last_element - 1, by = -1, length.out = required_size - last_pool_size)
+    poolings_list[[length(poolings_list)]] <- c(last_pool, additional_elements)
   }
 
-  # Add back Distance 0
-  poolings_list <- c(0, poolings_list)
+  # Prepend distance 0 as the first element
+  poolings_list <- c(list(0), poolings_list)
+
   return(poolings_list)
 }
-
-
 
 
 ################# Fibonacci pooling ########################
@@ -123,7 +115,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
       n_NA <- sum(is.na(pool.contain.NA))
 
       # Replace NA values with the backward distances
-      backforward_Ds <- seq(min(pool.contain.NA, na.rm = TRUE) - n_NA, min(pool.contain.NA, na.rm = TRUE) - 1)
+      backforward_Ds <- seq(max(pool.contain.NA, na.rm = TRUE) - n_NA, max(pool.contain.NA, na.rm = TRUE) - 1)
       pool.contain.NA[is.na(pool.contain.NA)] <- backforward_Ds
       poolings_list[[i]] <- pool.contain.NA
     }
@@ -194,7 +186,7 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm =
 
   ## Classify method and predictor matrix
   # get initial default imputation setting
-  ini <- suppressWarnings(mice::mice(data_input, maxit = 0))
+  ini <- mice::mice(data_input, maxit = 0)
   # set up method
   meth <- ini$meth
   meth["IF"] <- "rf"
@@ -204,10 +196,10 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm =
 
   ## Imputation
   # simulate for n time of multiple imputations, with 5 iteration
-  imp <- suppressWarnings(mice::mice(data_input,
+  imp <- mice::mice(data_input,
     method = meth, predictorMatrix = pred,
     print = FALSE, maxit = maxit, seed = seed, m = n.imputation
-  ))
+  )
   # returns the long format of all multiple imputation
   imp_data <- mice::complete(imp, action = "long", include = FALSE)
   # if the vector has all if>1, aggregate mean of all imputed complete data
@@ -314,14 +306,14 @@ pools_impute <- function(scHiC.table, n.imputation = 5, outlier.rm = TRUE,
 
 
   # Check if any pool contains backward D (NA replacement). If so, then need to remove it/them
-  ## Where does the last D lomessagee in last pool
+  ## Where does the last D locate in last pool
   lastD.poolPosition <- which(Dpool.list[[length.Dpool.list]] == max(D))
   lastPool <- Dpool.list[[length.Dpool.list]]
   # check if last D stays at the end of the last pool
   if (lastD.poolPosition < length(lastPool)) {
     # identify backward D
     backward_D <- lastPool[(lastD.poolPosition + 1):length(lastPool)]
-    # identify backward D lomessageion in new_table_list of last pool
+    # identify backward D locate in new_table_list of last pool
     new_table_lastPool <- new_table_list[[length.Dpool.list]]
     backward_D_position <- which(abs((new_table_lastPool$region1 - new_table_lastPool$region2) / res) %in%
       backward_D)
@@ -417,13 +409,13 @@ RF_impute.outrm.schic <- function(scHiC.table, n_imputation = 5, outlier.rm = TR
       agg_new_if2 <- rep(1, nrow(data_input)) # Default value for missing distance
     } else {
       # Initial setup for multiple imputations
-      ini <- suppressWarnings(mice::mice(data_input, maxit = 0))
+      ini <- mice::mice(data_input, maxit = 0)
       ini$meth["IF"] <- "rf" # Set RF for imputation of IF
-      imp <- suppressWarnings(mice::mice(
+      imp <- mice::mice(
         data_input,
         method = ini$meth, predictorMatrix = ini$pred,
         print = FALSE, maxit = maxit, m = n_imputation
-      ))
+      )
       # Aggregate mean of imputed values
       imp_data <- mice::complete(imp, action = "long", include = FALSE)
       agg_new_if2 <- round(aggregate(imp_data[, 4], by = list(imp_data$.id), FUN = mean)$x)
@@ -535,13 +527,13 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
         }
       } else {
         # Multiple imputation using `mice`
-        ini <- suppressWarnings(mice::mice(data_input, maxit = 0))
+        ini <- mice::mice(data_input, maxit = 0)
         ini$meth["IF"] <- "rf"
-        imp <- suppressWarnings(mice::mice(
+        imp <- mice::mice(
           data_input,
           method = ini$meth, predictorMatrix = ini$pred,
           print = FALSE, maxit = maxit, m = n_imputation
-        ))
+        )
         imp_data <- mice::complete(imp, action = "long", include = FALSE)
         agg_new_if2 <- round(aggregate(imp_data[, 4], by = list(imp_data$.id), FUN = mean)$x)
       }
@@ -598,7 +590,7 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
 #'                    followed by columns representing interaction frequencies ('IF') for individual cells.
 #' @param n.imputation An integer specifying the number of imputations to be performed. The default is 5.
 #' @param maxit An integer specifying the number of iterations for the internal refinement process within a single imputation cycle. The default is 1.
-#' @param outlier.rm A logical value indimessageing whether to remove outliers during the imputation process. The default is TRUE.
+#' @param outlier.rm A logical value indicate whether to remove outliers during the imputation process. The default is TRUE.
 #' @param main.Distances A vector of integers or 'full' representing the scHiC data in the main distance range to focus the imputation on, in bp units (e.g., 1:1,000,000). Genomic distances (in bp) are the number of base pairs between two regions in the genome (e.g., loci or bins).
 #' The default is from 1 to 10,000,000.
 #' @param pool.style A string specifying the pooling technique to use. Options are 'none', 'progressive', or 'Fibonacci'.
@@ -803,7 +795,7 @@ scHiCcompare_impute <- function(scHiC.table, n.imputation = 5, maxit = 1, outlie
         if (lastD.poolPosition < length(lastPool)) {
           # identify backward D
           backward_D <- lastPool[(lastD.poolPosition + 1):length(lastPool)]
-          # identify backward D lomessageion in new_table_list of last pool
+          # identify backward D locate in new_table_list of last pool
           new_table_lastPool <- new_table_list[[length((new_table_list))]]
           backward_D_position <- which(abs((new_table_lastPool$region1 - new_table_lastPool$region2) / res) %in% backward_D)
           new_table_list[[length(pool_aboveNA_NOTmainD)]] <- new_table_lastPool[-backward_D_position, ]

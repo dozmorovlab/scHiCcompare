@@ -44,7 +44,7 @@ plot_imputed_distance_diagnostic <- function(raw_sc_data, imp_sc_data, D) {
 
   # Process imputed single-cell data
   imp_sc_data$D <- (imp_sc_data$region2 - imp_sc_data$region1) / res
-  imp_D_data <- imp_sc_data[imp_sc_data$D == D, -c(1:4)]
+  imp_D_data <- imp_sc_data[imp_sc_data$D == D, -c(1, 2, 3, 4)]
   imp_D_data <- unlist(imp_D_data)
 
   # Create a data frame for plotting

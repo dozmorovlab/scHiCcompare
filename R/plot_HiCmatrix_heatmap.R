@@ -38,28 +38,27 @@
 
 plot_HiCmatrix_heatmap <- function(scHiC.sparse, zlim = NULL, color_low = "white",
                                    color_high = "red", main = NULL, figure_name = NULL) {
-  
   # Transform sparse matrix to a full matrix with only required columns
   scHiC.sparse <- scHiC.sparse[, c(2, 4, 5)]
   org_sc_full <- HiCcompare::sparse2full(scHiC.sparse)
-  
+
   # Validate if sparse2full returned a matrix
   if (!is.matrix(org_sc_full)) {
     stop("Conversion to full matrix failed. Please check 'sparse2full' function.")
   }
-  
+
   # Define zlim if not provided
   if (is.null(zlim)) {
     zlim <- range(org_sc_full, na.rm = TRUE)
   }
-  
+
   # Define the color palette
   color_scale <- colorRampPalette(c(color_low, color_high))
   colors <- color_scale(16)
-  
+
   # Rotate matrix for correct plotting orientation
   rotated_org_sc_full <- t(apply(org_sc_full, 2, rev))
-  
+
   # Plot with log transformation, adding a small constant to avoid log(0)
   lattice::levelplot(
     log(rotated_org_sc_full + 1e-6), # Adding small constant to avoid log(0)
