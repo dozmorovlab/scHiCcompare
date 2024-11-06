@@ -15,10 +15,10 @@ followed by columns representing interaction frequencies ('IF') for individual c
 Default is 'sparse'.}
 }
 \value{
-A data frame representing the pseudo-bulk Hi-C data. If \code{out} is 'sparse';
-returns a data frame containing a pseudo-bulk matrix in the sparse upper triangular Hi-C matrix format with five columns:
-chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).  If \code{out} is 'full';
-returns a full matrix representation of the pseudo-bulk data.
+A data frame representing the pseudo-bulk Hi-C data. If `out` is 'sparse';
+        returns a data frame containing a pseudo-bulk matrix in the sparse upper triangular Hi-C matrix format with five columns:
+chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).  If `out` is 'full';
+        returns a full matrix representation of the pseudo-bulk data.
 }
 \description{
 This function generates pseudo-bulk Hi-C data from a single-cell Hi-C interaction frequency table.

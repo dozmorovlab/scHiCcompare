@@ -10,7 +10,16 @@
 #'   \item{chr}{The chromosome of the interacting region's starting coordinate}
 #'   \item{start1}{The starting coordinate of the first interacting region}
 #'   \item{start2}{The starting coordinate of the second interacting region}
-#'   \item{IF_1, IF_2, ..., IF_10}{Interaction frequency values for each single cell}
+#'   \item{IF_1}{Interaction frequency values for single cell 1}
+#'   \item{IF_2}{Interaction frequency values for single cell 2}
+#'   \item{IF_3}{Interaction frequency values for single cell 3}
+#'   \item{IF_4}{Interaction frequency values for single cell 4}
+#'   \item{IF_5}{Interaction frequency values for single cell 5}
+#'   \item{IF_6}{Interaction frequency values for single cell 6}
+#'   \item{IF_7}{Interaction frequency values for single cell 7}
+#'   \item{IF_8}{Interaction frequency values for single cell 8}
+#'   \item{IF_9}{Interaction frequency values for single cell 9}
+#'   \item{IF_10}{Interaction frequency values for single cell 10}
 #' }
 #'
 #' @source Single-cell data of MG cell type downloaded using `download_schic()` from `Bandnorm`. 

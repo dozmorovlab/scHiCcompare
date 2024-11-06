@@ -6,14 +6,23 @@
 #'
 #'
 #'
-#' @format A dataframe with 335 rows and 5 columns:
-#'     \describe{
-#'     \item{cell}{Name of the target cell type }
-#'     \item{chr}{The interacting region starting cordination chromosome}
-#'     \item{start1}{The first interacting region starting cordination}
-#'     \item{start2}{The second interacting region starting cordination}
-#'     \item{IF_1, IF_2, ..., IF_10}{Interaction frequency values for each single cell}
+#' \describe{
+#'   \item{cell}{Name of the target cell type}
+#'   \item{chr}{The chromosome of the interacting region's starting coordinate}
+#'   \item{start1}{The starting coordinate of the first interacting region}
+#'   \item{start2}{The starting coordinate of the second interacting region}
+#'   \item{IF_1}{Interaction frequency values for single cell 1}
+#'   \item{IF_2}{Interaction frequency values for single cell 2}
+#'   \item{IF_3}{Interaction frequency values for single cell 3}
+#'   \item{IF_4}{Interaction frequency values for single cell 4}
+#'   \item{IF_5}{Interaction frequency values for single cell 5}
+#'   \item{IF_6}{Interaction frequency values for single cell 6}
+#'   \item{IF_7}{Interaction frequency values for single cell 7}
+#'   \item{IF_8}{Interaction frequency values for single cell 8}
+#'   \item{IF_9}{Interaction frequency values for single cell 9}
+#'   \item{IF_10}{Interaction frequency values for single cell 10}
 #' }
+#'
 #'
 #' @source Single-cells data of ODC cell type download by download_schic() by `Bandnorm`. See their website at
 #'     \url{https://sshen82.github.io/BandNorm/articles/BandNorm-tutorial.html#download-existing-single-cell-hi-c-data}
