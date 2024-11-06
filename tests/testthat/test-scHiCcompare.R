@@ -3,10 +3,10 @@ test_that("scHiCcompare runs successfully with valid inputs", {
   # You can replace these with file paths containing test data
   file.path.1 <- system.file("ODCs_example", package = "scHiCcompare")
   file.path.2 <- system.file("MGs_example", package = "scHiCcompare")
-  
+
   # Mock chromosome selection (e.g., "chr22")
   select.chromosome <- "chr20"
-  
+
   # Run scHiCcompare function with mock parameters
   result <- scHiCcompare(
     file.path.1 = file.path.1,
@@ -17,7 +17,7 @@ test_that("scHiCcompare runs successfully with valid inputs", {
     differential.detect = "MD.cluster",
     main.Distances = 1:1000000,
     pool.style = "progressive",
-    n.imputation = 2,  # Reduced imputations for testing speed
+    n.imputation = 2, # Reduced imputations for testing speed
     maxit = 1,
     outlier.rm = TRUE,
     missPerc.threshold = 95,
@@ -28,7 +28,7 @@ test_that("scHiCcompare runs successfully with valid inputs", {
     Plot.normalize = FALSE,
     save.output.path = NULL
   )
-  
+
   # Check if the result is a list with expected components
   expect_true("Differential_Analysis" %in% names(result))
   expect_true("Intermediate" %in% names(result))
