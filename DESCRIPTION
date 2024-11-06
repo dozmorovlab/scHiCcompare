@@ -28,7 +28,8 @@ Imports:
     mice,
     miceadds,
     rstatix,
-    tidyr
+    tidyr,
+    gridExtra
 Suggests: knitr,
     rmarkdown,
     testthat,

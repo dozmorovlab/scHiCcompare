@@ -21,3 +21,5 @@ import(tidyr)
 import(DT)
 importFrom(HiCcompare,sparse2full)
 importFrom(lattice,levelplot)
+importFrom(gridExtra, grid.arrange)
+
