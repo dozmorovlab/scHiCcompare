@@ -78,7 +78,7 @@ library(data.table)
     2. `Fibonacci pooling`, where each subsequent band combines IFs within increasing distance ranges, and this increase follows the Fibonacci sequence.
     
 ```{r, echo=FALSE, out.width="100%", fig.cap="An example of how different pooling styles assign genomic distance into each band", fig.align="center"}
-knitr::include_graphics("Pooling Example.png")
+knitr::include_graphics("Pooling_Example.png")
 ```
 
 

@@ -4,10 +4,11 @@ Version: 0.99.0
 Authors@R: 
     person("My", "Nguyen", , "nguyenm21@vcu.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0003-1118-7085"))
-Description: This package provides functions for differential chromatin interaction analysis
-    between two single-cell Hi-C data groups, including imputation, normalization, and 
-    differential analysis. It includes pooling techniques for imputation, 
-    as well as methods to normalize and test for differential interactions.
+Description: This package provides functions for differential chromatin interaction analysis 
+    between two single-cell Hi-C data groups. It includes tools for imputation, normalization, 
+    and differential analysis of chromatin interactions. The package implements pooling techniques 
+    for imputation and offers methods to normalize and test for differential interactions across 
+    single-cell Hi-C datasets.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -34,4 +35,4 @@ VignetteBuilder: knitr
 biocViews: Software, SingleCell, HiC, Sequencing, Normalization
 BugReports: https://github.com/dozmorovlab/ScHiCcompare/issues
 URL: https://github.com/dozmorovlab/ScHiCcompare
-Config/testthat/edition: 3
+

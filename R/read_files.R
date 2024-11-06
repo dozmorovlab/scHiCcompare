@@ -2,24 +2,25 @@
 #'
 #' This function reads single-cell Hi-C data from a specified file path.
 #' It supports two file formats: 'txt' and 'cool'. For 'txt', it reads tab-delimited files
-#'  and assumes the format contains five columns:
-#' chromosome 1 (chr1), start position 1 (start1), chromosome 2 (chr2), start position 2 (start2),
-#'  and interaction frequency (IF).
+#' and assumes the format contains five columns: chromosome 1 (chr1), start position 1 (start1),
+#' chromosome 2 (chr2), start position 2 (start2), and interaction frequency (IF).
 #' For 'cool', it uses the `HiCcompare` package to transform cooler files to BEDPE format.
 #'
 #' @param file.path The directory path where the data files are stored.
 #' @param position.dataset A vector of indices specifying the file positions to read from
-#'  the directory. These indices help select specific files, determining which files will 
-#'  be included and the sequence in which they are processed. If all single cell data should 
-#'  be included, choose NULL.
+#' the directory. These indices help select specific files, determining which files will 
+#' be included and the sequence in which they are processed. If all single cell data should 
+#' be included, set this to NULL.
 #' @param type The file type, either 'txt'. The default is 'txt'. Each 'txt' file should be 
 #' in the format of a sparse upper triangular Hi-C matrix, where each row contains the interaction 
 #' frequency value (IFs) of two interacting regions.
 #' @param txt.sparse.heads.position A vector of four integers specifying the column positions 
 #' of chromosome, start1, start2, and IF in the 'txt' file.
+#' @param out Character string specifying the output format. Options are "sparse" (for a sparse matrix format)
+#' or "original" (to retain the original structure of each single-cell Hi-C dataset). Default is "sparse".
 #' @return A list of datasets, where each element corresponds to a dataset from the selected files. 
-#' If `out` is 'sparse', each dataset element is transformed into a sparse matrix format (chr, start1, start2, IF).
-#' If `out` is 'original', the original structure of each single-cell Hi-C dataset is preserved.
+#' If `out` is "sparse", each dataset element is transformed into a sparse matrix format (chr, start1, start2, IF).
+#' If `out` is "original", the original structure of each single-cell Hi-C dataset is preserved.
 #'
 #' @details
 #' This function reads single-cell Hi-C data in 'txt', with output options of 'sparse' and 'original'. 
@@ -36,6 +37,7 @@
 #'  )
 #' @import HiCcompare
 #' @export
+
 
 
 read_files <- function(file.path, position.dataset = NULL, type = "txt",
