@@ -52,7 +52,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
 
   # If the last pool is too small, add backward elements to complete it
   if (last_pool_size < required_size) {
-    last_element <- max(unlist(poolings_list))
+    last_element <- min(unlist(poolings_list))
     additional_elements <- seq(last_element - 1, by = -1, length.out = required_size - last_pool_size)
     poolings_list[[length(poolings_list)]] <- c(last_pool, additional_elements)
   }
@@ -115,7 +115,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
       n_NA <- sum(is.na(pool.contain.NA))
 
       # Replace NA values with the backward distances
-      backforward_Ds <- seq(max(pool.contain.NA, na.rm = TRUE) - n_NA, max(pool.contain.NA, na.rm = TRUE) - 1)
+      backforward_Ds <- seq(min(pool.contain.NA, na.rm = TRUE) - n_NA, min(pool.contain.NA, na.rm = TRUE) - 1)
       pool.contain.NA[is.na(pool.contain.NA)] <- backforward_Ds
       poolings_list[[i]] <- pool.contain.NA
     }
