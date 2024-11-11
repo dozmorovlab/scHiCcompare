@@ -52,7 +52,7 @@ find.collinear <- function(x, threshold = 0.999, ...) {
 
   # If the last pool is too small, add backward elements to complete it
   if (last_pool_size < required_size) {
-    last_element <- min(unlist(poolings_list))
+    last_element <- min(tail(poolings_list, 1)[[1]])
     additional_elements <- seq(last_element - 1, by = -1, length.out = required_size - last_pool_size)
     poolings_list[[length(poolings_list)]] <- c(last_pool, additional_elements)
   }
