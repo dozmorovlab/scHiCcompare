@@ -3,7 +3,7 @@ Title: Differential Analysis of Single-cell Hi-C Data
 Version: 0.99.1
 Authors@R: c(
     person(given = "My", family = "Nguyen",
-           email = "nguyenm21@vcu.edu",
+           email = "hamy.12398@gmail.com",
            role = c("aut"),
            comment = c(ORCID = "0009-0003-1118-7085")),
     person(given = "Mikhail",
