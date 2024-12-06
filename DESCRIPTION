@@ -4,11 +4,11 @@ Version: 0.99.1
 Authors@R: c(
     person(given = "My", family = "Nguyen",
            email = "hamy.12398@gmail.com",
-           role = c("aut"),
+           role = c("aut", "cre"),
            comment = c(ORCID = "0009-0003-1118-7085")),
     person(given = "Mikhail",
            family = "Dozmorov",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "mikhail.dozmorov@gmail.com",
            comment = c(ORCID = "0000-0002-0086-8358")))
 Description: This package provides functions for differential chromatin interaction analysis 
