@@ -11,6 +11,8 @@ Result
 *.Rproj
 *.so
 ^.git$
-
+.pdf
+.docx
+man/.DS_Store
 
 
