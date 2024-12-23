@@ -1,0 +1,11 @@
+ODC.bandnorm_chr20_1	ODC.bandnorm_chr20_1
+plot_HiCmatrix_heatmap	plot_HiCmatrix_heatmap
+plot_imputed_distance_diagnostic	plot_imputed_distance_diagnostic
+pseudo_bulkHic	pseudo_bulkHic
+read_files	read_files
+scHiC.table_MG_chr22	scHiC.table_MG_chr22
+scHiC.table_ODC_chr22	scHiC.table_ODC_chr22
+scHiCcompare	scHiCcompare
+scHiCcompare_impute	scHiCcompare_impute
+scHiC_bulk_compare	scHiC_bulk_compare
+scHiC_table	scHiC_table
