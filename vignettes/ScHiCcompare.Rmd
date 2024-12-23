@@ -63,6 +63,7 @@ library(ggplot2)
 library(gridExtra)
 library(lattice)
 library(data.table)
+library(mclust)
 ```
 
 # scHiCcompare function

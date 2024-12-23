@@ -106,6 +106,7 @@ withoutNorm_hicTable <- function(hic.table) {
 #'
 #' @import HiCcompare
 #' @import gtools
+#' @import mclust
 #'
 #' @export
 
