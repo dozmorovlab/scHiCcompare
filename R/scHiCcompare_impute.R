@@ -203,7 +203,7 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1, outlier.rm =
   # returns the long format of all multiple imputation
   imp_data <- mice::complete(imp, action = "long", include = FALSE)
   # if the vector has all if>1, aggregate mean of all imputed complete data
-  agg_new_if2 <- round(aggregate(imp_data[, 4], by = list(imp_data$.id), FUN = mean))
+  agg_new_if2 <- round(aggregate(imp_data$IF, by = list(imp_data$.id), FUN = mean))
   agg_new_if2 <- agg_new_if2$x
 
   # Add back outlier, if they were removed in previous steps
