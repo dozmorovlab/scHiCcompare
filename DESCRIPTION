@@ -29,6 +29,7 @@ Imports:
     miceadds,
     rstatix,
     tidyr,
+    ranger,
     gridExtra
 Suggests: knitr,
     rmarkdown,

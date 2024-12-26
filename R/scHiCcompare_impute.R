@@ -632,6 +632,7 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE, maxit =
 #' @import lattice
 #' @import miceadds
 #' @import rstatix
+#' @import ranger
 #'
 #' @export
 
