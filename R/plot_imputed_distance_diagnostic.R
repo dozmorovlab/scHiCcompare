@@ -38,7 +38,7 @@ plot_imputed_distance_diagnostic <- function(raw_sc_data, imp_sc_data, D) {
 
   # Process original single-cell data
   raw_sc_data$D <- (raw_sc_data$region2 - raw_sc_data$region1) / res
-  org_D_data <- raw_sc_data[raw_sc_data$D == D, -c(1:4)]
+  org_D_data <- raw_sc_data[raw_sc_data$D == D, -c(1,2,3,4)]
   org_D_data <- unlist(org_D_data)
   org_D_data[org_D_data == 0] <- NA # Replace 0 with NA
 
