@@ -14,5 +14,8 @@ Result
 .pdf
 .docx
 man/.DS_Store
+*.Rcheck/
+*.log
+scHiCcompare.BiocCheck/
 
 
