@@ -1,5 +1,10 @@
-change version 0.99.0 and update version 0.99.1
-+ remove man/.DS_Store and authorship in Description
+Changes in version 0.99.0 and update to 0.99.1
++ Remove man/.DS_Store file
 
-change version 0.99.1 and update version 0.99.2
-+ change Description package
+
+Changes in version 0.99.1 and update to 0.99.2
++ Update Description file's authority an package
+
+
+Changes in version 0.99.2 and update to 0.99.3
++ Update Vignette to include mclust package
