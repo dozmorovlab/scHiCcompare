@@ -20,8 +20,11 @@ Changes in version 0.99.4 and update to 0.99.5
 
 Changes in version 0.99.5 and update to 0.99.6
 + Add/adjust decription for scHiCcompare output object
-+ Change 'BP_param' parameter to 'BPPARAM' in scHiCcompare() and scHiC_bulk_compare()
 + Move 'MG_example' and 'ODC_example' folder into inst/ext data
 + Change %\VignetteIndexEntry
 + Fix function NOTES
 + Update Vignette
+
+
+Changes in version 0.99.6 and update to 0.99.7
++ Add CITATION
