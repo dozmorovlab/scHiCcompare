@@ -1,0 +1,19 @@
+citHeader("To cite scHiCcompare in publications, please use:")
+
+citEntry(
+  entry = "Article",
+  title = "scHiCcompare: an R package for differential analysis of single-cell Hi-C data",
+  author = personList(
+    person("My", "Nguyen"),
+    person("Brydon P. G.", "Wall"),
+    person("J. Chuck", "Harrell"),
+    person("Mikhail G.", "Dozmorov")
+  ),
+  year = "2024",
+  journal = "bioRxiv",
+  doi = "10.1101/2024.11.06.622369",
+  textVersion =
+    "Nguyen, M., Wall, B. P. G., Harrell, J. C., & Dozmorov, M. G. (2024). 
+    scHiCcompare: an R package for differential analysis of single-cell Hi-C data. 
+    bioRxiv. doi: https://doi.org/10.1101/2024.11.06.622369"
+)
