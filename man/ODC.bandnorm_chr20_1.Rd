@@ -7,11 +7,11 @@
 \format{
 A dataframe with 335 rows and 5 columns:
     \describe{
-    \item{first column}{The first interacting region chromosome}
-    \item{second column }{The first interacting region starting cordination}
-    \item{third column}{The second interacting region chromosome}
-    \item{fourth column}{The second interacting region starting cordination}
-    \item{fifth column}{The interaction frequency value between two regions}
+    \item{chr}{The first interacting region chromosome}
+    \item{start1}{The first interacting region starting cordination}
+    \item{chr}{The second interacting region chromosome}
+    \item{start2}{The second interacting region starting cordination}
+    \item{IF}{The interaction frequency value between two regions}
     }
 }
 \source{

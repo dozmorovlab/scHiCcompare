@@ -1,8 +1,8 @@
 test_that("scHiCcompare runs successfully with valid inputs", {
   # Mock data for scHiCcompare inputs
   # You can replace these with file paths containing test data
-  file.path.1 <- system.file("ODCs_example", package = "scHiCcompare")
-  file.path.2 <- system.file("MGs_example", package = "scHiCcompare")
+  file.path.1 <- system.file("extdata/ODCs_example", package = "scHiCcompare")
+  file.path.2 <- system.file("extdata/MGs_example", package = "scHiCcompare")
 
   # Mock chromosome selection (e.g., "chr22")
   select.chromosome <- "chr20"
