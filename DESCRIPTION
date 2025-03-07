@@ -1,6 +1,6 @@
 Package: scHiCcompare
 Title: Differential Analysis of Single-cell Hi-C Data
-Version: 0.99.5
+Version: 0.99.6
 Authors@R: c(
     person(given = "My", family = "Nguyen",
            email = "hamy.12398@gmail.com",
@@ -11,14 +11,17 @@ Authors@R: c(
            role = c("aut"),
            email = "mikhail.dozmorov@gmail.com",
            comment = c(ORCID = "0000-0002-0086-8358")))
-Description: This package provides functions for differential chromatin interaction analysis 
-    between two single-cell Hi-C data groups. It includes tools for imputation, normalization, 
-    and differential analysis of chromatin interactions. The package implements pooling techniques 
-    for imputation and offers methods to normalize and test for differential interactions across 
+Description: This package provides functions for differential chromatin 
+    interaction analysis between two single-cell Hi-C data groups. It includes
+    tools for imputation, normalization, and differential analysis of chromatin
+    interactions. The package implements pooling techniques for imputation and 
+    offers methods to normalize and test for differential interactions across 
     single-cell Hi-C datasets.
 Imports: 
-    DT,
-    data.table,
+    grDevices,
+    graphics,
+    stats,
+    utils,
     dplyr,
     ggplot2,
     gtools,
@@ -30,12 +33,15 @@ Imports:
     ranger,
     rstatix,
     tidyr,
-    ranger,
-    gridExtra
+    rlang,
+    data.table,
+    BiocParallel
 Suggests: knitr,
     rmarkdown,
     testthat,
-    BiocStyle
+    BiocStyle,
+    DT,
+    gridExtra
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

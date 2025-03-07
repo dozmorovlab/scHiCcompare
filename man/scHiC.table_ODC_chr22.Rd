@@ -3,13 +3,15 @@
 \docType{data}
 \name{scHiC.table_ODC_chr22}
 \alias{scHiC.table_ODC_chr22}
-\title{scHi-C table from oligodendrocyte (ODC) cell type - chromosome 22 at 1 MB resolution}
+\title{scHi-C table from oligodendrocyte (ODC) cell type - chromosome 22 at 1 MB
+ resolution}
 \format{
 An object of class \code{data.frame} with 666 rows and 14 columns.
 }
 \source{
-Single-cells data of ODC cell type download by download_schic() by `Bandnorm`. See their website at
-    \url{https://sshen82.github.io/BandNorm/articles/BandNorm-tutorial.html#download-existing-single-cell-hi-c-data}
+Single-cells data of ODC cell type download by download_schic() by
+ `Bandnorm`. See their website at \url{https://sshen82.github.io/BandNorm/
+ articles/BandNorm-tutorial.html#download-existing-single-cell-hi-c-data}
 }
 \usage{
 scHiC.table_ODC_chr22
@@ -18,9 +20,10 @@ scHiC.table_ODC_chr22
 A data frame
 }
 \description{
-A table gather 10 single cells Hi-C data modified in sparse upper triangular matrix containing
-the cell's interacting regions cordination (cell, chr, start1, start2)
-and the corresponding Interaction Frequencies for each single cell (IF_1, IF2,... IF10).
+A table gather 10 single cells Hi-C data modified in sparse upper triangular
+ matrix containing the cell's interacting regions coordination
+ (cell, chr, start1, start2) and the corresponding Interaction Frequencies
+ for each single cell (IF_1, IF2,... IF10).
 }
 \details{
 \describe{

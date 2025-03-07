@@ -19,26 +19,34 @@ in the format (chr1, start1, chr2, start2, IF).}
 
 \item{zlim}{A numeric vector of length 2 specifying the limits of the color
 scale. If `zlim` is not specified, it will include the minimum and maximum
-values of the matrix. For example, `zlim = c(0, 10)` limits the color scale to values between 0 and 10.}
+values of the matrix. For example, `zlim = c(0, 10)` limits the color
+scale to values between 0 and 10.}
 
-\item{color_low}{A character string specifying the color for the lowest values. Default
-is "white". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
- Users can refer to the R color names documentation by running `colors()` in R.}
+\item{color_low}{A character string specifying the color for the lowest
+values. Default is "white". Other options include colors such as
+"lightblue", "yellow", or colors defined using hex codes (e.g.,
+"#FFFFFF" for white). Users can refer to the R color names documentation
+by running `colors()` in R.}
 
-\item{color_high}{A character string specifying the color for the highest values.
-Default is "red". Other options include colors such as "lightblue", "yellow", or colors defined using hex codes (e.g., "#FFFFFF" for white).
- Users can refer to the R color names documentation by running `colors()` in R.}
+\item{color_high}{A character string specifying the color for the highest
+values. Default is "red". Other options include colors such as
+"lightblue", "yellow", or colors defined using hex codes (e.g.,
+"#FF0000" for red). Users can refer to the R color names documentation
+by running `colors()` in R.}
 
-\item{main}{A character string for the main title of the plot. The default is NULL.}
+\item{main}{A character string for the main title of the plot. The default
+is NULL.}
 
-\item{figure_name}{A character string for additional figure labeling. The default is NULL.}
+\item{figure_name}{A character string for additional figure labeling. The
+default is NULL.}
 }
 \value{
 A heatmap plot visualizing the Hi-C interaction matrix.
 }
 \description{
-This function generates a heatmap of Hi-C interaction frequencies from a given sparse matrix,
-allowing users to visualize either original or imputed Hi-C data.
+This function generates a heatmap of Hi-C interaction frequencies from
+a given sparse matrix, allowing users to visualize either original or
+imputed Hi-C data.
 }
 \examples{
 data("ODC.bandnorm_chr20_1")
