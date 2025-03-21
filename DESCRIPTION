@@ -1,6 +1,6 @@
 Package: scHiCcompare
 Title: Differential Analysis of Single-cell Hi-C Data
-Version: 0.99.8
+Version: 0.99.9
 Authors@R: c(
     person(given = "My", family = "Nguyen",
            email = "hamy.12398@gmail.com",
@@ -44,8 +44,7 @@ Suggests: knitr,
     gridExtra
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
-LazyDataCompression: xz
+LazyData: false
 RoxygenNote: 7.3.2
 Depends: R (>= 4.2.0)
 VignetteBuilder: knitr

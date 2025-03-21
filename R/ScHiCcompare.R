@@ -76,9 +76,9 @@ withoutNorm_hicTable <- function(hic.table) {
 #' @param alpha Numeric value for the significance level of outlier detection
 #'  during the `differential.detect` step by `hic_compare()` from HiCcompare.
 #'  The default is 0.05.
-#' @param Plot Logical value indimessageing whether to plot the
+#' @param Plot Logical value indicates whether to plot the
 #' `differential.detect` results in an MD plot. The default is TRUE.
-#' @param Plot.normalize Logical value indimessageing whether to plot the
+#' @param Plot.normalize Logical value indicates whether to plot the
 #'  `normalization` results in an MD plot. The default is FALSE.
 #' @param save.output.path Character string specifying the directory to save
 #'  outputs, including the imputed cells in a modified sparse upper triangular
@@ -151,7 +151,8 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
                          maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
                          A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05,
                          Plot = TRUE, Plot.normalize = FALSE,
-                         save.output.path = NULL, BPPARAM = BiocParallel::bpparam()) {
+                         save.output.path = NULL, 
+                         BPPARAM = BiocParallel::bpparam()) {
   # Read file 'txt' from 2 folder path
   file_name1 <- list.files(file.path.1)
   file_name2 <- list.files(file.path.2)
@@ -421,21 +422,17 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
   result <- list(
     Differential_Analysis = hic.table.GMM_result,
     Intermediate = list(
-      Imputation = list(
-        condition1 = impute1_result,
-        condition2 = impute2_result
-      ),
-      PseudoBulk = list(
-        condition1 = bulk_sparse_cond1,
-        condition2 = bulk_sparse_cond2
-      ),
+      Imputation = list(condition1 = impute1_result, 
+                        condition2 = impute2_result),
+      PseudoBulk = list(condition1 = bulk_sparse_cond1, 
+                        condition2 = bulk_sparse_cond2),
       Bulk.Normalization = norm.result
     )
   )
-
+  
   # Assign a custom class to the result
   class(result) <- "checkNumbers"
-
+  
   return(result)
 }
 
@@ -444,50 +441,52 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
 print.checkNumbers <- function(obj) {
   # Print a header for the output
   message("-----------------------------------------------------------------\n")
-  message("   ScHiCcompare - Differential Analysis for single cell Hi-C\n")
+  message("   ScHiCcompare - Differential Analysis for single cell Hi-C\n.   ")
   message("-----------------------------------------------------------------\n")
-
+  
   # Access the necessary information from the object
-  cond1_cells <- ncol(obj$Intermediate$Imputation$condition1) - 4
-  cond2_cells <- ncol(obj$Intermediate$Imputation$condition2) - 4
-  selected_chromosome <- unique(obj$Intermediate$Bulk.Normalization$chr1)
-
+  cond1_cells <- ncol(obj$Intermediate$Imputation$condition1) - 4 
+  cond2_cells <- ncol(obj$Intermediate$Imputation$condition2) - 4 
+  selected_chromosome <- unique(obj$Intermediate$Bulk.Normalization$chr1) 
+  total_differences <- sum(obj$Differential_Analysis$Difference.cluster,
+                           na.rm = TRUE) # Handle NA values
+  
   # Determine which processes are included, avoiding NULL values
   impute <- if (!is.null(obj$Intermediate$Imputation$condition1)) {
     "Imputation"
   } else {
     NULL
   }
-
+  
   norm <- if (!is.null(obj$Intermediate$BulkNormalization)) {
     "sc Bulk Normalization"
   } else {
     NULL
   }
-
+  
   # Combine the processes and ensure only non-null values are printed
-  processes <- stats::na.omit(c(impute, norm))
-
+  processes <- na.omit(c(impute, norm))
+  
+  # Print the summary message
   message(sprintf(
-    "ScHiCcompare analyzes %d cells of condition group 1 and %d cells of
-    condition group 2 at chromosome %s",
+    "ScHiCcompare analyzes %d cells of condition 1 group and %d cells of 
+    condition 2 group at chromosome %s",
     cond1_cells, cond2_cells, selected_chromosome
   ))
-
+  
   # Check if there are any processes to print
   if (length(processes) > 0) {
     message("\nThe process includes:\n")
-    # message(paste0(processes, collapse = ", "), " Differential Analysis\n")
-    message(sprintf(
-      "%s Differential Analysis\n",
-      paste(processes, collapse = ", ")
-    ))
+    message(sprintf("%s Differential Analysis", 
+                    paste(processes, collapse = ", ")))
   } else {
     message("\nNo processes available for analysis.\n")
   }
-
-
+  
+  
   # Note about accessing intermediate results
-  message("\nNote: See full differential result in $Differential_Analysis.
+  message("\nNote: See full differential result in $Differential_Analysis. 
           Intermediate results can be accessed with $Intermediate\n")
 }
+
+
