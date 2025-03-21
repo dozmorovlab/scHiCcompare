@@ -230,6 +230,9 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1,
   )
   # Retrieve completed data in long format
   imp_data <- mice::complete(imp, action = "long", include = FALSE)
+  ## adjust .id column
+  names(imp_data)[names(imp_data) == ".id"] = ".id_org" 
+  imp_data$`.id` = rep(rep(1:nrow(data_input)), n_imputation)
   # Aggregate mean of all imputed complete data
   agg_new_if2 <- round(stats::aggregate(imp_data$IF,
     by = list(imp_data$.id),
@@ -572,6 +575,9 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
           maxit = maxit, m = n_imputation
         )
         imp_data <- mice::complete(imp, action = "long", include = FALSE)
+        ## adjust .id column
+        names(imp_data)[names(imp_data) == ".id"] = ".id_org" 
+        imp_data$`.id` = rep(rep(1:nrow(data_input)), n_imputation)
         agg_new_if2 <- round(
           stats::aggregate(imp_data[, 4],
             by = list(imp_data$.id), FUN = mean
