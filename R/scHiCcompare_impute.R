@@ -232,7 +232,7 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1,
   imp_data <- mice::complete(imp, action = "long", include = FALSE)
   ## adjust .id column
   names(imp_data)[names(imp_data) == ".id"] = ".id_org" 
-  imp_data$`.id` = rep(rep(1:nrow(data_input)), n_imputation)
+  imp_data$`.id` = rep(rep(1:nrow(data_input)), n.imputation)
   # Aggregate mean of all imputed complete data
   agg_new_if2 <- round(stats::aggregate(imp_data$IF,
     by = list(imp_data$.id),
