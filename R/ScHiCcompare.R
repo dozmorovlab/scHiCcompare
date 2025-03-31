@@ -437,56 +437,93 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
 }
 
 
+# 
+# print.checkNumbers <- function(obj) {
+#   # Print a header for the output
+#   message("-----------------------------------------------------------------\n")
+#   message("   ScHiCcompare - Differential Analysis for single cell Hi-C\n.   ")
+#   message("-----------------------------------------------------------------\n")
+#   
+#   # Access the necessary information from the object
+#   cond1_cells <- ncol(obj$Intermediate$Imputation$condition1) - 4 
+#   cond2_cells <- ncol(obj$Intermediate$Imputation$condition2) - 4 
+#   selected_chromosome <- unique(obj$Intermediate$Bulk.Normalization$chr1) 
+#   total_differences <- sum(obj$Differential_Analysis$Difference.cluster,
+#                            na.rm = TRUE) # Handle NA values
+#   
+#   # Determine which processes are included, avoiding NULL values
+#   impute <- if (!is.null(obj$Intermediate$Imputation$condition1)) {
+#     "Imputation"
+#   } else {
+#     NULL
+#   }
+#   
+#   norm <- if (!is.null(obj$Intermediate$Bulk.Normalization)) {
+#     "sc Bulk Normalization"
+#   } else {
+#     NULL
+#   }
+#   
+#   # Combine the processes and ensure only non-null values are printed
+#   processes <- na.omit(c(impute, norm))
+#   
+#   # Print the summary message
+#   message(sprintf(
+#     "ScHiCcompare analyzes %d cells of condition 1 group and %d cells of 
+#     condition 2 group at chromosome %s",
+#     cond1_cells, cond2_cells, selected_chromosome
+#   ))
+#   
+#   # Check if there are any processes to print
+#   if (length(processes) > 0) {
+#     message("\nThe process includes:\n")
+#     message(sprintf("%s Differential Analysis", 
+#                     paste(processes, collapse = ", ")))
+#   } else {
+#     message("\nNo processes available for analysis.\n")
+#   }
+#   
+#   
+#   # Note about accessing intermediate results
+#   message("\nNote: See full differential result in $Differential_Analysis. 
+#           Intermediate results can be accessed with $Intermediate\n")
+# }
+
 
 print.checkNumbers <- function(obj) {
   # Print a header for the output
-  message("-----------------------------------------------------------------\n")
-  message("   ScHiCcompare - Differential Analysis for single cell Hi-C\n.   ")
-  message("-----------------------------------------------------------------\n")
+  message("-----------------------------------------------------------------")
+  message("   ScHiCcompare - Differential Analysis for single cell Hi-C")
+  message("-----------------------------------------------------------------")
   
   # Access the necessary information from the object
   cond1_cells <- ncol(obj$Intermediate$Imputation$condition1) - 4 
   cond2_cells <- ncol(obj$Intermediate$Imputation$condition2) - 4 
-  selected_chromosome <- unique(obj$Intermediate$Bulk.Normalization$chr1) 
-  total_differences <- sum(obj$Differential_Analysis$Difference.cluster,
-                           na.rm = TRUE) # Handle NA values
+  selected_chromosome <- paste(unique(obj$Intermediate$Bulk.Normalization$chr1), collapse = ", ")
+  total_differences <- sum(obj$Differential_Analysis$Difference.cluster, na.rm = TRUE)  # Handle NA values
   
   # Determine which processes are included, avoiding NULL values
-  impute <- if (!is.null(obj$Intermediate$Imputation$condition1)) {
-    "Imputation"
-  } else {
-    NULL
-  }
-  
-  norm <- if (!is.null(obj$Intermediate$BulkNormalization)) {
-    "sc Bulk Normalization"
-  } else {
-    NULL
-  }
+  impute <- if (!is.null(obj$Intermediate$Imputation$condition1)) "Imputation" else NULL
+  norm <- if (!is.null(obj$Intermediate$Bulk.Normalization)) "Bulk Normalization" else NULL
   
   # Combine the processes and ensure only non-null values are printed
-  processes <- na.omit(c(impute, norm))
+  processes <- c(impute, norm)
+  processes <- processes[!is.null(processes)]
   
   # Print the summary message
   message(sprintf(
-    "ScHiCcompare analyzes %d cells of condition 1 group and %d cells of 
-    condition 2 group at chromosome %s",
+    "ScHiCcompare analyzes %d cells of condition 1 group and %d cells of condition 2 group at chromosome %s",
     cond1_cells, cond2_cells, selected_chromosome
   ))
   
   # Check if there are any processes to print
   if (length(processes) > 0) {
-    message("\nThe process includes:\n")
-    message(sprintf("%s Differential Analysis", 
-                    paste(processes, collapse = ", ")))
+    message("\nThe process includes:")
+    message(sprintf("%s, Differential Analysis", paste(processes, collapse = ", ")))
   } else {
-    message("\nNo processes available for analysis.\n")
+    message("\nNo processes available for analysis.")
   }
   
-  
   # Note about accessing intermediate results
-  message("\nNote: See full differential result in $Differential_Analysis. 
-          Intermediate results can be accessed with $Intermediate\n")
+  message("\nNote: See full differential result in $Differential_Analysis. Intermediate results can be accessed with $Intermediate.\n")
 }
-
-
