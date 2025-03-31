@@ -94,10 +94,14 @@ For the following example sections, we will load samples of 10 single-cell Hi-C 
 
 ```{r}
 ## Load folder of ODC file path
-ODCs_example_path <- system.file("ODCs_example", package = "scHiCcompare")
+ODCs_example_path <- system.file("extdata/ODCs_example",
+  package = "scHiCcompare"
+)
 
 ## Load folder of MG file path
-MGs_example_path <- system.file("MGs_example", package = "scHiCcompare")
+MGs_example_path <- system.file("extdata/MGs_example",
+  package = "scHiCcompare"
+)
 ```
 
 Since the data downloaded by `Bandnorm` has the required input format (5 columns of [chr1, start1, chr2, start2, IF]), we don't need an extra step for data modification. If, after importing your data into R, its format does not follow the sparse upper triangular [input](#input) format requirement, you need to modify the data.
@@ -223,12 +227,17 @@ The `scHiCcompare()` function will return an object that contains plots, differe
 
 You also can have the option to save the results into the chosen directory by a parameter in `scHiCcompare()` [function](#schiccompare-function). This will save the normalization result table, differential result table, and imputed cell scHi-C data (each group is a sub-folder). The sample of the saved output folder structure is:
  
- + Bulk_normalization_table.txt
- + Differential_analysis_table.txt
- + Imputed_{group 1's name}
- └── + imp_{cell name}.txt
- + Imputed_{group 2's name} 
- └── + imp_{cell name}.txt 
+|-- Bulk_normalization_table.txt
+
+|-- Differential_analysis_table.txt
+
+|-- Imputed_{group 1's name}/
+
+  - | |-- imp_{cell name}.txt
+
+|-- Imputed_{group 2's name}/
+
+  - | |-- imp_{cell name}.txt
 
 The normalization result `Bulk_normalization_table.txt` has the same format as the output object from the `scHiCcompare()` function, `$Intermediate$Bulk.Normalization`, which is shown in the structure example below. 
   
