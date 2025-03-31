@@ -223,12 +223,17 @@ The `scHiCcompare()` function will return an object that contains plots, differe
 
 You also can have the option to save the results into the chosen directory by a parameter in `scHiCcompare()` [function](#schiccompare-function). This will save the normalization result table, differential result table, and imputed cell scHi-C data (each group is a sub-folder). The sample of the saved output folder structure is:
  
- + Bulk_normalization_table.txt
- + Differential_analysis_table.txt
- + Imputed_{group 1's name}
- └── + imp_{cell name}.txt
- + Imputed_{group 2's name} 
- └── + imp_{cell name}.txt 
+|-- Bulk_normalization_table.txt
+
+|-- Differential_analysis_table.txt
+
+|-- Imputed_{group 1's name}/
+
+  - | |-- imp_{cell name}.txt
+
+|-- Imputed_{group 2's name}/
+
+  - | |-- imp_{cell name}.txt
 
 The normalization result `Bulk_normalization_table.txt` has the same format as the output object from the `scHiCcompare()` function, `$Intermediate$Bulk.Normalization`, which is shown in the structure example below. 
   
