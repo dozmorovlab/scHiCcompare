@@ -43,4 +43,8 @@ A table gather 10 single cells Hi-C data modified in sparse upper triangular
   \item{IF_10}{Interaction frequency values for single cell 10}
 }
 }
+\examples{
+data(scHiC.table_ODC_chr22)
+
+}
 \keyword{datasets}

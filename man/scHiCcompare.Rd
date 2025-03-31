@@ -98,10 +98,10 @@ Default is 0.8, equivalent to a 2-fold change.}
 during the `differential.detect` step by `hic_compare()` from HiCcompare.
 The default is 0.05.}
 
-\item{Plot}{Logical value indimessageing whether to plot the
+\item{Plot}{Logical value indicates whether to plot the
 `differential.detect` results in an MD plot. The default is TRUE.}
 
-\item{Plot.normalize}{Logical value indimessageing whether to plot the
+\item{Plot.normalize}{Logical value indicates whether to plot the
 `normalization` results in an MD plot. The default is FALSE.}
 
 \item{save.output.path}{Character string specifying the directory to save

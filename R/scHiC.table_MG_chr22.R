@@ -34,4 +34,5 @@
 #' @examples
 #' data("scHiC.table_MG_chr22")
 #' head(scHiC.table_MG_chr22)
+
 "scHiC.table_MG_chr22"

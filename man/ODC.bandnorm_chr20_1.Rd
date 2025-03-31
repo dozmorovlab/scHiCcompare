@@ -30,4 +30,7 @@ A data frame
 A Modified sparse upper triangular matrix containing the interacting regions cordination (chr1, start1, chr2, start2)
  and the corresponding Interaction Frequency (IF).
 }
+\examples{
+data(ODC.bandnorm_chr20_1)
+}
 \keyword{datasets}

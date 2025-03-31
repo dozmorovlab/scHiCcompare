@@ -31,6 +31,6 @@
 #'  articles/BandNorm-tutorial.html#download-existing-single-cell-hi-c-data}
 #'
 #' @return A data frame
-
+#' @examples data(scHiC.table_ODC_chr22)
 #'
 "scHiC.table_ODC_chr22"
