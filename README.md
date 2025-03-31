@@ -98,10 +98,14 @@ as input for `scHiCcompare()` function.
 
 ``` r
 ## Load folder of ODC file path
-ODCs_example_path <- system.file("ODCs_example", package = "scHiCcompare")
+ODCs_example_path <- system.file("extdata/ODCs_example",
+  package = "scHiCcompare"
+)
 
 ## Load folder of MG file path
-MGs_example_path <- system.file("MGs_example", package = "scHiCcompare")
+MGs_example_path <- system.file("extdata/MGs_example",
+  package = "scHiCcompare"
+)
 ```
 
 Since the data downloaded by `Bandnorm` has the required input format (5
@@ -315,10 +319,17 @@ result table, differential result table, and imputed cell scHi-C data
 (each group is a sub-folder). The sample of the saved output folder
 structure is:
 
-- Bulk_normalization_table.txt
-- Differential_analysis_table.txt
-- Imputed\_{group 1’s name} └── + imp\_{cell name}.txt
-- Imputed\_{group 2’s name} └── + imp\_{cell name}.txt
+\|– Bulk_normalization_table.txt
+
+\|– Differential_analysis_table.txt
+
+\|– Imputed\_{group 1’s name}/
+
+- \|– imp\_{cell name}.txt
+
+\|– Imputed\_{group 2’s name}/
+
+- \|– imp\_{cell name}.txt
 
 The normalization result `Bulk_normalization_table.txt` has the same
 format as the output object from the `scHiCcompare()` function,
@@ -345,25 +356,25 @@ diff_result <- result$Differential_Analysis
 head(diff_result)
 #>      chr1 start1  end1   chr2 start2  end2 bulk.IF1 bulk.IF2     D           M
 #>    <char>  <num> <num> <char>  <num> <num>    <num>    <num> <num>       <num>
-#> 1:  chr20  0e+00 1e+06  chr20  1e+06 2e+06       28       34     1  0.28010792
-#> 2:  chr20  1e+06 2e+06  chr20  2e+06 3e+06       29       48     1  0.72698151
-#> 3:  chr20  2e+06 3e+06  chr20  3e+06 4e+06       32       19     1 -0.75207249
-#> 4:  chr20  3e+06 4e+06  chr20  4e+06 5e+06       26       26     1  0.00000000
-#> 5:  chr20  4e+06 5e+06  chr20  5e+06 6e+06       39       37     1 -0.07594885
-#> 6:  chr20  5e+06 6e+06  chr20  6e+06 7e+06       38       26     1 -0.54748780
+#> 1:  chr20  0e+00 1e+06  chr20  1e+06 2e+06       43       35     1 -0.29698174
+#> 2:  chr20  1e+06 2e+06  chr20  2e+06 3e+06       38       45     1  0.24392558
+#> 3:  chr20  2e+06 3e+06  chr20  3e+06 4e+06       33       32     1 -0.04439412
+#> 4:  chr20  3e+06 4e+06  chr20  4e+06 5e+06       26       28     1  0.10691520
+#> 5:  chr20  4e+06 5e+06  chr20  5e+06 6e+06       41       33     1 -0.31315789
+#> 6:  chr20  5e+06 6e+06  chr20  6e+06 7e+06       35       20     1 -0.80735492
 #>    adj.bulk.IF1 bulk.adj.IF2      adj.M         mc        A          Z
 #>           <num>        <num>      <num>      <num>    <num>      <num>
-#> 1:     26.23038     36.29379  0.4684842 -0.1883762 31.26209  2.1542193
-#> 2:     27.16718     51.23830  0.9153577 -0.1883762 39.20274  4.2095550
-#> 3:     29.97758     20.28183 -0.5636962 -0.1883762 25.12970 -2.5931575
-#> 4:     24.35678     27.75408  0.1883762 -0.1883762 26.05543  0.8659001
-#> 5:     36.53517     39.49619  0.1124274 -0.1883762 38.01568  0.5165834
-#> 6:     35.59837     27.75408 -0.3591116 -0.1883762 31.67623 -1.6521974
+#> 1:     40.49493     37.16514 -0.1237912 -0.1731905 38.83004 -0.3167693
+#> 2:     35.78622     47.78376  0.4171161 -0.1731905 41.78499  1.0969765
+#> 3:     31.07751     33.97956  0.1287964 -0.1731905 32.52853  0.3434079
+#> 4:     24.48531     29.73211  0.2801057 -0.1731905 27.10871  0.7388785
+#> 5:     38.61145     35.04142 -0.1399674 -0.1731905 36.82643 -0.3590482
+#> 6:     32.96099     21.23722 -0.6341644 -0.1731905 27.09911 -1.6507094
 #>    Difference.cluster
 #>                 <num>
-#> 1:                  0
-#> 2:                  0
-#> 3:                  0
+#> 1:                  1
+#> 2:                  1
+#> 3:                  1
 #> 4:                  1
 #> 5:                  1
 #> 6:                  1
@@ -373,22 +384,22 @@ head(diff_result)
 ### Extract imputed pseudo bulk matrices normalization
 norm_result <- result$Intermediate$Bulk.Normalization
 head(norm_result)
-#>      chr1 start1  end1   chr2 start2  end2 bulk.IF1 bulk.IF2     D          M
-#>    <char>  <num> <num> <char>  <num> <num>    <num>    <num> <num>      <num>
-#> 1:  chr20  1e+06 2e+06  chr20  1e+06 2e+06     1823     2111     0 0.21161202
-#> 2:  chr20  2e+06 3e+06  chr20  2e+06 3e+06     1931     2187     0 0.17960506
-#> 3:  chr20  3e+06 4e+06  chr20  3e+06 4e+06     1750     2114     0 0.27262045
-#> 4:  chr20  4e+06 5e+06  chr20  4e+06 5e+06     1953     2091     0 0.09850111
-#> 5:  chr20  5e+06 6e+06  chr20  5e+06 6e+06     1799     2010     0 0.16000031
-#> 6:  chr20  6e+06 7e+06  chr20  6e+06 7e+06     1808     2056     0 0.18544559
-#>    adj.bulk.IF1 bulk.adj.IF2        adj.M        mc        A
-#>           <num>        <num>        <num>     <num>    <num>
-#> 1:     1932.385     1991.505  0.043476476 0.1681355 1961.945
-#> 2:     2046.865     2063.203  0.011469514 0.1681355 2055.034
-#> 3:     1855.005     1994.335  0.104484913 0.1681355 1924.670
-#> 4:     2070.185     1972.637 -0.069634429 0.1681355 2021.411
-#> 5:     1906.945     1896.222 -0.008135227 0.1681355 1901.583
-#> 6:     1916.485     1939.618  0.017310045 0.1681355 1928.051
+#>      chr1 start1  end1   chr2 start2  end2 bulk.IF1 bulk.IF2     D         M
+#>    <char>  <num> <num> <char>  <num> <num>    <num>    <num> <num>     <num>
+#> 1:  chr20  1e+06 2e+06  chr20  1e+06 2e+06     1830     2246     0 0.2955143
+#> 2:  chr20  2e+06 3e+06  chr20  2e+06 3e+06     2009     2260     0 0.1698452
+#> 3:  chr20  3e+06 4e+06  chr20  3e+06 4e+06     1502     1956     0 0.3810216
+#> 4:  chr20  4e+06 5e+06  chr20  4e+06 5e+06     1749     2317     0 0.4057278
+#> 5:  chr20  5e+06 6e+06  chr20  5e+06 6e+06     2040     2400     0 0.2344653
+#> 6:  chr20  6e+06 7e+06  chr20  6e+06 7e+06     2020     2361     0 0.2250427
+#>    adj.bulk.IF1 bulk.adj.IF2       adj.M        mc        A
+#>           <num>        <num>       <num>     <num>    <num>
+#> 1:     1992.411     2062.918  0.05017112 0.2453432 2027.664
+#> 2:     2187.297     2075.777 -0.07549795 0.2453432 2131.537
+#> 3:     1635.301     1796.557  0.13567840 0.2453432 1715.929
+#> 4:     1904.222     2128.130  0.16038459 0.2453432 2016.176
+#> 5:     2221.048     2204.365 -0.01087791 0.2453432 2212.706
+#> 6:     2199.273     2168.544 -0.02030041 0.2453432 2183.908
 ```
 
 ``` r
@@ -397,46 +408,46 @@ imp_ODC_table <- result$Intermediate$Imputation$condition1
 head(imp_ODC_table)
 #>   region1 region2       cell   chr imp.IF_ODC.bandnorm_chr20_1
 #> 1   1e+06   1e+06 condition1 chr20                         179
-#> 2   2e+06   2e+06 condition1 chr20                         174
-#> 3   3e+06   3e+06 condition1 chr20                         194
-#> 4   4e+06   4e+06 condition1 chr20                         201
-#> 5   5e+06   5e+06 condition1 chr20                         171
-#> 6   6e+06   6e+06 condition1 chr20                         142
+#> 2   2e+06   2e+06 condition1 chr20                         189
+#> 3   3e+06   3e+06 condition1 chr20                         204
+#> 4   4e+06   4e+06 condition1 chr20                         177
+#> 5   5e+06   5e+06 condition1 chr20                         181
+#> 6   6e+06   6e+06 condition1 chr20                         199
 #>   imp.IF_ODC.bandnorm_chr20_2 imp.IF_ODC.bandnorm_chr20_3
-#> 1                         195                         192
-#> 2                         204                         226
-#> 3                         207                         198
-#> 4                         220                         228
-#> 5                         193                         208
-#> 6                         181                         200
+#> 1                         174                         194
+#> 2                         191                         217
+#> 3                         197                         190
+#> 4                         187                         156
+#> 5                         196                         218
+#> 6                         167                         184
 #>   imp.IF_ODC.bandnorm_chr20_4 imp.IF_ODC.bandnorm_chr20_5
-#> 1                         134                         164
-#> 2                         153                         186
-#> 3                         136                         165
-#> 4                         147                         194
-#> 5                         173                         156
-#> 6                         153                         188
+#> 1                         201                         171
+#> 2                         179                         180
+#> 3                         200                         108
+#> 4                         178                         146
+#> 5                         200                         263
+#> 6                         200                         214
 #>   imp.IF_ODC.bandnorm_chr20_6 imp.IF_ODC.bandnorm_chr20_7
-#> 1                          52                         204
-#> 2                          67                         215
-#> 3                          50                         194
-#> 4                          54                         220
-#> 5                          61                         210
-#> 6                          56                         219
+#> 1                         142                         198
+#> 2                         201                         215
+#> 3                          25                         184
+#> 4                         144                         150
+#> 5                         162                         215
+#> 6                         218                         232
 #>   imp.IF_ODC.bandnorm_chr20_8 imp.IF_ODC.bandnorm_chr20_9
-#> 1                         259                         249
-#> 2                         231                         247
-#> 3                         212                         206
-#> 4                         272                         212
-#> 5                         191                         244
-#> 6                         237                         224
+#> 1                         175                         208
+#> 2                         205                         214
+#> 3                         176                          54
+#> 4                         199                         208
+#> 5                         191                         191
+#> 6                         209                         173
 #>   imp.IF_ODC.bandnorm_chr20_10
-#> 1                          195
-#> 2                          228
-#> 3                          188
-#> 4                          205
-#> 5                          192
-#> 6                          208
+#> 1                          188
+#> 2                          218
+#> 3                          164
+#> 4                          204
+#> 5                          223
+#> 6                          224
 ```
 
 ``` r
@@ -445,12 +456,12 @@ head(imp_ODC_table)
 psudobulk_result <- result$Intermediate$PseudoBulk$condition1
 head(psudobulk_result)
 #>   region1 region2   IF
-#> 1   1e+06   1e+06 1823
-#> 2   2e+06   2e+06 1931
-#> 3   3e+06   3e+06 1750
-#> 4   4e+06   4e+06 1953
-#> 5   5e+06   5e+06 1799
-#> 6   6e+06   6e+06 1808
+#> 1   1e+06   1e+06 1830
+#> 2   2e+06   2e+06 2009
+#> 3   3e+06   3e+06 1502
+#> 4   4e+06   4e+06 1749
+#> 5   5e+06   5e+06 2040
+#> 6   6e+06   6e+06 2020
 ```
 
 Furthermore, you also have some parameter options in the function to
@@ -500,46 +511,46 @@ imp_ODC_table <- result$Intermediate$Imputation$condition1
 
     #>   region1 region2       cell   chr imp.IF_ODC.bandnorm_chr20_1
     #> 1   1e+06   1e+06 condition1 chr20                         179
-    #> 2   2e+06   2e+06 condition1 chr20                         174
-    #> 3   3e+06   3e+06 condition1 chr20                         194
-    #> 4   4e+06   4e+06 condition1 chr20                         201
-    #> 5   5e+06   5e+06 condition1 chr20                         171
-    #> 6   6e+06   6e+06 condition1 chr20                         142
+    #> 2   2e+06   2e+06 condition1 chr20                         189
+    #> 3   3e+06   3e+06 condition1 chr20                         204
+    #> 4   4e+06   4e+06 condition1 chr20                         177
+    #> 5   5e+06   5e+06 condition1 chr20                         181
+    #> 6   6e+06   6e+06 condition1 chr20                         199
     #>   imp.IF_ODC.bandnorm_chr20_2 imp.IF_ODC.bandnorm_chr20_3
-    #> 1                         195                         192
-    #> 2                         204                         226
-    #> 3                         207                         198
-    #> 4                         220                         228
-    #> 5                         193                         208
-    #> 6                         181                         200
+    #> 1                         174                         194
+    #> 2                         191                         217
+    #> 3                         197                         190
+    #> 4                         187                         156
+    #> 5                         196                         218
+    #> 6                         167                         184
     #>   imp.IF_ODC.bandnorm_chr20_4 imp.IF_ODC.bandnorm_chr20_5
-    #> 1                         134                         164
-    #> 2                         153                         186
-    #> 3                         136                         165
-    #> 4                         147                         194
-    #> 5                         173                         156
-    #> 6                         153                         188
+    #> 1                         201                         171
+    #> 2                         179                         180
+    #> 3                         200                         108
+    #> 4                         178                         146
+    #> 5                         200                         263
+    #> 6                         200                         214
     #>   imp.IF_ODC.bandnorm_chr20_6 imp.IF_ODC.bandnorm_chr20_7
-    #> 1                          52                         204
-    #> 2                          67                         215
-    #> 3                          50                         194
-    #> 4                          54                         220
-    #> 5                          61                         210
-    #> 6                          56                         219
+    #> 1                         142                         198
+    #> 2                         201                         215
+    #> 3                          25                         184
+    #> 4                         144                         150
+    #> 5                         162                         215
+    #> 6                         218                         232
     #>   imp.IF_ODC.bandnorm_chr20_8 imp.IF_ODC.bandnorm_chr20_9
-    #> 1                         259                         249
-    #> 2                         231                         247
-    #> 3                         212                         206
-    #> 4                         272                         212
-    #> 5                         191                         244
-    #> 6                         237                         224
+    #> 1                         175                         208
+    #> 2                         205                         214
+    #> 3                         176                          54
+    #> 4                         199                         208
+    #> 5                         191                         191
+    #> 6                         209                         173
     #>   imp.IF_ODC.bandnorm_chr20_10
-    #> 1                          195
-    #> 2                          228
-    #> 3                          188
-    #> 4                          205
-    #> 5                          192
-    #> 6                          208
+    #> 1                          188
+    #> 2                          218
+    #> 3                          164
+    #> 4                          204
+    #> 5                          223
+    #> 6                          224
 
 We need to create the table input for original IFs values in the same
 format. Below is a continuous example from [Example of real
@@ -637,35 +648,35 @@ cells per group for optimal imputation performance.
     #> [1] stats     graphics  grDevices utils     datasets  methods   base     
     #> 
     #> other attached packages:
-    #> [1] data.table_1.16.2   lattice_0.22-6      gridExtra_2.3      
-    #> [4] ggplot2_3.5.1       tidyr_1.3.1         scHiCcompare_0.99.0
+    #> [1] data.table_1.16.4   lattice_0.22-6      gridExtra_2.3      
+    #> [4] ggplot2_3.5.1       tidyr_1.3.1         scHiCcompare_0.99.5
     #> 
     #> loaded via a namespace (and not attached):
     #>   [1] minqa_1.2.6                 colorspace_2.1-1           
     #>   [3] CGHcall_2.60.0              mclust_6.0.1               
     #>   [5] DNAcopy_1.72.3              XVector_0.38.0             
-    #>   [7] GenomicRanges_1.50.2        rstudioapi_0.17.0          
-    #>   [9] mice_3.16.0                 farver_2.1.2               
-    #>  [11] listenv_0.9.1               fansi_1.0.6                
-    #>  [13] HiCcompare_1.20.0           ranger_0.16.0              
-    #>  [15] codetools_0.2-20            splines_4.2.3              
-    #>  [17] R.methodsS3_1.8.2           impute_1.72.3              
-    #>  [19] knitr_1.48                  Formula_1.2-5              
-    #>  [21] nloptr_2.0.3                Rsamtools_2.14.0           
-    #>  [23] broom_1.0.7                 miceadds_3.16-18           
-    #>  [25] R.oo_1.26.0                 pheatmap_1.0.12            
-    #>  [27] compiler_4.2.3              backports_1.5.0            
-    #>  [29] Matrix_1.6-4                fastmap_1.2.0              
-    #>  [31] limma_3.54.2                cli_3.6.3                  
-    #>  [33] htmltools_0.5.8.1           tools_4.2.3                
-    #>  [35] gtable_0.3.5                glue_1.8.0                 
-    #>  [37] GenomeInfoDbData_1.2.9      dplyr_1.1.4                
-    #>  [39] Rcpp_1.0.13                 carData_3.0-5              
-    #>  [41] Biobase_2.58.0              vctrs_0.6.5                
-    #>  [43] Biostrings_2.66.0           rhdf5filters_1.10.1        
-    #>  [45] nlme_3.1-164                iterators_1.0.14           
-    #>  [47] QDNAseq_1.34.0              xfun_0.48                  
-    #>  [49] globals_0.16.3              lme4_1.1-35.5              
+    #>   [7] GenomicRanges_1.50.2        rstudioapi_0.17.1          
+    #>   [9] mice_3.17.0                 farver_2.1.2               
+    #>  [11] listenv_0.9.1               HiCcompare_1.20.0          
+    #>  [13] ranger_0.17.0               codetools_0.2-20           
+    #>  [15] splines_4.2.3               R.methodsS3_1.8.2          
+    #>  [17] impute_1.72.3               knitr_1.49                 
+    #>  [19] Formula_1.2-5               nloptr_2.0.3               
+    #>  [21] Rsamtools_2.14.0            broom_1.0.7                
+    #>  [23] miceadds_3.16-18            R.oo_1.27.0                
+    #>  [25] pheatmap_1.0.12             compiler_4.2.3             
+    #>  [27] backports_1.5.0             Matrix_1.6-4               
+    #>  [29] fastmap_1.2.0               limma_3.54.2               
+    #>  [31] cli_3.6.3                   htmltools_0.5.8.1          
+    #>  [33] tools_4.2.3                 gtable_0.3.6               
+    #>  [35] glue_1.8.0                  GenomeInfoDbData_1.2.9     
+    #>  [37] dplyr_1.1.4                 Rcpp_1.0.14                
+    #>  [39] carData_3.0-5               Biobase_2.58.0             
+    #>  [41] vctrs_0.6.5                 Biostrings_2.66.0          
+    #>  [43] rhdf5filters_1.10.1         nlme_3.1-164               
+    #>  [45] iterators_1.0.14            QDNAseq_1.34.0             
+    #>  [47] xfun_0.50                   globals_0.16.3             
+    #>  [49] rbibutils_2.3               lme4_1.1-36                
     #>  [51] lifecycle_1.0.4             gtools_3.9.5               
     #>  [53] rstatix_0.7.2               InteractionSet_1.26.1      
     #>  [55] future_1.34.0               pan_1.9                    
@@ -673,28 +684,28 @@ cells per group for optimal imputation performance.
     #>  [59] scales_1.3.0                MatrixGenerics_1.10.0      
     #>  [61] parallel_4.2.3              SummarizedExperiment_1.28.0
     #>  [63] rhdf5_2.42.1                RColorBrewer_1.1-3         
-    #>  [65] yaml_2.3.10                 rpart_4.1.23               
-    #>  [67] CGHbase_1.58.0              highr_0.11                 
-    #>  [69] S4Vectors_0.36.2            foreach_1.5.2              
-    #>  [71] BiocGenerics_0.44.0         boot_1.3-31                
-    #>  [73] BiocParallel_1.32.6         shape_1.4.6.1              
-    #>  [75] GenomeInfoDb_1.34.9         rlang_1.1.4                
-    #>  [77] pkgconfig_2.0.3             matrixStats_1.4.1          
-    #>  [79] bitops_1.0-9                evaluate_1.0.1             
+    #>  [65] yaml_2.3.10                 rpart_4.1.24               
+    #>  [67] CGHbase_1.58.0              S4Vectors_0.36.2           
+    #>  [69] foreach_1.5.2               BiocGenerics_0.44.0        
+    #>  [71] boot_1.3-31                 BiocParallel_1.32.6        
+    #>  [73] shape_1.4.6.1               GenomeInfoDb_1.34.9        
+    #>  [75] Rdpack_2.6.2                rlang_1.1.5                
+    #>  [77] pkgconfig_2.0.3             matrixStats_1.5.0          
+    #>  [79] bitops_1.0-9                evaluate_1.0.3             
     #>  [81] purrr_1.0.2                 Rhdf5lib_1.20.0            
     #>  [83] labeling_0.4.3              tidyselect_1.2.1           
-    #>  [85] parallelly_1.38.0           magrittr_2.0.3             
+    #>  [85] parallelly_1.42.0           magrittr_2.0.3             
     #>  [87] R6_2.5.1                    IRanges_2.32.0             
-    #>  [89] generics_0.1.3              mitml_0.4-5                
-    #>  [91] DelayedArray_0.24.0         DBI_1.2.3                  
-    #>  [93] withr_3.0.1                 pillar_1.9.0               
-    #>  [95] mgcv_1.9-1                  abind_1.4-8                
-    #>  [97] survival_3.7-0              RCurl_1.98-1.16            
-    #>  [99] nnet_7.3-19                 tibble_3.2.1               
-    #> [101] future.apply_1.11.2         crayon_1.5.3               
-    #> [103] car_3.1-3                   jomo_2.7-6                 
-    #> [105] KernSmooth_2.23-22          utf8_1.2.4                 
-    #> [107] rmarkdown_2.28              grid_4.2.3                 
+    #>  [89] reformulas_0.4.0            generics_0.1.3             
+    #>  [91] mitml_0.4-5                 DelayedArray_0.24.0        
+    #>  [93] DBI_1.2.3                   withr_3.0.2                
+    #>  [95] pillar_1.10.1               mgcv_1.9-1                 
+    #>  [97] abind_1.4-8                 survival_3.8-3             
+    #>  [99] RCurl_1.98-1.16             nnet_7.3-20                
+    #> [101] tibble_3.2.1                future.apply_1.11.3        
+    #> [103] car_3.1-3                   crayon_1.5.3               
+    #> [105] jomo_2.7-6                  KernSmooth_2.23-22         
+    #> [107] rmarkdown_2.29              grid_4.2.3                 
     #> [109] marray_1.76.0               digest_0.6.37              
     #> [111] R.utils_2.12.3              stats4_4.2.3               
     #> [113] munsell_0.5.1               glmnet_4.1-8               

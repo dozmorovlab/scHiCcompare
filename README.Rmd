@@ -94,10 +94,14 @@ For the following example sections, we will load samples of 10 single-cell Hi-C 
 
 ```{r}
 ## Load folder of ODC file path
-ODCs_example_path <- system.file("ODCs_example", package = "scHiCcompare")
+ODCs_example_path <- system.file("extdata/ODCs_example",
+  package = "scHiCcompare"
+)
 
 ## Load folder of MG file path
-MGs_example_path <- system.file("MGs_example", package = "scHiCcompare")
+MGs_example_path <- system.file("extdata/MGs_example",
+  package = "scHiCcompare"
+)
 ```
 
 Since the data downloaded by `Bandnorm` has the required input format (5 columns of [chr1, start1, chr2, start2, IF]), we don't need an extra step for data modification. If, after importing your data into R, its format does not follow the sparse upper triangular [input](#input) format requirement, you need to modify the data.
