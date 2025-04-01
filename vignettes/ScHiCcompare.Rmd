@@ -69,6 +69,7 @@ BiocManager::install("scHiCcompare")
 
 ```{r, message=FALSE, warning=FALSE}
 library(scHiCcompare)
+library(HiCcompare)
 library(tidyr)
 library(ggplot2)
 library(gridExtra)
@@ -275,7 +276,7 @@ The input file path was included in the package and conducted in the
 [Prepare input folders](#prepare-input-folders) section.
 
 
-```{r, message=FALSE, warning=FALSE, fig.cap='Chromatin differential detection between ODC and MG in chromosome 20 in example above'}
+```{r, message=F, warning=FALSE, fig.cap='Chromatin differential detection between ODC and MG in chromosome 20 in example above'}
 ## Imputation with 'progressive' pooling
 result <- scHiCcompare(
   file.path.1 = ODCs_example_path,
@@ -289,6 +290,8 @@ result <- scHiCcompare(
   fprControl.logfc = 0.8,
   Plot = TRUE
 )
+
+print(result)
 ```
 
 From the visualizations above, normalization effectively reduces the irregular
@@ -376,6 +379,11 @@ a modified sparse upper triangular format of five columns
 Below is a continuous example from 
 [Example of real anlysis](#example-of-real-anlysis) above, showing how you can
 extract different result options from the `scHiCcompare()` function.
+
+```{r}
+### Summary the analysis
+print(result)
+```
 
 ```{r}
 ### Extract imputed differential result
