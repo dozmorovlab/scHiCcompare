@@ -291,7 +291,6 @@ result <- scHiCcompare(
   Plot = TRUE
 )
 
-print(result)
 ```
 
 From the visualizations above, normalization effectively reduces the irregular
