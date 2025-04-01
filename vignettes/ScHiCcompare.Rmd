@@ -174,10 +174,7 @@ data("ODC.bandnorm_chr20_1")
 
 ```{r, echo=FALSE}
 names(ODC.bandnorm_chr20_1) <- c("chr1", "start1", "chr2", "start2", "IF")
-# DT::datatable(head(ODC.bandnorm_chr20_1),
-#   options = list(pageLength = 6, dom = "tip"),
-#   rownames = FALSE, width = 700
-# )
+
 head(ODC.bandnorm_chr20_1)
 ```
 
@@ -290,7 +287,6 @@ result <- scHiCcompare(
   fprControl.logfc = 0.8,
   Plot = TRUE
 )
-
 ```
 
 From the visualizations above, normalization effectively reduces the irregular
@@ -387,18 +383,21 @@ print(result)
 ```{r}
 ### Extract imputed differential result
 diff_result <- result$Differential_Analysis
+
 DT::datatable(head(diff_result), options = list(scrollX = TRUE), width = 700)
 ```
 
 ```{r}
 ### Extract imputed pseudo bulk matrices normalization
 norm_result <- result$Intermediate$Bulk.Normalization
+
 DT::datatable(head(norm_result), options = list(scrollX = TRUE), width = 700)
 ```
 
 ```{r}
 ### Extract imputed ODC cell type table
 imp_ODC_table <- result$Intermediate$Imputation$condition1
+
 DT::datatable(head(imp_ODC_table), options = list(scrollX = TRUE), width = 700)
 ```
 
@@ -406,6 +405,7 @@ DT::datatable(head(imp_ODC_table), options = list(scrollX = TRUE), width = 700)
 ## Extract Pseudo-bulk matrix from imputed scHi-C data
 ## Pseudo bulk matrix in standard sparse format
 psudobulk_result <- result$Intermediate$PseudoBulk$condition1
+
 DT::datatable(head(psudobulk_result),
   options = list(scrollX = TRUE), width = 700
 )
@@ -430,6 +430,7 @@ IF. More information can be found in its help document and the example below.
 
 ```{r}
 data("ODC.bandnorm_chr20_1")
+
 plot_HiCmatrix_heatmap(
   scHiC.sparse = ODC.bandnorm_chr20_1,
   main = "Figure 3. Heatmap of a single cell matrix", zlim = c(0, 5)
@@ -474,21 +475,24 @@ scHiC.table_ODC <- imp_ODC_table[c("region1", "region2", "cell", "chr")]
 
 # List all files in the specified directory for original ODC data
 file.names <- list.files(
-    path = ODCs_example_path,
-    full.names = TRUE, recursive = TRUE
+  path = ODCs_example_path,
+  full.names = TRUE, recursive = TRUE
 )
 
 # Loop through each file to read and merge data
 for (i in 1:length(file.names)) {
-    # Read the current file into a data frame
-    data <- read.delim(file.names[[i]])
-    names(data) <- c("chr", "region1", "chr2", "region2", paste0("IF_", i))
-    data <- data[, names(data) %in%
-        c("chr", "region1", "region2", paste0("IF_", i))]
-    # Merge the newly read data with the existing scHiC.table_ODC
-    scHiC.table_ODC <- merge(scHiC.table_ODC, data,
-        by = c("region1", "region2", "chr"), all = TRUE
-    )
+  # Read the current file into a data frame
+  data <- read.delim(file.names[[i]])
+
+  names(data) <- c("chr", "region1", "chr2", "region2", paste0("IF_", i))
+
+  data <- data[, names(data) %in%
+    c("chr", "region1", "region2", paste0("IF_", i))]
+
+  # Merge the newly read data with the existing scHiC.table_ODC
+  scHiC.table_ODC <- merge(scHiC.table_ODC, data,
+    by = c("region1", "region2", "chr"), all = TRUE
+  )
 }
 
 # Create scHiC table object for original MG interaction frequencies (IF)
@@ -496,23 +500,25 @@ scHiC.table_MG <- imp_MG_table[c("region1", "region2", "cell", "chr")]
 
 # List all files in the specified directory for original MG data
 file.names <- list.files(
-    path = MGs_example_path,
-    full.names = TRUE, recursive = TRUE
+  path = MGs_example_path,
+  full.names = TRUE, recursive = TRUE
 )
 
 # Loop through each file to read and merge data
 for (i in 1:length(file.names)) {
-    # Read the current file into a data frame
-    data <- read.delim(file.names[[i]])
-    names(data) <- c("chr", "region1", "chr2", "region2", paste0("IF_", i))
-    data <- data[, names(data) %in%
-        c("chr", "region1", "region2", paste0("IF_", i))]
-    # Merge the newly read data with the existing scHiC.table_MG
-    scHiC.table_MG <- merge(scHiC.table_MG, data,
-        by = c("region1", "region2", "chr"), all = TRUE
-    )
-}
+  # Read the current file into a data frame
+  data <- read.delim(file.names[[i]])
 
+  names(data) <- c("chr", "region1", "chr2", "region2", paste0("IF_", i))
+
+  data <- data[, names(data) %in%
+    c("chr", "region1", "region2", paste0("IF_", i))]
+  # Merge the newly read data with the existing scHiC.table_MG
+
+  scHiC.table_MG <- merge(scHiC.table_MG, data,
+    by = c("region1", "region2", "chr"), all = TRUE
+  )
+}
 ```
 
 ```{r, message=FALSE, warning=FALSE, , fig.cap='Distribution diagnostic plot of imputed MG cells in some genomic distance'}
@@ -521,18 +527,22 @@ plot1 <- plot_imputed_distance_diagnostic(
   raw_sc_data = scHiC.table_MG,
   imp_sc_data = imp_MG_table, D = 1
 )
+
 plot2 <- plot_imputed_distance_diagnostic(
   raw_sc_data = scHiC.table_MG,
   imp_sc_data = imp_MG_table, D = 2
 )
+
 plot3 <- plot_imputed_distance_diagnostic(
   raw_sc_data = scHiC.table_MG,
   imp_sc_data = imp_MG_table, D = 3
 )
+
 plot4 <- plot_imputed_distance_diagnostic(
   raw_sc_data = scHiC.table_MG,
   imp_sc_data = imp_MG_table, D = 4
 )
+
 gridExtra::grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow = 2)
 ```
 
@@ -604,7 +614,6 @@ getGEOSuppFiles(geo_id, baseDir = "path/to/save")
  MG cell types groups in 1MB resolution.
 
 ```{r, eval=FALSE}
-### Install Bandnorm
 install.packages(c("ggplot2", "dplyr", "data.table", "Rtsne", "umap"))
 
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -614,6 +623,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 BiocManager::install("immunogenomics/harmony")
 
 devtools::install_github("sshen82/BandNorm", build_vignettes = FALSE)
+
 library(BandNorm)
 ```
 
@@ -655,6 +665,7 @@ single-cell Hi-C of the same cell type (condition) group.
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
 }
+
 BiocManager::install("strawr")
 ```
 
@@ -688,10 +699,15 @@ which will return a list object in the format of BEDPE, containing two elements:
 in more detail by `?cooler2bedpe()`.
   
 ```{r, eval=FALSE}
+# Install BiocManager if not already installed
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
 }
+
+# Install HiCcompare package from Bioconductor
 BiocManager::install("HiCcompare")
+
+# Load the HiCcompare package
 library(HiCcompare)
 ```
 
