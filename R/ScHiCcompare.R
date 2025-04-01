@@ -141,7 +141,7 @@ withoutNorm_hicTable <- function(hic.table) {
 #' @importFrom BiocParallel bpparam
 #'
 #' @export print.checkNumbers
-#' @export
+
 
 
 scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
