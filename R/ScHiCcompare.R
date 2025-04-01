@@ -434,6 +434,6 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
   
   # class(result) <- "checkNumbers"
   # return(result)
-  structure(result, , class = "scHiCcompare")
+  structure(result, class = "scHiCcompare")
 }
 
