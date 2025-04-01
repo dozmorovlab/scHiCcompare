@@ -436,6 +436,8 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
 }
 
 
+
+#' @export
 print.checkNumbers <- function(obj) {
   message("-----------------------------------------------------------------")
   message("   ScHiCcompare - Differential Analysis for single cell Hi-C")
