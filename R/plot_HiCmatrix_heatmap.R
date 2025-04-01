@@ -52,6 +52,7 @@ plot_HiCmatrix_heatmap <- function(scHiC.sparse,
                                    figure_name = NULL) {
   # Transform sparse matrix to a full matrix with only required columns
   scHiC.sparse <- scHiC.sparse[, c(2, 4, 5)]
+
   org_sc_full <- HiCcompare::sparse2full(scHiC.sparse)
 
   # Define zlim if not provided

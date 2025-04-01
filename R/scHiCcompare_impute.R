@@ -162,7 +162,7 @@ predictorMatrixNP_sc_D <- function(scHiC.table, distance) {
   IF <- as.vector(unlist(c(entire.if[row.index.D, ])))
   IF[IF == 0] <- NA
 
-  ## Extract name of level 1: single cells for each bin
+  ## Extract name of level from 1 to single cells for each bin
   matrix_position <- ncol(scHiC.table.up) - 5
   single_cell <- rep(seq_len(matrix_position), each = length(row.index.D))
 
@@ -231,8 +231,8 @@ mice.rf_impute <- function(data_input, n.imputation = 5, maxit = 1,
   # Retrieve completed data in long format
   imp_data <- mice::complete(imp, action = "long", include = FALSE)
   ## adjust .id column
-  names(imp_data)[names(imp_data) == ".id"] = ".id_org" 
-  imp_data$`.id` = rep(rep(1:nrow(data_input)), n.imputation)
+  names(imp_data)[names(imp_data) == ".id"] <- ".id_org"
+  imp_data$`.id` <- rep(rep(seq_len(nrow(data_input))), n.imputation)
   # Aggregate mean of all imputed complete data
   agg_new_if2 <- round(stats::aggregate(imp_data$IF,
     by = list(imp_data$.id),
@@ -383,7 +383,7 @@ predictorMatrix_sc_D <- function(scHiC.table, distance) {
   IF <- as.vector(unlist(c(entire.if[row.index.D, ])))
   IF[IF == 0] <- NA
 
-  ## Extract name of level 1: single cells for each bin
+  ## Extract name of level single cells for each bin
   matrix_position <- ncol(scHiC.table.up) - 5
   single_cell <- rep(seq_len(matrix_position), each = length(row.index.D))
 
@@ -576,8 +576,8 @@ RF_process <- function(scHiC.table, n_imputation = 5, outlier.rm = TRUE,
         )
         imp_data <- mice::complete(imp, action = "long", include = FALSE)
         ## adjust .id column
-        names(imp_data)[names(imp_data) == ".id"] = ".id_org" 
-        imp_data$`.id` = rep(rep(1:nrow(data_input)), n_imputation)
+        names(imp_data)[names(imp_data) == ".id"] <- ".id_org"
+        imp_data$`.id` <- rep(rep(seq_len(nrow(data_input))), n_imputation)
         agg_new_if2 <- round(
           stats::aggregate(imp_data[, 4],
             by = list(imp_data$.id), FUN = mean

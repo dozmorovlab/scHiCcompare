@@ -140,7 +140,7 @@ withoutNorm_hicTable <- function(hic.table) {
 #' @importFrom stats na.omit
 #' @importFrom BiocParallel bpparam
 #'
-#' @export 
+#' @export
 
 
 
@@ -152,7 +152,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
                          maxit = 1, outlier.rm = TRUE, missPerc.threshold = 95,
                          A.min = NULL, fprControl.logfc = 0.8, alpha = 0.05,
                          Plot = TRUE, Plot.normalize = FALSE,
-                         save.output.path = NULL, 
+                         save.output.path = NULL,
                          BPPARAM = BiocParallel::bpparam()) {
   # Read file 'txt' from 2 folder path
   file_name1 <- list.files(file.path.1)
@@ -269,8 +269,7 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
     A.min <- suppressMessages(suppressWarnings(best_A(
       hic.table = norm.hic.table, SD = SD, numChanges = numChanges,
       FC = FC, alpha = alpha
-      )
-    ))
+    )))
   }
   # HiCcompare
   hic.table_result <- HiCcompare::hic_compare(norm.hic.table,
@@ -424,16 +423,19 @@ scHiCcompare <- function(file.path.1, file.path.2, select.chromosome,
   result <- list(
     Differential_Analysis = hic.table.GMM_result,
     Intermediate = list(
-      Imputation = list(condition1 = impute1_result, 
-                        condition2 = impute2_result),
-      PseudoBulk = list(condition1 = bulk_sparse_cond1, 
-                        condition2 = bulk_sparse_cond2),
+      Imputation = list(
+        condition1 = impute1_result,
+        condition2 = impute2_result
+      ),
+      PseudoBulk = list(
+        condition1 = bulk_sparse_cond1,
+        condition2 = bulk_sparse_cond2
+      ),
       Bulk.Normalization = norm.result
     )
   )
-  
+
   # class(result) <- "checkNumbers"
   # return(result)
   structure(result, class = "scHiCcompare")
 }
-
