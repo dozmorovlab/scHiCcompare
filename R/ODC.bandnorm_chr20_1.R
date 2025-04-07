@@ -21,4 +21,4 @@
 #'
 #' @return A data frame
 #' @examples data(ODC.bandnorm_chr20_1)
-"ODC.bandnorm_chr20_1"
+"data(ODC.bandnorm_chr20_1)"
