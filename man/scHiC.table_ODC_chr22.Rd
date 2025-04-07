@@ -14,7 +14,7 @@ Single-cells data of ODC cell type download by download_schic() by
  articles/BandNorm-tutorial.html#download-existing-single-cell-hi-c-data}
 }
 \usage{
-scHiC.table_ODC_chr22
+data("scHiC.table_ODC_chr22")
 }
 \value{
 A data frame
@@ -44,7 +44,6 @@ A table gather 10 single cells Hi-C data modified in sparse upper triangular
 }
 }
 \examples{
-data(scHiC.table_ODC_chr22)
-
+data("scHiC.table_ODC_chr22")
 }
 \keyword{datasets}

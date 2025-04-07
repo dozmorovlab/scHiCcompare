@@ -8,7 +8,7 @@
 }
 \arguments{
 \item{x}{An object of class `scHiCcompare`. This object should contain
-intermediate results from the differential analysis of single-cell 
+intermediate results from the differential analysis of single-cell
 Hi-C data.}
 
 \item{...}{Further arguments to be passed to or from other methods.}
@@ -25,17 +25,19 @@ chromosome analyzed, and the processes involved in the analysis.
 \examples{
 ## Load example data for ODC and MG file paths
 ODCs_example <- system.file("extdata/ODCs_example",
- package = "scHiCcompare")
+  package = "scHiCcompare"
+)
 MGs_example <- system.file("extdata/MGs_example",
- package = "scHiCcompare")
- 
- ## Run scHiCcompare on example data
- result <- scHiCcompare(
+  package = "scHiCcompare"
+)
+
+## Run scHiCcompare on example data
+result <- scHiCcompare(
   file.path.1 = MGs_example,
   file.path.2 = ODCs_example,
   select.chromosome = "chr20",
   Plot = FALSE
-  )
+)
 print(result)
 
 }
