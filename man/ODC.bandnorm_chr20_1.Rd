@@ -21,7 +21,7 @@ Data downloaded by download_schic() by `Bandnorm`. See their website at
     \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE130711}
 }
 \usage{
-ODC.bandnorm_chr20_1
+data("ODC.bandnorm_chr20_1")
 }
 \value{
 A data frame
@@ -31,6 +31,6 @@ A Modified sparse upper triangular matrix containing the interacting regions cor
  and the corresponding Interaction Frequency (IF).
 }
 \examples{
-data(ODC.bandnorm_chr20_1)
+data("ODC.bandnorm_chr20_1")
 }
 \keyword{datasets}

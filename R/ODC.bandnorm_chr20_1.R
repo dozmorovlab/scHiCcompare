@@ -20,5 +20,6 @@
 #'     \url{https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE130711}
 #'
 #' @return A data frame
-#' @examples data(ODC.bandnorm_chr20_1)
-"data(ODC.bandnorm_chr20_1)"
+#' @usage data("ODC.bandnorm_chr20_1")
+#' @examples data("ODC.bandnorm_chr20_1")
+"ODC.bandnorm_chr20_1"
