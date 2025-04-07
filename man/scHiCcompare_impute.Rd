@@ -9,7 +9,7 @@ scHiCcompare_impute(
   n.imputation = 5,
   maxit = 1,
   outlier.rm = TRUE,
-  main.Distances = seq(10000000),
+  main.Distances = seq(1e+07),
   pool.style = "progressive",
   missPerc.threshold = 95
 )
