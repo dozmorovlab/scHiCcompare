@@ -20,6 +20,10 @@ knitr::opts_chunk$set(
 # library(BiocStyle)
 ```
 
+Nguyen, M., Wall, B. P. G., Harrell, J. C., & Dozmorov, M. G. (2024). 
+scHiCcompare: an R package for differential analysis of single-cell Hi-C data. 
+bioRxiv. doi: https://doi.org/10.1101/2024.11.06.622369
+
 # Introduction
 
 `scHiCcompare` is designed for the imputation, joint normalization, and detection of differential chromatin interactions between two groups of chromosome-specific single-cell Hi-C datasets (scHi-C). The groups can be pre-defined based on biological conditions or created by clustering cells according to their chromatin interaction patterns. Clustering can be performed using methods like [Higashi](https://github.com/ma-compbio/Higashi), [scHiCcluster](https://github.com/zhoujt1994/scHiCluster) methods, etc. 
