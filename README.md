@@ -1,11 +1,16 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+# scHiCcompare - Differential analysis of single-cell Hi-C data
+
+[![Lifecycle:
+maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+
 Nguyen, M., Wall, B. P. G., Harrell, J. C., & Dozmorov, M. G. (2024).
 scHiCcompare: an R package for differential analysis of single-cell Hi-C
 data. bioRxiv. doi: <https://doi.org/10.1101/2024.11.06.622369>
 
-# Introduction
+## Introduction
 
 [`scHiCcompare`](https://github.com/dozmorovlab/scHiCcompare) is
 designed for the imputation, joint normalization, and detection of
@@ -28,7 +33,7 @@ The package provides two key functionalities:
 - Differential analysis to identify differences in chromatin
   interactions between groups.
 
-# Installation
+## Installation
 
 ``` r
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -50,9 +55,9 @@ library(lattice)
 library(data.table)
 ```
 
-# Usage
+## Usage
 
-## Input
+### Input
 
 To use scHiCcompare, you’ll need to define two groups of cells to
 compare and save cell-specific scHi-C data (individual files in **.txt**
@@ -88,7 +93,7 @@ scHiC ‘.txt’ files. The condition-specific groups of cells should be
 pre-defined based on criteria such as experimental conditions,
 clustering results, or biological characteristics.
 
-### Prepare input folders
+#### Prepare input folders
 
 Here is an example workflow using scHiC human brain datasets (Lee et
 al., 2019) with ODC and MG cell types at chromosome 20 with a 1MB
@@ -119,7 +124,7 @@ step for data modification. If, after importing your data into R, its
 format does not follow the sparse upper triangular [input](#input)
 format requirement, you need to modify the data.
 
-## scHiCcompare function
+### scHiCcompare function
 
 The function requires two *Input Parameter*:
 
@@ -231,7 +236,7 @@ scHiCcompare(file.path.1, file.path.2,
   output of MD plot showing before/after LOESS `normalization`. Default
   is FALSE.
 
-### Example of real analysis
+#### Example of real analysis
 
 In the following example, we will work with scHi-C data from 10 single
 cells in both ODC and MG cell types at a 1 MG resolution. We will focus
@@ -271,7 +276,7 @@ of the two cell types. At a 1MB resolution, the differential analysis
 reveals that most of the detected differences occur at closer genomic
 distances, particularly below 5MB.
 
-## Output
+### Output
 
 #### Output objects from the R function
 
@@ -349,7 +354,7 @@ The imputed cell’s scHiC data is saved in a folder for each group, which
 has a modified sparse upper triangular format of five columns \[chr1,
 start1, chr2, start2, IF\].
 
-### Example of output
+#### Example of output
 
 Below is a continuous example from [Example of real
 anlysis](#example-of-real-anlysis) above, showing how you can extract
@@ -473,11 +478,11 @@ Furthermore, you also have some parameter options in the function to
 indicate which plots to output and an option to save the results in a
 given directory.
 
-# Helper functions
+## Helper functions
 
 There are several other functions included in `scHiCcompare` package.
 
-## Heatmap HiC matrix plot
+### Heatmap HiC matrix plot
 
 `plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and
 scHiC matrices. It requires, as input, a modified sparse matrix, the
@@ -493,7 +498,7 @@ plot_HiCmatrix_heatmap(scHiC.sparse = ODC.bandnorm_chr20_1, main = "scHiC matrix
 
 <img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
-## Imputation Diagnostic plot
+### Imputation Diagnostic plot
 
 `plot_imputed_distance_diagnostic()` generates a diagnostic
 visualization of imputation across genomic distances for all single
@@ -636,7 +641,7 @@ D2). Increasing the number of single cells per group enhances imputation
 accuracy across distances. We recommend using a minimum of 80 single
 cells per group for optimal imputation performance.
 
-# Session Info
+## Session Info
 
     #> R version 4.5.0 beta (2025-03-29 r88076)
     #> Platform: x86_64-apple-darwin20

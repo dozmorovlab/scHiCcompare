@@ -20,13 +20,17 @@ knitr::opts_chunk$set(
 # library(BiocStyle)
 ```
 
+# scHiCcompare - Differential analysis of single-cell Hi-C data
+
+ [![Lifecycle: maturing](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing)
+
 Nguyen, M., Wall, B. P. G., Harrell, J. C., & Dozmorov, M. G. (2024). 
 scHiCcompare: an R package for differential analysis of single-cell Hi-C data. 
 bioRxiv. doi: https://doi.org/10.1101/2024.11.06.622369
 
-# Introduction
+## Introduction
 
-`scHiCcompare` is designed for the imputation, joint normalization, and detection of differential chromatin interactions between two groups of chromosome-specific single-cell Hi-C datasets (scHi-C). The groups can be pre-defined based on biological conditions or created by clustering cells according to their chromatin interaction patterns. Clustering can be performed using methods like [Higashi](https://github.com/ma-compbio/Higashi), [scHiCcluster](https://github.com/zhoujt1994/scHiCluster) methods, etc. 
+[`scHiCcompare`](https://github.com/dozmorovlab/scHiCcompare) is designed for the imputation, joint normalization, and detection of differential chromatin interactions between two groups of chromosome-specific single-cell Hi-C datasets (scHi-C). The groups can be pre-defined based on biological conditions or created by clustering cells according to their chromatin interaction patterns. Clustering can be performed using methods like [Higashi](https://github.com/ma-compbio/Higashi), [scHiCcluster](https://github.com/zhoujt1994/scHiCluster) methods, etc. 
 
 `scHiCcompare` works with processed Hi-C data, specifically chromosome-specific chromatin interaction matrices, and accepts five-column tab-separated text files in a sparse matrix format. 
 
@@ -35,7 +39,7 @@ The package provides two key functionalities:
 - Imputation of single-cell Hi-C data by random forest model with pooling technique
 - Differential analysis to identify differences in chromatin interactions between groups.
 
-# Installation
+## Installation
 
 ```{r, message=FALSE, warning=FALSE, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -61,9 +65,9 @@ library(lattice)
 library(data.table)
 ```
 
-# Usage
+## Usage
 
-## Input 
+### Input 
 
 To use scHiCcompare, you'll need to define two groups of cells to compare and save cell-specific scHi-C data (individual files in **.txt** format) in two folders.
 
@@ -90,7 +94,7 @@ head(ODC.bandnorm_chr20_1)
 To run `scHiCcompare()`, you need two folders with condition-specific scHiC '.txt' files. The condition-specific groups of cells should be pre-defined based on criteria such as experimental conditions, clustering results, or biological characteristics. 
 
 
-### Prepare input folders
+#### Prepare input folders
 
 Here is an example workflow using scHiC human brain datasets (Lee et al., 2019) with ODC and MG cell types at chromosome 20 with a 1MB resolution.
 
@@ -110,7 +114,7 @@ MGs_example_path <- system.file("extdata/MGs_example",
 
 Since the data downloaded by `Bandnorm` has the required input format (5 columns of [chr1, start1, chr2, start2, IF]), we don't need an extra step for data modification. If, after importing your data into R, its format does not follow the sparse upper triangular [input](#input) format requirement, you need to modify the data.
 
-## scHiCcompare function
+### scHiCcompare function
 
 The function requires two *Input Parameter*: 
 
@@ -174,7 +178,7 @@ scHiCcompare(file.path.1, file.path.2,
 - `Plot.normalize` - A logical value indicating whether to plot the output of MD plot showing before/after LOESS `normalization`. Default is FALSE.
 
 
-### Example of real analysis
+#### Example of real analysis
 
 In the following example, we will work with scHi-C data from 10 single cells in both ODC and MG cell types at a 1 MG resolution. We will focus on chromosome 20, applying the full workflow of scHiCcompare, which includes imputation, pseudo-bulk normalization, and differential analysis. Our goal is to detect differences for loci with genomic distances ranging from 1 to 10,000,000 bp. The progressive pooling style will be selected to create pool bands for the random forest imputation. For the differential analysis step, we will set the log fold change - false positive control threshold to 0.8.
 
@@ -202,7 +206,7 @@ result <- scHiCcompare(
 From the visualizations above, normalization effectively reduces the irregular trend in the M values between the imputed pseudo-bulk matrices of the two cell types. At a 1MB resolution, the differential analysis reveals that most of the detected differences occur at closer genomic distances, particularly below 5MB.
 
 
-## Output
+### Output
 
 #### Output objects from the R function
 
@@ -250,7 +254,7 @@ The differential result table `Differential_analysis_table.txt` also has the sam
 The imputed cell's scHiC data is saved in a folder for each group, which has a modified sparse upper triangular format of five columns [chr1, start1, chr2, start2, IF].
 
 
-### Example of output
+#### Example of output
 
 Below is a continuous example from [Example of real anlysis](#example-of-real-anlysis) above, showing how you can extract different result options from the `scHiCcompare()` function.
 
@@ -285,11 +289,11 @@ Furthermore, you also have some parameter options in the function to indicate wh
 
 
 
-# Helper functions
+## Helper functions
 
 There are several other functions included in `scHiCcompare` package. 
 
-## Heatmap HiC matrix plot
+### Heatmap HiC matrix plot
 `plot_HiCmatrix_heatmap()` produces a heatmap visualization for HiC and scHiC matrices. It requires, as input, a modified sparse matrix, the same format from `scHiCcompare()` [Input](#input) with five columns of chr1, start1, chr2 start2, IF. More information can be found in its help document and the example below.
 
 ```{r}
@@ -299,7 +303,7 @@ plot_HiCmatrix_heatmap(scHiC.sparse = ODC.bandnorm_chr20_1, main = "scHiC matrix
 
 
 
-## Imputation Diagnostic plot
+### Imputation Diagnostic plot
 `plot_imputed_distance_diagnostic()` generates a diagnostic visualization of imputation across genomic distances for all single cells. It compares the distribution of all cells' interaction frequency at a given distance data before and after imputation. It requires, as input, the scHiC table format of the original and imputed scHiC datasets. ScHiC table format includes columns of genomic loci coordinates and interaction frequencies (IF) of each cell (cell, chromosome, start1, end1, IF1, IF2, IF3, etc). 
 
 The output of `$Intermediate$Imputation` of `scHiCcompare()` function is directly compatible with this format. For more details, see the sections on [Output](#output))
@@ -382,7 +386,7 @@ grid.arrange(plot1, plot2, plot3, plot4, ncol = 2, nrow = 2)
 
 The diagnostic visualizations demonstrate that with a sample of only 10 single cells per group (note: this small sample size is for demonstration purposes only), the imputed values for MG closely match the original distribution only at shorter genomic distances (e.g., D1, D2). Increasing the number of single cells per group enhances imputation accuracy across distances. We recommend using a minimum of 80 single cells per group for optimal imputation performance.
 
-# Session Info
+## Session Info
 
 ```{r, echo=FALSE}
 sessionInfo()
